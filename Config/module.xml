@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="http://thelia.net/schema/dic/module"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/module http://thelia.net/schema/dic/module/module-2_2.xsd">
+    <fullnamespace>Page\Page</fullnamespace>
+    <descriptive locale="en_US">
+        <title>Page system for Thelia</title>
+        <!--
+        <subtitle></subtitle>
+        <description></description>
+        <postscriptum></postscriptum>
+        -->
+    </descriptive>
+    <descriptive locale="fr_FR">
+        <title>Système de gestion de page</title>
+    </descriptive>
+    <!-- <logo></logo> -->
+    <!--<images-folder>images</images-folder>-->
+    <languages>
+        <language>en_US</language>
+        <language>fr_FR</language>
+    </languages>
+    <version>0.0.1</version>
+    <authors>
+        <author>
+            <name>Damien Foulhoux</name>
+            <email>dfoulhoux@openstudio.Fr</email>
+        </author>
+    </authors>
+    <type>classic</type>
+
+    <required>
+        <module version="~2.0.0">TheliaBlocks</module>
+    </required>
+
+    <thelia>2.5.0</thelia>
+    <stability>other</stability>
+    <mandatory>0</mandatory>
+    <hidden>0</hidden>
+</module>

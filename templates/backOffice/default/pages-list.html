@@ -1,0 +1,95 @@
+{extends file="admin-layout.tpl"}
+
+{block name="no-return-functions"}
+    {$admin_current_location = 'Page'}
+{/block}
+
+{block name="page-title"}{intl l='Pages List'}{/block}
+
+{block name="check-access"}view{/block}
+
+{block name="main-content"}
+    <div class="pagesList">
+        <div id="wrapper" class="container">
+            {include file="includes/breadcrumb.html"}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="general-block-decorator">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-condensed" id="pagesListing">
+                                <caption>
+                                    {include file='renderer/buttons.html' btn_group=false buttons=[
+                                    [
+                                    'type' => 'info',
+                                    'class' => 'action-btn',
+                                    'title' => {intl l='Manage page type'},
+                                    'href' => {url path="admin/page-type"}
+                                    ]
+                                    ]}
+                                    {include file='renderer/buttons.html' btn_group=false buttons=[
+                                    [
+                                    'type' => 'create',
+                                    'class' => 'action-btn',
+                                    'title' => {intl l='Add a new page'},
+                                    'href' => {url path="admin/page/new"}
+                                    ]
+                                    ]}
+                                </caption>
+                                <thead>
+                                <tr>
+                                    <th>{intl l="Id"}</th>
+                                    <th>{intl l="Title"}</th>
+                                    <th>{intl l="Thelia block"}</th>
+                                    <th>{intl l="Slug"}</th>
+                                    <th>{intl l="Visible"}</th>
+                                    <th class="actions">{intl l="Actions"}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {loop type="page_loop" name="pages-listing"}
+                                {$link = {url path="/admin/page/edit/%id" id=$ID}}
+                                    <tr>
+                                        <td>
+                                            <a href="{$link}">
+                                                {$ID}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{$link}">
+                                                {$PAGE_TITLE}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{$link}">
+                                                {$PAGE_BLOCK_GROUP_TITLE}
+                                            </a>
+                                        </td>
+                                        <td>{$PAGE_SLUG}</td>
+                                        <td>{$PAGE_VISIBLE}</td>
+                                        <td class="actions">
+                                            {include file='renderer/buttons.html' buttons=[
+
+                                            [
+                                            'type' => 'edit',
+                                            'title' => {intl l='Edit this folder'},
+                                            'href' => $link
+                                            ],
+                                            [
+                                            'type' => 'delete',
+                                            'class' => 'folder-delete',
+                                            'title' => {intl l='Delete this page'},
+                                            'href' => {url path="/admin/page/delete/%id" id=$ID}
+                                            ]
+                                            ]}
+                                        </td>
+                                    </tr>
+                                {/loop}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{/block}

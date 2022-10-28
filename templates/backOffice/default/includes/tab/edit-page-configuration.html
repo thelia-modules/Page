@@ -1,0 +1,49 @@
+<div class="general-block-decorator">
+    <h2 class="title">{intl l="Parameters"}</h2>
+    <div class="form-container">
+        {form name="page_form_edit_page_form"}
+            <form method="POST" action="{url path="/admin/page/update/{$page_id}" edit_language_id=$edit_language_id}" {form_enctype}>
+                {include
+                    file = "includes/inner-form-toolbar.html"
+                    hide_submit_buttons = false
+                    current_tab = "general"
+                    page_url  = {url path="/admin/page/edit/%id" id=$page_id}
+                    close_url = {url path="/admin/page"}
+                }
+
+                {form_hidden_fields}
+
+                <input type="hidden" name="current_tab" value="block"/>
+
+                {render_form_field field="success_url" value={url path="/admin/page/edit/{$page_id}"}}
+                {render_form_field field="error_url" value={url path="/admin/page/edit/{$page_id}"}}
+
+                <div class="row">
+                    <div class="col-md-8">
+                        {render_form_field field="title" value=$page_title}
+                    </div>
+                    <div class="col-md-4">
+                        {render_form_field field="type"}
+                    </div>
+                    <div class="col-md-12">
+                        {render_form_field field="chapo" extra_class="wysiwyg" value=$page_chapo}
+                    </div>
+                    <div class="col-md-12">
+                        {render_form_field field="description" extra_class="wysiwyg" value=$page_description}
+                    </div>
+                    <div class="col-md-12">
+                        {render_form_field field="postscriptum" extra_class="wysiwyg" value=$page_postscriptum}
+                    </div>
+                </div>
+
+                {include
+                    file = "includes/inner-form-toolbar.html"
+                    page_bottom = true
+                    hide_flags = true
+                    page_url  = {url path="/admin/page/edit/{$page_id}"}
+                    close_url = {url path='/admin/page'}
+                }
+            </form>
+        {/form}
+    </div>
+</div>

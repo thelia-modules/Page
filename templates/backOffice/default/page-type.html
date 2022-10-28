@@ -1,0 +1,53 @@
+{extends file="admin-layout.tpl"}
+
+{block name="no-return-functions"}
+    {$admin_current_location = 'Page'}
+{/block}
+
+{block name="page-title"}{intl l='Page type'}{/block}
+
+{block name="check-access"}view{/block}
+
+{block name="main-content"}
+    <div class="general-block-decorator">
+        <div class="title title-without-tabs">{intl l="Page types configurations" d="page.bo.default"}</div>
+
+        <div class="form-container">
+            <div class="row">
+                {form name="page_form_page_type_form"}
+                    <form method="POST" action="{url path='/admin/page-type/create'}" {form_enctype}>
+                        {form_hidden_fields}
+                        {render_form_field field="success_url" value={url path='/admin/page-type'}}
+                        {render_form_field field="error_url" value={url path='/admin/page-type'}}
+                        <div class="col-md-4">
+                            <legend>Add Type</legend>
+                            {render_form_field field="type"}
+                            <button type="submit">{intl l="Créer"}</button>
+                        </div>
+                    </form>
+                {/form}
+                <div class="col-md-8">
+                    <table class="table table-striped table-condensed">
+                        <caption>{intl l="List of page types" d="page.bo.default"}</caption>
+                        <thead>
+                            <tr>
+                                <th>{intl l="Id" d="page.bo.default"}</th>
+                                <th>{intl l="Type" d="page.bo.default"}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loop type="page_type_loop" name="pages-type-listing"}
+                                <tr>
+                                    <td>
+                                        {$ID}
+                                    </td>
+                                    <td>{$TYPE}</td>
+                                </tr>
+                            {/loop}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{/block}

@@ -1,0 +1,34 @@
+{extends file="layout.tpl"}
+
+{block name='init'}
+    {assign var="page_id" value={page attr="id"}}
+{/block}
+
+{* Body Class *}
+{block name="body-class"}{strip}
+    page
+{/strip}{/block}
+
+{* Page Title *}
+{block name='no-return-functions' append}
+{/block}
+
+{* Meta *}
+{block name="meta"}
+{/block}
+
+{* Breadcrumb *}
+{block name='no-return-functions' append}
+{/block}
+
+{block name="main-content"}
+    {loop type="better_seo_loop" name="yyy" object_id=$page_id object_type="page" lang_id={lang attr="id"}}
+    {$H1}
+    {/loop}
+
+    {loop type="page_loop" name="pages-template" id=$page_id}
+        {loop type="block_group" name="page.article" id=$PAGE_BLOCK_GROUP_ID}
+            {$RENDER nofilter}
+        {/loop}
+    {/loop}
+{/block}

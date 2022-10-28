@@ -1,0 +1,49 @@
+<div class="general-block-decorator">
+    <h2 class="title">{intl l="Parameters"}</h2>
+    <div class="form-container">
+        {form name="page_form_edit_page_seo_form"}
+            <form method="POST" action="{url path="/admin/page/update/{$page_id}/seo" edit_language_id=$edit_language_id}" {form_enctype}>
+                {form_hidden_fields}
+
+                {include
+                    file = "includes/inner-form-toolbar.html"
+                    hide_submit_buttons = false
+                    current_tab = "seo"
+                    page_url  = {url path="/admin/page/edit/%id" id=$page_id}
+                    close_url = {url path="/admin/page"}
+                }
+
+                {render_form_field field="success_url" value={url path="/admin/page/edit/{$page_id}"}}
+                {render_form_field field="error_url" value={url path="/admin/page/edit/{$page_id}"}}
+
+                <div class="row">
+                    <div class="col-md-8">
+                        {render_form_field field="slug" value=$page_slug}
+                    </div>
+                    <div class="col-md-12">
+                        {render_form_field field="title" value=$page_title}
+                    </div>
+                    <div class="col-md-12">
+                        {render_form_field field="meta_title" value=$page_meta_title}
+                    </div>
+                    <div class="col-md-12">
+                        {render_form_field field="meta_description" value=$page_meta_description}
+                    </div>
+                    <div class="col-md-12">
+                        {render_form_field field="meta_keyword" value=$page_meta_keywords}
+                    </div>
+                </div>
+
+                {include
+                    file = "includes/inner-form-toolbar.html"
+                    page_bottom = true
+                    hide_flags = true
+                    page_url  = {url path="/admin/page/edit/{$page_id}"}
+                    close_url = {url path='/admin/page'}
+                }
+            </form>
+        {/form}
+    </div>
+
+    {hook name="tab-seo.bottom" id=$page_id type='page'}
+</div>
