@@ -6,7 +6,9 @@ use Propel\Runtime\Connection\ConnectionInterface;
 use SplFileInfo;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Finder\Finder;
+use Thelia\Core\Template\TemplateDefinition;
 use Thelia\Install\Database;
+use Thelia\Model\ConfigQuery;
 use Thelia\Module\BaseModule;
 
 class Page extends BaseModule
@@ -14,8 +16,37 @@ class Page extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'page';
 
+    public function getHooks()
+    {
+        return [
+            [
+                'type' => TemplateDefinition::BACK_OFFICE,
+                'code' => 'page.tab-content',
+                'title' => 'Hook page tab content',
+                'description' => 'Hook page tab content',
+                'active' => true,
+            ],
+        ];
+    }
+
     public function postActivation(ConnectionInterface $con = null): void
     {
+        if (!$this->getConfigValue('extension_black_listed', null)) {
+            $this->setConfigValue('extension_black_listed',
+                implode(',',
+                    [
+                        'php',
+                        'php3',
+                        'php4',
+                        'php5',
+                        'php6',
+                        'asp',
+                        'aspx'
+                    ]
+                )
+            );
+        }
+
         if (!$this->getConfigValue('is_initialized', false)) {
             $database = new Database($con);
 
@@ -25,6 +56,17 @@ class Page extends BaseModule
         }
     }
 
+    /**
+     * @return string
+     */
+    public static function getDocumentsUploadDir(): string
+    {
+        if (!$uploadDir = ConfigQuery::read('documents_library_path')) {
+            $uploadDir = THELIA_LOCAL_DIR . 'media' . DS . 'documents';
+        }
+
+        return THELIA_ROOT . $uploadDir . DS . self::DOMAIN_NAME;
+    }
 
     /**
      * Defines how services are loaded in your modules

@@ -1,0 +1,36 @@
+{default_translation_domain domain='page.bo.default'}
+
+<div class="document-manager" >
+    <div class="form-container">
+        <form action="{url path="/admin/page/document/upload/%page_id" page_id=$page_id}" method="post" class="dropzone" id="documents-dropzone" enctype="multipart/form-data">
+            {include
+                file = "includes/inner-form-toolbar.html"
+                hide_submit_buttons = true
+                hide_save_and_close_button = true
+                current_tab = "documents"
+                page_url  = {url path="/admin/page/edit/%id" id=$page_id}
+                close_url = {url path="/admin/page"}
+            }
+
+            <div class="fallback">
+                <input name="file" type="file" />
+                <button type="submit" class="btn btn-info btn-upload"><span class="glyphicon glyphicon-send"></span> {intl l="Send files"}</button>
+            </div>
+
+            <div class="btn-browse hide">
+                {intl l="Drop files to upload"}
+                <span>Or</span>
+                <button type="button" class="btn btn-info btn-upload"><span class="glyphicon glyphicon-upload"></span> {intl l="Browse files"}</button>
+            </div>
+        </form>
+    </div>
+    <div class="existing-document">
+        {include file='includes/page-document-list.html' page_id=$page_id}
+    </div>
+</div>
+
+<script>
+    var documentDropZoneUrl = "{url path="/admin/page/document/upload/%page_id" page_id=$page_id}";
+    var documentListErrorMessage = "{intl l='Can\'t load documents, please refresh this page.'}";
+    var documentListUrl = "{url path="/admin/page/document/list/%page_id" page_id=$page_id}";
+</script>

@@ -21,6 +21,7 @@ use Thelia\Model\LangQuery;
  * Class PageController
  *
  * @author Damien Foulhoux <dfoulhoux@openstudio.fr>
+ * @author Bertrand Tourlonias <btourlonias@openstudio.fr>
  */
 
 /**
@@ -42,44 +43,6 @@ class PageController extends BaseAdminController
     public function newPageViewAction()
     {
         return $this->render('new-page');
-    }
-
-    /**
-     * @Route("/edit/{pageId}", name="_edit_page", methods="GET")
-     *
-     * @param Session $session
-     * @param PageService $pageService
-     * @param $pageId
-     * @return string|RedirectResponse|\Symfony\Component\HttpFoundation\Response|\Thelia\Core\HttpFoundation\Response
-     */
-    public function editPageViewAction(Request $request, Session $session, PageService $pageService, $pageId)
-    {
-        try {
-            $locale = $session->getAdminEditionLang()->getLocale();
-
-            if ($editlanguageId = $request->get('edit_language_id')) {
-                $lang = LangQuery::create()->findPk($editlanguageId);
-                $locale = ($lang) ? $lang->getLocale() : $locale;
-            }
-
-            $page = $pageService->getPageData($pageId);
-            $page->setLocale($locale);
-
-        } catch (\Exception $e) {
-            return $this->generateRedirect('/admin/page?error=' . $e->getMessage());
-        }
-
-        return $this->render('edit-page', [
-            "page_id" => $pageId,
-            "page_slug" => $page->getSlug(),
-            "page_title" => $page->getTitle(),
-            "page_description" => $page->getDescription(),
-            "page_chapo" => $page->getChapo(),
-            "page_postscriptum" => $page->getPostscriptum(),
-            "page_meta_title" => $page->getMetaTitle(),
-            "page_meta_description" => $page->getMetaDescription(),
-            "page_meta_keywords" => $page->getMetaKeywords()
-        ]);
     }
 
     /**
@@ -120,6 +83,44 @@ class PageController extends BaseAdminController
             ->setGeneralError($error_message);
 
         return $this->generateErrorRedirect($form);
+    }
+
+    /**
+     * @Route("/edit/{pageId}", name="_edit_page", methods="GET")
+     *
+     * @param Session $session
+     * @param PageService $pageService
+     * @param $pageId
+     * @return string|RedirectResponse|\Symfony\Component\HttpFoundation\Response|\Thelia\Core\HttpFoundation\Response
+     */
+    public function editPageViewAction(Request $request, Session $session, PageService $pageService, $pageId)
+    {
+        try {
+            $locale = $session->getAdminEditionLang()->getLocale();
+
+            if ($editlanguageId = $request->get('edit_language_id')) {
+                $lang = LangQuery::create()->findPk($editlanguageId);
+                $locale = ($lang) ? $lang->getLocale() : $locale;
+            }
+
+            $page = $pageService->getPageData($pageId);
+            $page->setLocale($locale);
+
+        } catch (\Exception $e) {
+            return $this->generateRedirect('/admin/page?error=' . $e->getMessage());
+        }
+
+        return $this->render('edit-page', [
+            "page_id" => $pageId,
+            "page_slug" => $page->getSlug(),
+            "page_title" => $page->getTitle(),
+            "page_description" => $page->getDescription(),
+            "page_chapo" => $page->getChapo(),
+            "page_postscriptum" => $page->getPostscriptum(),
+            "page_meta_title" => $page->getMetaTitle(),
+            "page_meta_description" => $page->getMetaDescription(),
+            "page_meta_keywords" => $page->getMetaKeywords()
+        ]);
     }
 
     /**

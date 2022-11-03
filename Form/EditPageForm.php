@@ -84,7 +84,7 @@ class EditPageForm extends PageForm
      */
     protected function getTheliaBlocs(): array
     {
-        $locale = $this->getRequest()->getSession()?->getLang()->getLocale();
+        $locale = $this->getRequest()->getSession()->getAdminEditionLang()->getLocale();
         $choices = [];
 
         //TODO: gestion des placeorlder est cassée

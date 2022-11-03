@@ -47,8 +47,8 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
             $loopResultRow
                 ->set('ID', $page->getId())
-                ->set('PAGE_TITLE', $page->getTitle())
-                ->set('PAGE_SLUG', $page->getSlug())
+                ->set('PAGE_TYPE', $page->getPageType())
+                ->set('PAGE_SLUG', $page->getVirtualColumn('i18n_SLUG'))
                 ->set('PAGE_VISIBLE', $page->getVisible())
                 ->set('PAGE_BLOCK_GROUP_ID', $page->getVirtualColumn('block_groupid'))
                 ->set('PAGE_TITLE', $page->getVirtualColumn('i18n_TITLE'))
@@ -74,6 +74,8 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         $slug = $this->getSlug();
         $visible = $this->getVisible();
 
+
+
         $search = PageQuery::create();
 
         $this->configureI18nProcessing($search, ['SLUG','TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS']);
@@ -83,7 +85,10 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         }
 
         if (null !== $slug) {
-            $search->filterBySlug($slug, Criteria::IN);
+            $search
+            ->usePageI18nQuery()
+                ->filterBySlug($slug, Criteria::IN)
+            ->endUse();
         }
 
         if ($visible !== BooleanOrBothType::ANY) {

@@ -3,6 +3,8 @@
 namespace Page\Model;
 
 use Page\Model\Base\PageDocument as BasePageDocument;
+use Propel\Runtime\Connection\ConnectionInterface;
+use Thelia\Model\Tools\PositionManagementTrait;
 
 /**
  * Skeleton subclass for representing a row from the 'page_document' table.
@@ -15,5 +17,39 @@ use Page\Model\Base\PageDocument as BasePageDocument;
  */
 class PageDocument extends BasePageDocument
 {
+    use PositionManagementTrait;
 
+    /**
+     * Calculate next position relative to our product.
+     */
+    protected function addCriteriaToPositionQuery($query): void
+    {
+        /* @var $query PageDocumentQuery */
+        $query->filterByPageId($this->getPageId());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function preInsert(ConnectionInterface $con = null)
+    {
+        $this->setPosition($this->getNextPosition());
+
+        parent::preInsert($con);
+
+        return true;
+    }
+
+    public function preDelete(ConnectionInterface $con = null)
+    {
+        parent::preDelete($con);
+
+        $this->reorderBeforeDelete(
+            [
+                'id' => $this->getId(),
+            ]
+        );
+
+        return true;
+    }
 }

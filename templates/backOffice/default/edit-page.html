@@ -44,13 +44,13 @@
 
                     <div class="tab-pane fade" id="documents">
                         <div class="general-block-decorator">
-                            {include file='includes/document-upload-form.html' documentType='page' parentId=$page_id resource="admin.brand"}
+                            {include file='includes/tab/page-document-upload-list-ajax.html' page_id=$page_id}
                         </div>
                     </div>
 
                     <div class="tab-pane fade" id="module">
                         <div class="general-block-decorator">
-                            plop
+                            {include file="includes/module-tab-content.html" hook="page.tab-content" id="{$page_id}" view="page"}
                         </div>
                     </div>
                 </div>
@@ -59,23 +59,21 @@
     </div>
 {/block}
 {block name="javascript-initialization"}
-
+    {javascripts file='assets/js/jquery-ui-1.10.3.custom.min.js'}
+        <script src="{$asset_url}"></script>
+    {/javascripts}
     {javascripts file='assets/js/dropzone.js'}
         <script src="{$asset_url}"></script>
     {/javascripts}
     {javascripts file='assets/js/document-upload.js'}
         <script src="{$asset_url}"></script>
     {/javascripts}
-    {javascripts file='assets/js/jquery-ui-1.10.3.custom.min.js'}
-        <script src="{$asset_url}"></script>
-    {/javascripts}
     {javascripts file='assets/js/image-picker/image-picker.min.js'}
         <script src="{$asset_url}"></script>
     {/javascripts}
 
-    <script>
+    <script type="text/javascript">
         $(function() {
-            // Atomatic ajax tab load, if data-href is defined.
             $('.nav-tabs a[data-href]').on('shown.bs.tab', function (ev) {
                 var $this = $(this);
                 $($this.attr('href')).load($this.data('href'), function (ev) {
@@ -85,10 +83,12 @@
                 });
             });
 
+            $.documentUploadManager.initDocumentDropZone();
+
             {if !empty($current_tab)}
                 $('.nav-tabs a[href="#{$current_tab}"]').trigger("click");
             {/if}
-        };
+        });
     </script>
 {/block}
 
