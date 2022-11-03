@@ -13,6 +13,8 @@
                     close_url = {url path="/admin/page"}
                 }
 
+                {if $form_error|default:null}<div class="alert alert-danger">{$form_error_message}</div>{/if}
+
                 {render_form_field field="success_url" value={url path="/admin/page/edit/{$page_id}"}}
                 {render_form_field field="error_url" value={url path="/admin/page/edit/{$page_id}"}}
 

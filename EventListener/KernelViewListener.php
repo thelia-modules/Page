@@ -18,8 +18,8 @@ class KernelViewListener implements EventSubscriberInterface
     public function __construct(
         protected RequestStack            $requestStack,
         protected SmartyParser            $parser,
-        protected TemplateHelperInterface $templateHelper)
-    {
+        protected TemplateHelperInterface $templateHelper
+    ) {
     }
 
     /**
@@ -37,9 +37,13 @@ class KernelViewListener implements EventSubscriberInterface
         $view = $request->attributes->get('_view');
         $viewId = $request->attributes->get($view . '_id');
 
+        
+
         if ($view !== 'page' || !$viewId) {
             return;
         }
+
+
 
         $page = PageQuery::create()
             ->filterById($viewId)

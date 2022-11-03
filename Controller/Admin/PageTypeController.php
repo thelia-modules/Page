@@ -14,6 +14,7 @@ use Thelia\Form\Exception\FormValidationException;
  * Class PageController
  *
  * @author Damien Foulhoux <dfoulhoux@openstudio.fr>
+ * @author Bertrand Tourlonias <btourlonias@openstudio.fr>
  */
 
 /**
@@ -102,12 +103,9 @@ class PageTypeController extends BaseAdminController
      */
     public function deletePagesTypeAction(PageTypeProvider $pageTypeProvider, $pagesTypeId)
     {
-        $error_message = null;
-
         try {
-            $pageTypeProvider->deletePageType(
-                $pagesTypeId
-            );
+            $pageTypeProvider->deletePageType($pagesTypeId);
+
         } catch (\Exception $e) {
             $error_message = $e->getMessage();
             return $this->generateRedirect('admin/page?error=' . $error_message);
