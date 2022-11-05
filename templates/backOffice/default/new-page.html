@@ -24,15 +24,24 @@
                                         {render_form_field field="success_url" value={url path='/admin/page'}}
                                         {render_form_field field="error_url" value={url path='/admin/page/new'}}
 
+                                        {include
+                                            file = "includes/inner-form-toolbar.html"
+                                            hide_submit_buttons = true
+                                            hide_save_and_close_button = true
+                                            page_url  = {url path="/admin/page/new"}
+                                            close_url = {url path="/admin/page"}
+                                        }
+
                                         {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
 
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-12">
                                                 {render_form_field field="title"}
-                                                {render_form_field field="slug"}
                                             </div>
                                             <div class="col-md-6">
                                                 {render_form_field field="type"}
+                                            </div>
+                                            <div class="col-md-6">
                                                 {render_form_field field="thelia-block"}
                                             </div>
                                             <div class="col-md-12">
@@ -41,11 +50,11 @@
                                         </div>
 
                                         {include
-                                        file = "includes/inner-form-toolbar.html"
-                                        page_bottom = true
-                                        hide_flags = true
-                                        page_url  = "{url path='/admin/page/new'}"
-                                        close_url = "{url path='/admin/page'}"
+                                            file = "includes/inner-form-toolbar.html"
+                                            page_bottom = true
+                                            hide_flags = true
+                                            page_url  = {url path='/admin/page/new'}
+                                            close_url = {url path='/admin/page'}
                                         }
                                     </form>
                                 {/form}

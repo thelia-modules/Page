@@ -31,16 +31,6 @@ class PageForm extends BaseForm
                 ]
             )
             ->add(
-                'slug',
-                TextType::class,
-                [
-                    'label' => $this->translator->trans('Rewriting URL', [], 'page.bo.default'),
-                    'constraints' => [
-                        new NotBlank(),
-                    ]
-                ]
-            )
-            ->add(
                 'description',
                 TextareaType::class,
                 [

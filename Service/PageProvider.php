@@ -2,11 +2,11 @@
 
 namespace Page\Service;
 
+use Exception;
 use Page\Model\Page;
 use Page\Model\PageQuery;
 use Propel\Runtime\Exception\PropelException;
-use Thelia\Model\RewritingUrl;
-use Thelia\Model\RewritingUrlQuery;
+use Thelia\Exception\UrlRewritingException;
 use TheliaBlocks\Model\BlockGroup;
 use TheliaBlocks\Model\ItemBlockGroup;
 
@@ -14,15 +14,15 @@ class PageProvider
 {
     /**
      * @param string $title
-     * @param string $slug
      * @param int|null $typeId
      * @param int|null $blockGroupId
+     * @param string|null $description
+     * @param string $locale
      * @return void
      * @throws PropelException
      */
     public function createPage(
         string $title,
-        string $slug,
         int    $typeId = null,
         int    $blockGroupId = null,
         string $description = null,
@@ -34,7 +34,7 @@ class PageProvider
             $newBlockGroup
                 ->setLocale($locale)
                 ->setTitle($title)
-                ->setSlug($slug)
+                ->setSlug($title)
                 ->save();
 
             $blockGroupId = $newBlockGroup->getId();
@@ -44,7 +44,6 @@ class PageProvider
 
         $page
             ->setLocale($locale)
-            ->setSlug($slug)
             ->setTitle($title)
             ->setDescription($description)
             ->setBlockGroupId($blockGroupId)
@@ -52,8 +51,12 @@ class PageProvider
             ->setVisible(true)
             ->save();
 
-        $computedUrl = $this->handleRewritingUrl($page, $slug, $locale);
-        $page->setLocale($locale)->setSlug($computedUrl)->save();
+        //$computedUrl = $this->handleRewritingUrl($page, $slug, $locale);
+        $computedUrl = $page->getRewrittenUrl($locale);
+
+        $page->setLocale($locale)
+            ->setSlug($computedUrl)
+            ->save();
 
         (new ItemBlockGroup())
             ->setBlockGroupId($blockGroupId)
@@ -63,23 +66,20 @@ class PageProvider
     }
 
     /**
+     * @param int $pageId
      * @param string $title
-     * @param string $slug
      * @param int|null $typeId
-     * @param int|null $blockGroupId
      * @param string|null $description
      * @param string|null $chapo
      * @param string|null $postscriptum
-     * @param string|null $meta_title
-     * @param string|null $meta_keyword
-     * @param string|null $meta_description
      * @param string $locale
      * @return void
+     * @throws PropelException
+     * @throws Exception
      */
     public function updatePage(
         int    $pageId,
         string $title,
-        string $slug,
         int    $typeId = null,
         string $description = null,
         string $chapo = null,
@@ -89,14 +89,13 @@ class PageProvider
         $page = PageQuery::create()->findPk($pageId);
 
         if (!$page) {
-            throw new \Exception('Page not Found');
+            throw new Exception('Page not Found');
         }
 
         $page->setLocale($locale);
         $page
             ->setTitle($title)
             ->setDescription($description)
-            ->setSlug($slug)
             ->setTypeId($typeId)
             ->setChapo($chapo)
             ->setPostscriptum($postscriptum)
@@ -112,7 +111,8 @@ class PageProvider
      * @param string|null $meta_keyword
      * @param string $locale
      * @return void
-     * @throws PropelException
+     * @throws PropelException|UrlRewritingException
+     * @throws Exception
      */
     public function updateSeoPage(
         int    $pageId,
@@ -126,15 +126,15 @@ class PageProvider
         $page = PageQuery::create()->findPk($pageId);
 
         if (!$page) {
-            throw new \Exception('Page not Found');
+            throw new Exception('Page not Found');
         }
 
-        $computedUrl = $this->handleRewritingUrl($page, $slug, $locale);
+        $page->setRewrittenUrl($locale, $slug);
 
-        $page->setLocale($locale);
         $page
+            ->setLocale($locale)
             ->setTitle($title)
-            ->setSlug($computedUrl)
+            ->setSlug($page->getRewrittenUrl($locale))
             ->setMetaTitle($meta_title)
             ->setMetaDescription($meta_description)
             ->setMetaKeywords($meta_keyword)
@@ -149,6 +149,7 @@ class PageProvider
      * @param string $locale
      * @return void
      * @throws PropelException
+     * @throws Exception
      */
     public function updateSeo(
         int    $pageId,
@@ -160,7 +161,7 @@ class PageProvider
         $page = PageQuery::create()->findPk($pageId);
 
         if (!$page) {
-            throw new \Exception('Page not Found');
+            throw new Exception('Page not Found');
         }
 
         $page
@@ -169,41 +170,5 @@ class PageProvider
             ->setMetaDescription($metaDescription)
             ->setMetaKeywords($metaKeyWord)
             ->save();
-    }
-
-    /**
-     * @param Page $page
-     * @param $slug
-     */
-    public function handleRewritingUrl(Page $page, $slug, $locale = 'en_US', $redirectUrl = null): string|null
-    {
-        $redirect = null;
-
-        if ($redirectUrl) {
-            $redirect = RewritingUrlQuery::create()
-                ->filterByUrl($redirectUrl)
-                ->findOne();
-
-            if ($redirect?->getUrl() === $slug) {
-                return $slug;
-            }
-        }
-
-        $rule = new RewritingUrl();
-
-        $rule
-            ->setViewLocale($locale)
-            ->setViewId($page->getId())
-            ->setView('page')
-            ->setUrl($slug)
-            ->save();
-
-        if ($redirectUrl && $redirect) {
-            $redirect
-                ->setRedirected($rule->getId())
-                ->save();
-        }
-
-        return $rule->getUrl();
     }
 }

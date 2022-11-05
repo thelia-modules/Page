@@ -37,13 +37,9 @@ class KernelViewListener implements EventSubscriberInterface
         $view = $request->attributes->get('_view');
         $viewId = $request->attributes->get($view . '_id');
 
-        
-
         if ($view !== 'page' || !$viewId) {
             return;
         }
-
-
 
         $page = PageQuery::create()
             ->filterById($viewId)

@@ -31,7 +31,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             new Argument(
                 'order',
                 new TypeCollection(
-                    new EnumListType(['alpha', 'alpha-reverse', 'id'])
+                    new EnumListType(['alpha', 'alpha-reverse', 'id', 'position', 'position-reverse'])
                 ),
                 'id'
             ),
@@ -50,6 +50,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->set('PAGE_TYPE', $page->getPageType())
                 ->set('PAGE_SLUG', $page->getVirtualColumn('i18n_SLUG'))
                 ->set('PAGE_VISIBLE', $page->getVisible())
+                ->set('PAGE_POSITION', $page->getPosition())
                 ->set('PAGE_BLOCK_GROUP_ID', $page->getVirtualColumn('block_groupid'))
                 ->set('PAGE_TITLE', $page->getVirtualColumn('i18n_TITLE'))
                 ->set('PAGE_CHAPO', $page->getVirtualColumn('i18n_CHAPO'))
@@ -58,8 +59,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->set('PAGE_META_TITLE', $page->getVirtualColumn('i18n_META_TITLE'))
                 ->set('PAGE_META_DESCRIPTION', $page->getVirtualColumn('i18n_META_DESCRIPTION'))
                 ->set('PAGE_META_KEYWORDS', $page->getVirtualColumn('i18n_META_KEYWORDS'))
-                ->set('PAGE_BLOCK_GROUP_TITLE', $page->getVirtualColumn('block_group_i18ntitle'))
-            ;
+                ->set('PAGE_BLOCK_GROUP_TITLE', $page->getVirtualColumn('block_group_i18ntitle'));
 
             $loopResult->addRow($loopResultRow);
         }
@@ -75,10 +75,9 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         $visible = $this->getVisible();
 
 
-
         $search = PageQuery::create();
 
-        $this->configureI18nProcessing($search, ['SLUG','TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS']);
+        $this->configureI18nProcessing($search, ['SLUG', 'TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS']);
 
         if (null !== $id) {
             $search->filterById($id, Criteria::IN);
@@ -86,9 +85,9 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
         if (null !== $slug) {
             $search
-            ->usePageI18nQuery()
+                ->usePageI18nQuery()
                 ->filterBySlug($slug, Criteria::IN)
-            ->endUse();
+                ->endUse();
         }
 
         if ($visible !== BooleanOrBothType::ANY) {
@@ -97,10 +96,10 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
         $search
             ->useBlockGroupQuery()
-                ->withColumn(BlockGroupTableMap::COL_ID)
-                ->useBlockGroupI18nQuery()
-                    ->withColumn(BlockGroupI18nTableMap::COL_TITLE)
-                ->endUse()
+            ->withColumn(BlockGroupTableMap::COL_ID)
+            ->useBlockGroupI18nQuery()
+            ->withColumn(BlockGroupI18nTableMap::COL_TITLE)
+            ->endUse()
             ->endUse();
 
         $orders = $this->getOrder();
@@ -121,6 +120,12 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                     break;
                 case 'alpha-reverse':
                     $search->addDescendingOrderByColumn('i18n_TITLE');
+                    break;
+                case 'position':
+                    $search->orderByPosition();
+                    break;
+                case 'position-reverse':
+                    $search->orderByPosition(Criteria::DESC);
                     break;
             }
         }

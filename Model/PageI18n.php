@@ -3,6 +3,7 @@
 namespace Page\Model;
 
 use Page\Model\Base\PageI18n as BasePageI18n;
+use Propel\Runtime\Connection\ConnectionInterface;
 
 /**
  * Skeleton subclass for representing a row from the 'page_i18n' table.
@@ -15,5 +16,14 @@ use Page\Model\Base\PageI18n as BasePageI18n;
  */
 class PageI18n extends BasePageI18n
 {
+    /**
+     * @throws \Propel\Runtime\Exception\PropelException
+     */
+    public function postInsert(ConnectionInterface $con = null): void
+    {
+        parent::postInsert($con);
 
+        $page= $this->getPage();
+        $page->generateRewrittenUrl($this->getLocale(), $con);
+    }
 }
