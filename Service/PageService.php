@@ -74,4 +74,27 @@ class PageService
 
         return $pageDocument;
     }
+
+    /**
+     * @param string $mode
+     * @param int $pageId
+     * @param int|null $position
+     * @return void
+     */
+    public function changePosition(string $mode, int $pageId, int $position = null): void
+    {
+        if (null !== $page = PageQuery::create()->findPk($pageId)) {
+            switch ($mode) {
+                case 'down':
+                    $page->movePositionDown();
+                    break;
+                case 'up':
+                    $page->movePositionUp();
+                    break;
+                default:
+                    $page->changeAbsolutePosition($position);
+                    break;
+            }
+        }
+    }
 }

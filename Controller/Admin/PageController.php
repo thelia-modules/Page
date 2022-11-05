@@ -2,11 +2,13 @@
 
 namespace Page\Controller\Admin;
 
+use Exception;
 use Page\Form\EditPageForm;
 use Page\Form\EditPageSeoForm;
 use Page\Service\PageProvider;
 use Page\Service\PageService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Thelia\Controller\Admin\BaseAdminController;
 use Page\Form\PageForm;
@@ -16,6 +18,7 @@ use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Core\Template\ParserContext;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Model\LangQuery;
+use Thelia\Tools\URL;
 
 /**
  * Class PageController
@@ -48,10 +51,10 @@ class PageController extends BaseAdminController
     /**
      * @Route("/create", name="_create_page_action", methods="POST")
      *
+     * @param Session $session
      * @param PageProvider $pageProvider
      * @param ParserContext $parserContext
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
-     *
+     * @return RedirectResponse|Response|null
      */
     public function createPageAction(Session $session, PageProvider $pageProvider, ParserContext $parserContext)
     {
@@ -63,7 +66,6 @@ class PageController extends BaseAdminController
 
             $pageProvider->createPage(
                 $formData['title'],
-                $formData['slug'],
                 $formData['type'],
                 $formData['thelia-block'],
                 $formData['description'],
@@ -73,7 +75,7 @@ class PageController extends BaseAdminController
             return $this->generateSuccessRedirect($form);
         } catch (FormValidationException $e) {
             $error_message = $this->createStandardFormValidationErrorMessage($e);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error_message = $e->getMessage();
         }
 
@@ -88,10 +90,11 @@ class PageController extends BaseAdminController
     /**
      * @Route("/edit/{pageId}", name="_edit_page", methods="GET")
      *
+     * @param Request $request
      * @param Session $session
      * @param PageService $pageService
      * @param $pageId
-     * @return string|RedirectResponse|\Symfony\Component\HttpFoundation\Response|\Thelia\Core\HttpFoundation\Response
+     * @return string|RedirectResponse|Response|\Thelia\Core\HttpFoundation\Response
      */
     public function editPageViewAction(Request $request, Session $session, PageService $pageService, $pageId)
     {
@@ -106,7 +109,7 @@ class PageController extends BaseAdminController
             $page = $pageService->getPageData($pageId);
             $page->setLocale($locale);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->generateRedirect('/admin/page?error=' . $e->getMessage());
         }
 
@@ -143,7 +146,6 @@ class PageController extends BaseAdminController
             $pageProvider->updatePage(
                 $pageId,
                 $formData['title'],
-                $formData['slug'],
                 $formData['type'],
                 $formData['description'],
                 $formData['chapo'],
@@ -154,7 +156,7 @@ class PageController extends BaseAdminController
             return $this->generateSuccessRedirect($form);
         } catch (FormValidationException $e) {
             $error_message = $this->createStandardFormValidationErrorMessage($e);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error_message = $e->getMessage();
         }
 
@@ -196,7 +198,7 @@ class PageController extends BaseAdminController
             return $this->generateSuccessRedirect($form);
         } catch (FormValidationException $e) {
             $error_message = $this->createStandardFormValidationErrorMessage($e);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error_message = $e->getMessage();
         }
 
@@ -209,9 +211,76 @@ class PageController extends BaseAdminController
     }
 
     /**
+     * @Route("/update-position", name="_update_page_position_action", methods="GET")
+     */
+    public function updatePagePosition(
+        Request     $request,
+        PageService $pageService
+    )
+    {
+        try {
+            $mode = $request->get('mode');
+            $pageId = $request->get('page_id');
+
+            if (!$mode || !$pageId) {
+                throw new Exception('Page or positon not set');
+            }
+
+            $position = $request->get('position');
+
+            $pageService->changePosition($mode, $pageId, $position);
+
+        } catch (Exception $ex) {
+            return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/page',
+                [
+                    "error" => $ex->getMessage()
+                ]
+            ));
+        }
+
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/page'));
+    }
+
+    /**
+     * @Route("/set-visible", name="_toggle_page_visibility_action", methods="GET")
+     */
+    public function togglePageVisibility(
+        Request     $request
+    )
+    {
+        try {
+            $pageId = $request->get('page_id');
+            $visible = $request->get('visible');
+
+            if (!$pageId) {
+                throw new Exception("Page not found");
+            }
+
+            $page = PageQuery::create()
+                ->filterById($pageId)
+                ->findOne();
+
+            if (!$page) {
+                throw new Exception("Page not found");
+            }
+
+            $page->setVisible($visible)->save();
+
+        } catch (Exception $ex) {
+            return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/page',
+                [
+                    "error" => $ex->getMessage()
+                ]
+            ));
+        }
+
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/page'));
+    }
+
+    /**
      * @Route("/delete/{pageId}", name="_delete_page_action", methods="GET")
      * @param $pageId
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      */
     public function deletePageAction($pageId)
     {
@@ -221,12 +290,12 @@ class PageController extends BaseAdminController
                 ->findOne();
 
             if (!$page) {
-                throw new \Exception("Page not found");
+                throw new Exception("Page not found");
             }
 
             $page->delete();
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error_message = $e->getMessage();
             return $this->generateRedirect('/admin/page?error=' . $error_message);
         }
