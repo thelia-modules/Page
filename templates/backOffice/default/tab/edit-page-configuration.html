@@ -25,7 +25,17 @@
                         {render_form_field field="title" value=$page_title}
                     </div>
                     <div class="col-md-4">
-                        {render_form_field field="type"}
+                        {form_field field="type"}
+                            <div class="form-group {if $error}has-error{/if}">
+                                <label class="control-label" for="{$name}">{$label}</label>
+                                <select class="form-control" name="{$name}" id="{$name}">
+                                    <option value="">{intl l="Aucun type"}</option>
+                                    {loop type="page_type_loop" name="pages-type-listing"}
+                                        <option value="{$ID}" {if $ID == $page_type_id}selected="selected"{/if}>{$TYPE}</option>
+                                    {/loop}
+                                </select>
+                            </div>
+                        {/form_field}
                     </div>
                     <div class="col-md-12">
                         {render_form_field field="chapo" extra_class="wysiwyg" value=$page_chapo}
