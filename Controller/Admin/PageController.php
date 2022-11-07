@@ -117,6 +117,7 @@ class PageController extends BaseAdminController
             "page_id" => $pageId,
             "page_slug" => $page->getSlug(),
             "page_title" => $page->getTitle(),
+            "page_type_id" => $page->getTypeId(),
             "page_description" => $page->getDescription(),
             "page_chapo" => $page->getChapo(),
             "page_postscriptum" => $page->getPostscriptum(),

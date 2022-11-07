@@ -10,8 +10,9 @@
 {block name="check-access"}view{/block}
 
 {block name="main-content"}
+<div class="pagesList">
     <div id="wrapper" class="container">
-        {include file="includes/breadcrumb.html" new=true}
+        {include file="includes/breadcrumb.html"}
         <div class="row">
             <div class="col-md-12">
                 <ul class="nav nav-tabs" id="tabbed-menu">
@@ -37,17 +38,14 @@
                     <div class="tab-pane fade" id="general">
                         {include file="tab/edit-page-configuration.html" page_id=$page_id}
                     </div>
-
                     <div class="tab-pane fade" id="seo">
                         {include file="tab/seo-page-configuration.html" page_id=$page_id}
                     </div>
-
                     <div class="tab-pane fade" id="documents">
                         <div class="general-block-decorator">
                             {include file='tab/page-document-upload-list-ajax.html' page_id=$page_id}
                         </div>
                     </div>
-
                     <div class="tab-pane fade" id="module">
                         <div class="general-block-decorator">
                             {include file="includes/module-tab-content.html" hook="page.tab-content" id="{$page_id}" view="page"}
@@ -57,6 +55,7 @@
             </div>
         </div>
     </div>
+</div>
 {/block}
 {block name="javascript-initialization"}
     {javascripts file='assets/js/jquery-ui-1.10.3.custom.min.js'}
