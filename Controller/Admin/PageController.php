@@ -123,7 +123,8 @@ class PageController extends BaseAdminController
             "page_postscriptum" => $page->getPostscriptum(),
             "page_meta_title" => $page->getMetaTitle(),
             "page_meta_description" => $page->getMetaDescription(),
-            "page_meta_keywords" => $page->getMetaKeywords()
+            "page_meta_keywords" => $page->getMetaKeywords(),
+            'current_tab' => $request->get('current_tab')
         ]);
     }
 

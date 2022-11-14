@@ -34,7 +34,7 @@ class EditPageForm extends PageForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Description', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Description détaillée', [], 'page.bo.default')
                 ]
             )
             ->add(
@@ -42,7 +42,7 @@ class EditPageForm extends PageForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Chapo', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Summary', [], 'page.bo.default')
                 ]
             )
             ->add(
@@ -50,7 +50,7 @@ class EditPageForm extends PageForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Postscriptum', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Conclusion', [], 'page.bo.default')
                 ]
             )
             ->add(

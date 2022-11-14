@@ -1,15 +1,20 @@
 <?php
 
-/*
- * This file is part of the Thelia package.
- * http://www.thelia.net
- *
- * (c) OpenStudio <info@thelia.net>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
-return [
-    // 'an english string' => 'La traduction française de la chaine',
-];
+return array(
+    'Choose a block' => 'Choisissez un bloc',
+    'Choose a page type' => 'Choisissez un type de page',
+    'Conclusion' => 'Conclusion',
+    'Description' => 'Description',
+    'File is too large, please retry with a file having a size less than %size%.' => 'Fichier trop gros. Merci d\'envouer des fichier de moins de  %size%.',
+    'Files with the following extension are not allowed: %extension, please do an archive of the file if you want to upload it' => 'Extension de fichier non autorisée. Utilisez une archove (zip, tar, ...) pour envoyer ce fichier.',
+    'Meta description' => 'Meta description',
+    'Meta keywords' => 'Meta mots-clefs',
+    'Meta title' => 'Meta titre',
+    'Page not found' => 'Page non trouvée.',
+    'Page title' => 'Titre',
+    'Page type' => 'Type de page',
+    'Rewriting URL' => 'URL ré-écrite',
+    'Summary' => 'Résumé',
+    'Thelia block' => 'Thelia block',
+    'Type' => 'Type',
+);

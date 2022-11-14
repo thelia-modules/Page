@@ -1,6 +1,9 @@
 {* Breadcrumb for pages browsing and editing *}
 
 <ul class="breadcrumb">
-	<li><a href="{url path='admin/home'}">{intl l="Home"}</a></li>
-	<li><a href="{url path='admin/page'}">{intl l="Page"}</a></li>
+	<li><a href="{url path='admin/home'}">{intl l="Home" d='page.bo.default'}</a></li>
+	<li><a href="{url path='admin/page'}">{intl l="Pages" d='page.bo.default'}</a></li>
+	{if $current|default:false}
+		<li>{$current}</li>
+	{/if}
 </ul>

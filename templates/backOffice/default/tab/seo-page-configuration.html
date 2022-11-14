@@ -11,12 +11,13 @@
                     current_tab = "seo"
                     page_url  = {url path="/admin/page/edit/%id" id=$page_id}
                     close_url = {url path="/admin/page"}
+                    current_tab = 'seo'
                 }
 
                 {if $form_error|default:null}<div class="alert alert-danger">{$form_error_message}</div>{/if}
 
-                {render_form_field field="success_url" value={url path="/admin/page/edit/{$page_id}"}}
-                {render_form_field field="error_url" value={url path="/admin/page/edit/{$page_id}"}}
+                {render_form_field field="success_url" value={url path="/admin/page/edit/{$page_id}" current_tab='seo'}}
+                {render_form_field field="error_url" value={url path="/admin/page/edit/{$page_id}" current_tab='seo'}}
 
                 <div class="row">
                     <div class="col-md-8">
@@ -42,6 +43,7 @@
                     hide_flags = true
                     page_url  = {url path="/admin/page/edit/{$page_id}"}
                     close_url = {url path='/admin/page'}
+                    current_tab = 'seo'
                 }
             </form>
         {/form}

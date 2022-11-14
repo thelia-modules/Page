@@ -12,7 +12,7 @@
 {block name="main-content"}
 <div class="pagesList">
     <div id="wrapper" class="container">
-        {include file="includes/breadcrumb.html"}
+        {include file="includes/breadcrumb.html" current={intl l='Modifying %title' title=$page_title d='page.fo.default'}}
         <div class="row">
             <div class="col-md-12">
                 <ul class="nav nav-tabs" id="tabbed-menu">
@@ -27,11 +27,7 @@
                     <div class="tab-pane active in fade" id="block">
                         <div class="general-block-decorator">
                             <div class="form-container">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        {hook name="thelia.blocks.item.configuration" itemType="page" itemId=$page_id}
-                                    </div>
-                                </div>
+                                {hook name="thelia.blocks.item.configuration" itemType="page" itemId=$page_id}
                             </div>
                         </div>
                     </div>
