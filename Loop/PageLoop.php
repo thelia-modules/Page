@@ -27,6 +27,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         return new ArgumentCollection(
             Argument::createIntTypeArgument('id'),
             Argument::createAlphaNumStringListTypeArgument('slug'),
+            Argument::createAlphaNumStringListTypeArgument('exclude_slug'),
             Argument::createBooleanOrBothTypeArgument('visible', 1),
             new Argument(
                 'order',
@@ -76,7 +77,6 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         $slug = $this->getSlug();
         $visible = $this->getVisible();
 
-
         $search = PageQuery::create();
 
         $this->configureI18nProcessing($search, ['SLUG', 'TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS']);
@@ -92,19 +92,17 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->endUse();
         }
 
+        if (null !== $slugs = $this->getExcludeSlug()) {
+            $search
+                ->usePageI18nQuery()
+                ->filterBySlug($slugs, Criteria::NOT_IN)
+                ->endUse();
+        }
+
         if ($visible !== BooleanOrBothType::ANY) {
             $search->filterByVisible($visible ? 1 : 0);
         }
-/*
-        $search
-            ->useBlockGroupQuery()
-                ->withColumn(BlockGroupTableMap::COL_ID)
-                ->useBlockGroupI18nQuery()
-                    ->withColumn(BlockGroupI18nTableMap::COL_TITLE)
-                    ->filterByLocale($this->getCurrentRequest()->getSession()->getLang()->getLocale())
-                ->endUse()
-            ->endUse();
-*/
+
         $orders = $this->getOrder();
 
         foreach ($orders as $order) {
