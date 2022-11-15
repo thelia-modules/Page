@@ -34,7 +34,7 @@ class EditPageForm extends PageForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Description détaillée', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Description', [], 'page.bo.default')
                 ]
             )
             ->add(

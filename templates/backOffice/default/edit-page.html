@@ -5,27 +5,28 @@
     {$admin_current_location = 'Page'}
 {/block}
 
-{block name="page-title"}{intl l='Edit page'}{/block}
+{block name="page-title"}{intl l='Edit page' d='page.bo.default'}{/block}
 
 {block name="check-access"}view{/block}
 
 {block name="main-content"}
 <div class="pagesList">
     <div id="wrapper" class="container">
-        {include file="includes/breadcrumb.html" current={intl l='Modifying %title' title=$page_title d='page.fo.default'}}
+        {$noTitle = {intl l='No title' d='page.bo.default'}}
+        {include file="includes/breadcrumb.html" current={intl l='Modifying "%title"' title=$page_title|default:$noTitle d='page.bo.default'}}
         <div class="row">
             <div class="col-md-12">
                 <ul class="nav nav-tabs" id="tabbed-menu">
-                    <li class="active"><a href="#block" data-toggle="tab">{intl l="Block"}</a></li>
-                    <li><a href="#general"  data-toggle="tab">{intl l="Configuration"}</a></li>
-                    <li><a href="#seo" data-toggle="tab">{intl l="SEO"}</a></li>
-                    <li><a href="#documents" data-toggle="tab">{intl l="Documents"}</a></li>
-                    <li><a href="#module" data-toggle="tab">{intl l="Module"}</a></li>
+                    <li class="active"><a href="#block" data-toggle="tab">{intl l="Block" d='page.bo.default'}</a></li>
+                    <li><a href="#general"  data-toggle="tab">{intl l="Configuration" d='page.bo.default'}</a></li>
+                    <li><a href="#seo" data-toggle="tab">{intl l="SEO" d='page.bo.default'}</a></li>
+                    <li><a href="#documents" data-toggle="tab">{intl l="Documents" d='page.bo.default'}</a></li>
+                    <li><a href="#module" data-toggle="tab">{intl l="Module" d='page.bo.default'}</a></li>
                 </ul>
 
                 <div class="tab-content">
                     <div class="tab-pane active in fade" id="block">
-                        <div class="general-block-decorator">
+                        <div class="general-block-decorator" style="padding:0;border: 1px solid rgb(34,34,34)">
                             <div class="form-container">
                                 {hook name="thelia.blocks.item.configuration" itemType="page" itemId=$page_id}
                             </div>

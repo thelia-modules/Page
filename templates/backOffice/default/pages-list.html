@@ -4,7 +4,7 @@
     {$admin_current_location = 'Page'}
 {/block}
 
-{block name="page-title"}{intl l='Pages List'}{/block}
+{block name="page-title"}{intl l='Pages List' d='page.bo.default'}{/block}
 
 {block name="check-access"}view{/block}
 
@@ -23,7 +23,7 @@
                                     [
                                     'type' => 'info',
                                     'class' => 'action-btn',
-                                    'title' => {intl l='Manage page type'},
+                                    'title' => {intl l='Manage page type' d='page.bo.default'},
                                     'href' => {url path="admin/page-type"}
                                     ]
                                     ]}
@@ -31,20 +31,20 @@
                                     [
                                     'type' => 'create',
                                     'class' => 'action-btn',
-                                    'title' => {intl l='Add a new page'},
+                                    'title' => {intl l='Add a new page' d='page.bo.default'},
                                     'href' => {url path="admin/page/new"}
                                     ]
                                     ]}
                                 </caption>
                                 <thead>
                                 <tr>
-                                    <th>{intl l="Id"}</th>
-                                    <th>{intl l="Title"}</th>
-                                    <th>{intl l="Thelia block"}</th>
-                                    <th>{intl l="Slug"}</th>
-                                    <th>{intl l="Visible"}</th>
-                                    <th>{intl l="Position"}</th>
-                                    <th class="actions">{intl l="Actions"}</th>
+                                    <th>{intl l="Id" d='page.bo.default'}</th>
+                                    <th>{intl l="Title" d='page.bo.default'}</th>
+                                    <th>{intl l="Thelia block" d='page.bo.default'}</th>
+                                    <th>{intl l="Slug" d='page.bo.default'}</th>
+                                    <th>{intl l="Visible" d='page.bo.default'}</th>
+                                    <th>{intl l="Position" d='page.bo.default'}</th>
+                                    <th class="actions">{intl l="Actions" d='page.bo.default'}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -88,13 +88,13 @@
 
                                             [
                                             'type' => 'edit',
-                                            'title' => {intl l='Edit this folder'},
+                                            'title' => {intl l='Edit this page' d='page.bo.default'},
                                             'href' => $link
                                             ],
                                             [
                                             'type' => 'delete',
                                             'class' => 'folder-delete',
-                                            'title' => {intl l='Delete this page'},
+                                            'title' => {intl l='Delete this page' d='page.bo.default'},
                                             'href' => {url path="/admin/page/delete/%id" id=$ID}
                                             ]
                                             ]}

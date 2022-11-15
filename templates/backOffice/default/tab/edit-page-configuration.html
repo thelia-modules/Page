@@ -1,5 +1,4 @@
 <div class="general-block-decorator">
-    <h2 class="title">{intl l="Parameters"}</h2>
     <div class="form-container">
         {form name="page_form_edit_page_form"}
             <form method="POST" action="{url path="/admin/page/update/{$page_id}" edit_language_id=$edit_language_id}" {form_enctype}>
@@ -30,7 +29,7 @@
                             <div class="form-group {if $error}has-error{/if}">
                                 <label class="control-label" for="{$name}">{$label}</label>
                                 <select class="form-control" name="{$name}" id="{$name}">
-                                    <option value="">{intl l="Aucun type"}</option>
+                                    <option value="">{intl l="No type" d='page.bo.default'}</option>
                                     {loop type="page_type_loop" name="pages-type-listing"}
                                         <option value="{$ID}" {if $ID == $page_type_id}selected="selected"{/if}>{$TYPE}</option>
                                     {/loop}

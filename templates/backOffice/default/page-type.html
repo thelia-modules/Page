@@ -4,7 +4,7 @@
     {$admin_current_location = 'Page'}
 {/block}
 
-{block name="page-title"}{intl l='Page type'}{/block}
+{block name="page-title"}{intl l='Page type' d='page.bo.default'}{/block}
 
 {block name="check-access"}view{/block}
 
@@ -22,7 +22,7 @@
                         <div class="col-md-4">
                             <legend>Add Type</legend>
                             {render_form_field field="type"}
-                            <button type="submit">{intl l="Créer"}</button>
+                            <button type="submit">{intl l="Create" d='page.bo.default'}</button>
                         </div>
                     </form>
                 {/form}
