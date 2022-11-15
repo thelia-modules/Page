@@ -34,7 +34,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 new TypeCollection(
                     new EnumListType(['alpha', 'alpha-reverse', 'id', 'position', 'position-reverse'])
                 ),
-                'id'
+                'position'
             ),
         );
     }
