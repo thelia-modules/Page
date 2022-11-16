@@ -67,6 +67,7 @@ class EditPageForm extends PageForm
                 TextType::class,
                 [
                     'label' => $this->translator->trans('Page tag', [], 'page.bo.default'),
+                    'required' => false,
                     'attr' => [
                         'placeholder' => $this->translator->trans('This page tag', [], 'page.bo.default')
                     ]

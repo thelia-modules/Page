@@ -55,6 +55,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->set('ID', $page->getId())
                 ->set('PAGE_TYPE', $page->getPageType())
                 ->set('PAGE_SLUG', $page->getVirtualColumn('i18n_SLUG'))
+                ->set('PAGE_TAG', $page->getTag())
                 ->set('PAGE_VISIBLE', $page->getVisible())
                 ->set('PAGE_POSITION', $page->getPosition())
                 ->set('PAGE_BLOCK_GROUP_ID', $blockGroup->getId())
