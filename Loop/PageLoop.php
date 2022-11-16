@@ -25,7 +25,8 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
     protected function getArgDefinitions()
     {
         return new ArgumentCollection(
-            Argument::createIntTypeArgument('id'),
+            Argument::createIntListTypeArgument('id'),
+            Argument::createIntListTypeArgument('exclude_id'),
             Argument::createAlphaNumStringListTypeArgument('slug'),
             Argument::createAlphaNumStringListTypeArgument('exclude_slug'),
             Argument::createBooleanOrBothTypeArgument('visible', 1),
@@ -73,8 +74,6 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
     public function buildModelCriteria()
     {
-        $id = $this->getId();
-        $slug = $this->getSlug();
         $visible = $this->getVisible();
 
         $search = PageQuery::create();
@@ -83,11 +82,15 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
         $this->configureI18nProcessing($search, ['SLUG', 'TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS']);
 
-        if (null !== $id) {
+        if (null !== $id = $this->getId()) {
             $search->filterById($id, Criteria::IN);
         }
 
-        if (null !== $slug) {
+        if (null !== $excludeId = $this->getExludeId()) {
+            $search->filterById($excludeId, Criteria::NOT_IN);
+        }
+
+        if (null !== $slug = $this->getSlug()) {
             $search
                 ->usePageI18nQuery()
                     ->filterByLocale($currentLocale)
