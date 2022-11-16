@@ -50,7 +50,7 @@
                                 </thead>
                                 <tbody>
                                 {loop type="page_loop" name="pages-listing" visible='*' order="position"}
-                                {$link = {url path="/admin/page/edit/%id" id=$ID}}
+                                {$link = {url path="/admin/page/edit/%id" id=$ID current_tab='general'}}
                                     <tr>
                                         <td>
                                             <a href="{$link}">
@@ -63,7 +63,7 @@
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="{$link}">
+                                            <a href="{url path="/admin/page/edit/%id" id=$ID current_tab='block'}">
                                                 {$PAGE_BLOCK_GROUP_TITLE}
                                             </a>
                                         </td>
