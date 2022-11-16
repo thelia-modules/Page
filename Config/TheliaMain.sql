@@ -16,6 +16,7 @@ CREATE TABLE `page`
     `block_group_id` INTEGER,
     `type_id` INTEGER,
     `position` INTEGER,
+    `tag` VARCHAR(255),
     `created_at` DATETIME,
     `updated_at` DATETIME,
     PRIMARY KEY (`id`),

@@ -68,6 +68,7 @@ class PageProvider
     /**
      * @param int $pageId
      * @param string $title
+     * @param string $tag
      * @param int|null $typeId
      * @param string|null $description
      * @param string|null $chapo
@@ -80,6 +81,7 @@ class PageProvider
     public function updatePage(
         int    $pageId,
         string $title,
+        string $tag,
         int    $typeId = null,
         string $description = null,
         string $chapo = null,
@@ -95,6 +97,7 @@ class PageProvider
         $page->setLocale($locale);
         $page
             ->setTitle($title)
+            ->setTag($tag)
             ->setDescription($description)
             ->setTypeId($typeId)
             ->setChapo($chapo)

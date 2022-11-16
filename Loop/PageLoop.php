@@ -29,6 +29,8 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             Argument::createIntListTypeArgument('exclude_id'),
             Argument::createAlphaNumStringListTypeArgument('slug'),
             Argument::createAlphaNumStringListTypeArgument('exclude_slug'),
+            Argument::createAlphaNumStringListTypeArgument('tag'),
+            Argument::createAlphaNumStringListTypeArgument('exclude_tag'),
             Argument::createBooleanOrBothTypeArgument('visible', 1),
             new Argument(
                 'order',
@@ -86,7 +88,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             $search->filterById($id, Criteria::IN);
         }
 
-        if (null !== $excludeId = $this->getExludeId()) {
+        if (null !== $excludeId = $this->getExcludeId()) {
             $search->filterById($excludeId, Criteria::NOT_IN);
         }
 
@@ -104,6 +106,14 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                     ->filterByLocale($currentLocale)
                     ->filterBySlug($slugs, Criteria::NOT_IN)
                 ->endUse();
+        }
+
+        if (null !== $tag = $this->getTag()) {
+            $search->filterByTag($tag);
+        }
+
+        if (null !== $exludeTag = $this->getExcludeTag()) {
+            $search->filterByTag($tag, Criteria::NOT_IN);
         }
 
         if ($visible !== BooleanOrBothType::ANY) {

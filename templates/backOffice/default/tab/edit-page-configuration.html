@@ -24,7 +24,7 @@
                     <div class="col-md-8">
                         {render_form_field field="title" value=$page_title}
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         {form_field field="type"}
                             <div class="form-group {if $error}has-error{/if}">
                                 <label class="control-label" for="{$name}">{$label}</label>
@@ -37,6 +37,10 @@
                             </div>
                         {/form_field}
                     </div>
+                    <div class="col-md-2">
+                        {render_form_field field="tag" value=$page_tag}
+                    </div>
+
                     <div class="col-md-12">
                         {render_form_field field="chapo" extra_class="wysiwyg" value=$page_chapo}
                     </div>

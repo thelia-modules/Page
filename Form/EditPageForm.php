@@ -62,7 +62,17 @@ class EditPageForm extends PageForm
                     'label' => $this->translator->trans('Page type', [], 'page.bo.default'),
                     'placeholder' => $this->translator->trans('Choose a page type', [], 'page.bo.default')
                 ]
-            );
+            )->add(
+                'tag',
+                TextType::class,
+                [
+                    'label' => $this->translator->trans('Page tag', [], 'page.bo.default'),
+                    'attr' => [
+                        'placeholder' => $this->translator->trans('This page tag', [], 'page.bo.default')
+                    ]
+                ]
+            )
+        ;
 
         $this->formBuilder->remove("thelia-block");
 

@@ -1,0 +1,5 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+ALTER TABLE `page` ADD `tag` varchar(64) NULL AFTER `type_id`;
+
+SET FOREIGN_KEY_CHECKS = 1;
