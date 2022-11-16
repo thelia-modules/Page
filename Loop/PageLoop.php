@@ -79,6 +79,8 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
         $search = PageQuery::create();
 
+        $currentLocale = $this->getCurrentRequest()->getSession()->getLang()->getLocale();
+
         $this->configureI18nProcessing($search, ['SLUG', 'TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS']);
 
         if (null !== $id) {
@@ -88,14 +90,16 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         if (null !== $slug) {
             $search
                 ->usePageI18nQuery()
-                ->filterBySlug($slug, Criteria::IN)
+                    ->filterByLocale($currentLocale)
+                    ->filterBySlug($slug, Criteria::IN)
                 ->endUse();
         }
 
         if (null !== $slugs = $this->getExcludeSlug()) {
             $search
                 ->usePageI18nQuery()
-                ->filterBySlug($slugs, Criteria::NOT_IN)
+                    ->filterByLocale($currentLocale)
+                    ->filterBySlug($slugs, Criteria::NOT_IN)
                 ->endUse();
         }
 
