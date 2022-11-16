@@ -114,7 +114,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         }
 
         if (null !== $exludeTag = $this->getExcludeTag()) {
-            $search->filterByTag($tag, Criteria::NOT_IN);
+            $search->filterByTag($exludeTag, Criteria::NOT_IN);
         }
 
         if ($visible !== BooleanOrBothType::ANY) {
