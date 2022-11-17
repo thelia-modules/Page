@@ -11,10 +11,12 @@ return array(
     'Meta keywords' => 'Meta mots-clefs',
     'Meta title' => 'Meta titre',
     'Page not found' => 'Page non trouvée.',
+    'Page tag' => 'Étiquette de la page',
     'Page title' => 'Titre',
     'Page type' => 'Type de page',
     'Rewriting URL' => 'URL ré-écrite',
     'Summary' => 'Résumé',
     'Thelia block' => 'Thelia block',
+    'This page tag' => 'L\'étiquette de cette page',
     'Type' => 'Type',
 );
