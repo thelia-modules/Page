@@ -5,6 +5,8 @@ namespace Page\Service;
 use InvalidArgumentException;
 use Page\Model\PageDocument;
 use Page\Model\PageDocumentQuery;
+use Page\Model\PageImage;
+use Page\Model\PageImageQuery;
 use Page\Model\PageQuery;
 use Page\Page;
 use Propel\Runtime\Exception\PropelException;
@@ -73,6 +75,41 @@ class PageService
             ->save();
 
         return $pageDocument;
+    }
+
+
+    /**
+     * @param UploadedFile $uploadedFile
+     * @param int $pageId
+     * @param string $locale
+     * @return PageDocument
+     * @throws PropelException
+     */
+    public function savePageImage(UploadedFile $uploadedFile, int $pageId, string $locale = 'en_US'): PageImage
+    {
+        $page = PageQuery::create()->findPk($pageId);
+
+        if (!$page) {
+            throw new InvalidArgumentException(Translator::getInstance()->trans('Page not found', [], Page::DOMAIN_NAME));
+        }
+
+        $pageImage = PageImageQuery::create()
+            ->filterByFile($uploadedFile->getFilename())
+            ->findOne();
+
+        if (!$pageImage) {
+            $pageImage = new PageImage();
+            $pageImage->setVisible(1);
+        }
+
+        $pageImage
+            ->setPageId($pageId)
+            ->setLocale($locale)
+            ->setFile($uploadedFile->getFilename())
+            ->setTitle($uploadedFile->getFilename())
+            ->save();
+
+        return $pageImage;
     }
 
     /**

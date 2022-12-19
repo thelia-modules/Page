@@ -1,0 +1,36 @@
+{default_translation_domain domain='page.bo.default'}
+<div class="image-manager form-container" >
+    <form action="{url path="/admin/page/image/upload/%page_id" page_id=$page_id}" method="post" class="dropzone" id="images-dropzone" enctype="multipart/form-data">
+        <div class="fallback">
+            <input name="file" type="file" />
+            <button type="submit" class="btn btn-info btn-upload"><span class="glyphicon glyphicon-send"></span> {intl l="Send files" d='page.bo.default'}</button>
+        </div>
+
+        <div class="btn-browse hide">
+            {intl l="Drop files to upload" d='page.bo.default'}
+            <span>{intl l="Or"}</span>
+            <button type="button" class="btn btn-info btn-upload"><span class="glyphicon glyphicon-upload"></span> {intl l="Browse files" d='page.bo.default'}</button>
+        </div>
+    </form>
+
+    {if !$successUrl|default:false}
+        {$successUrl = {navigate to="current"}}
+    {/if}
+    <div class="existing-image">
+        {include file='includes/page-image-list.html' page_id=$page_id}
+    </div>
+</div>
+
+<script>
+    var imageDropZoneUrl = "{url path="/admin/page/image/upload/%page_id" page_id=$page_id}";
+    var imageListErrorMessage = "{intl l='Can\'t load images, please refresh this page.' d='page.bo.default'}";
+    var imageListUrl = "{url path="/admin/page/image/list/%page_id" page_id=$page_id}";
+    var imageSuccessUrl = "{$successUrl nofilter}";
+    var imageReorder = "{url path="/admin/image/type/page/%id/update-position" id=$page_id}";
+    var imageReorderErrorMessage = "{intl l='Can\'t reorder images, please refresh this page.'}";
+    var imageDeleteOneWarningMessage = "{intl l='Do you really want to delete this image ?'}";
+    var imageDeleteMultipleWarningMessage = "{intl l='Do you really want to delete these %count image(s) ?'}";
+    var imageDeleteNoImageSelectedMessage = "{intl l='Please select at least one image to delete.'}";
+    var textBtnDeleteImageModal_No = "{intl l='No'}";
+    var textBtnDeleteImageModal_Close = "{intl l='Close'}";
+</script>
