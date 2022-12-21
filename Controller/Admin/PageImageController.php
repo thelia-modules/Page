@@ -9,6 +9,7 @@ use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\HttpFoundation\Session\Session;
+use Thelia\Log\Tlog;
 use Thelia\Model\LangQuery;
 use Thelia\Tools\Rest\ResponseRest;
 use Thelia\Tools\URL;
@@ -108,7 +109,7 @@ class PageImageController extends BaseAdminController
             $libraryItemImageService->deleteImageAssociation($pageImageId);
             $libraryImageService->deleteImage($pageImageId);
         } catch (Exception $e) {
-            $error_message = $e->getMessage();
+            Tlog::getInstance()->error($e->getMessage());
             //TODO: handle error message
         }
 
