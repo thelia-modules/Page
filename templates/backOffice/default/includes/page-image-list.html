@@ -1,0 +1,22 @@
+{ifloop rel="page-image"}
+    <ul class="list-unstyled row">
+        {loop type="library_image" name="page-image" item_type='page' item_id=$page_id width="200" height="100" resize_mode=1}
+            <li class="col-sm-6 col-md-3 ui-state-default" data-sort-id="{$ID}">
+                <div class="thumbnail-container">
+                    <div class="thumbnail">
+                        <img src="{$URL nofilter}" alt="{$TITLE}">
+                    </div>
+
+                    <div class="container-btn-right btn-group" >
+                        <a class="btn btn-default btn-xs" id="image-{$ID}" href="{url path="/admin/page/image/delete/%page_image_id/%page_id" page_id=$page_id page_image_id=$ID}" data-error-message="{intl l='Please retry'}">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </li>
+        {/loop}
+    </ul>
+{/ifloop}
+{elseloop rel="page-image"}
+    <div class="alert alert-info">{intl l='There is no image attached to this page.' d='page.bo.default'}</div>
+{/elseloop}

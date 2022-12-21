@@ -20,6 +20,7 @@
                     <li class="active"><a href="#block" data-toggle="tab">{intl l="Block" d='page.bo.default'}</a></li>
                     <li><a href="#general"  data-toggle="tab">{intl l="Configuration" d='page.bo.default'}</a></li>
                     <li><a href="#seo" data-toggle="tab">{intl l="SEO" d='page.bo.default'}</a></li>
+                    <li><a href="#images" data-toggle="tab">{intl l="Images" d='page.bo.default'}</a></li>
                     <li><a href="#documents" data-toggle="tab">{intl l="Documents" d='page.bo.default'}</a></li>
                     <li><a href="#module" data-toggle="tab">{intl l="Module" d='page.bo.default'}</a></li>
                 </ul>
@@ -37,6 +38,11 @@
                     </div>
                     <div class="tab-pane fade" id="seo">
                         {include file="tab/seo-page-configuration.html" page_id=$page_id}
+                    </div>
+                    <div class="tab-pane fade" id="images">
+                        <div class="general-block-decorator">
+                            {include file='tab/page-image-upload-list-ajax.html' page_id=$page_id}
+                        </div>
                     </div>
                     <div class="tab-pane fade" id="documents">
                         <div class="general-block-decorator">
@@ -64,6 +70,9 @@
     {javascripts file='assets/js/document-upload.js'}
         <script src="{$asset_url}"></script>
     {/javascripts}
+    {javascripts file='assets/js/image-upload.js'}
+        <script src="{$asset_url}"></script>
+    {/javascripts}
     {javascripts file='assets/js/image-picker/image-picker.min.js'}
         <script src="{$asset_url}"></script>
     {/javascripts}
@@ -79,6 +88,7 @@
                 });
             });
 
+            $.imageUploadManager.initImageDropZone();
             $.documentUploadManager.initDocumentDropZone();
 
             {if !empty($current_tab)}
