@@ -20,7 +20,7 @@
         <language>en_US</language>
         <language>fr_FR</language>
     </languages>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <authors>
         <author>
             <name>Damien Foulhoux</name>
@@ -30,7 +30,7 @@
     <type>classic</type>
 
     <required>
-        <module version="~2.0.0">TheliaBlocks</module>
+        <module version="~2">TheliaBlocks</module>
     </required>
 
     <thelia>2.5.0</thelia>
