@@ -68,20 +68,19 @@ class PageProvider
     /**
      * @param int $pageId
      * @param string $title
-     * @param string $tag
+     * @param string|null $tag
      * @param int|null $typeId
      * @param string|null $description
      * @param string|null $chapo
      * @param string|null $postscriptum
      * @param string $locale
      * @return void
-     * @throws PropelException
      * @throws Exception
      */
     public function updatePage(
         int    $pageId,
         string $title,
-        string $tag,
+        string|null $tag,
         int    $typeId = null,
         string $description = null,
         string $chapo = null,
