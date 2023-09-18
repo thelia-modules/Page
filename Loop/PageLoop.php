@@ -49,7 +49,9 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         foreach ($loopResult->getResultDataCollection() as $page) {
             $loopResultRow = new LoopResultRow($page);
 
-            $blockGroup = $page->getBlockGroup()->setLocale($this->getCurrentRequest()->getSession()->getLang()->getLocale());
+            if (null !== $blockGroup = $page->getBlockGroup()){
+                $blockGroup->setLocale($this->getCurrentRequest()->getSession()->getLang()->getLocale());
+            }
 
             $loopResultRow
                 ->set('ID', $page->getId())
@@ -58,7 +60,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->set('PAGE_TAG', $page->getTag())
                 ->set('PAGE_VISIBLE', $page->getVisible())
                 ->set('PAGE_POSITION', $page->getPosition())
-                ->set('PAGE_BLOCK_GROUP_ID', $blockGroup->getId())
+                ->set('PAGE_BLOCK_GROUP_ID', $blockGroup?->getId())
                 ->set('PAGE_TITLE', $page->getVirtualColumn('i18n_TITLE'))
                 ->set('PAGE_CHAPO', $page->getVirtualColumn('i18n_CHAPO'))
                 ->set('PAGE_DESCRIPTION', $page->getVirtualColumn('i18n_DESCRIPTION'))
@@ -66,7 +68,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->set('PAGE_META_TITLE', $page->getVirtualColumn('i18n_META_TITLE'))
                 ->set('PAGE_META_DESCRIPTION', $page->getVirtualColumn('i18n_META_DESCRIPTION'))
                 ->set('PAGE_META_KEYWORDS', $page->getVirtualColumn('i18n_META_KEYWORDS'))
-                ->set('PAGE_BLOCK_GROUP_TITLE', $blockGroup->getTitle());
+                ->set('PAGE_BLOCK_GROUP_TITLE', $blockGroup?->getTitle());
 
             $loopResult->addRow($loopResultRow);
         }
