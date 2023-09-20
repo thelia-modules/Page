@@ -7,6 +7,8 @@ use Page\Form\EditPageForm;
 use Page\Form\EditPageSeoForm;
 use Page\Service\PageProvider;
 use Page\Service\PageService;
+use RewriteUrl\Model\RewriteurlRuleQuery;
+use RewriteUrl\RewriteUrl;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,6 +20,7 @@ use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Core\Template\ParserContext;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Model\LangQuery;
+use Thelia\Model\RewritingUrlQuery;
 use Thelia\Tools\URL;
 
 /**
@@ -298,6 +301,12 @@ class PageController extends BaseAdminController
             }
 
             $page->delete();
+
+            $urls = RewritingUrlQuery::create()->filterByView('page')->filterById($pageId)->find();
+
+            foreach ($urls as $url) {
+                $url->delete();
+            }
 
         } catch (Exception $e) {
             $error_message = $e->getMessage();
