@@ -26,7 +26,7 @@ class EditPageSeoForm extends BaseForm
                 ]
             )
             ->add(
-                'slug',
+                'url',
                 TextType::class,
                 [
                     'label' => $this->translator->trans('Rewriting URL', [], 'page.bo.default'),

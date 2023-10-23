@@ -13,19 +13,13 @@ CREATE TABLE `page`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `visible` TINYINT DEFAULT 0 NOT NULL,
-    `block_group_id` INTEGER,
     `type_id` INTEGER,
     `position` INTEGER,
     `tag` VARCHAR(255),
     `created_at` DATETIME,
     `updated_at` DATETIME,
     PRIMARY KEY (`id`),
-    INDEX `fi_page_block_group` (`block_group_id`),
     INDEX `fi_page_type_page` (`type_id`),
-    CONSTRAINT `fk_page_block_group`
-        FOREIGN KEY (`block_group_id`)
-        REFERENCES `block_group` (`id`)
-        ON DELETE SET NULL,
     CONSTRAINT `fk_page_type_page`
         FOREIGN KEY (`type_id`)
         REFERENCES `page_type` (`id`)
@@ -79,7 +73,6 @@ CREATE TABLE `page_i18n`
 (
     `id` INTEGER NOT NULL,
     `locale` VARCHAR(5) DEFAULT 'en_US' NOT NULL,
-    `slug` VARCHAR(50),
     `title` VARCHAR(255),
     `description` LONGTEXT,
     `chapo` TEXT,

@@ -115,7 +115,7 @@ class PageController extends BaseAdminController
 
         return $this->render('edit-page', [
             "page_id" => $pageId,
-            "page_slug" => $page->getSlug(),
+            "page_url" => $page->getUrl(),
             "page_title" => $page->getTitle(),
             "page_tag" => $page->getTag(),
             "page_type_id" => $page->getTypeId(),
@@ -192,7 +192,7 @@ class PageController extends BaseAdminController
             $pageProvider->updateSeoPage(
                 $pageId,
                 $formData['title'],
-                $formData['slug'],
+                $formData['url'],
                 $formData['meta_title'],
                 $formData['meta_description'],
                 $formData['meta_keyword'],

@@ -23,12 +23,6 @@ class PageService
     {
         $page = PageQuery::create()
             ->filterById($pageId)
-            ->useBlockGroupQuery()
-                ->withColumn(BlockGroupTableMap::COL_ID, 'block_group_id')
-                ->useBlockGroupI18nQuery()
-                    ->withColumn(BlockGroupI18nTableMap::COL_TITLE, 'block_group_title')
-                ->endUse()
-            ->endUse()
             ->findOne();
 
         if (!$page) {

@@ -2,9 +2,11 @@
 
 namespace Page\Loop;
 
+use Page\Model\Map\PageTableMap;
 use Page\Model\PageQuery;
 use Page\Model\Page as PageModel;
 use Propel\Runtime\ActiveQuery\Criteria;
+use Propel\Runtime\ActiveQuery\Join;
 use Thelia\Core\Template\Element\BaseI18nLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
@@ -16,6 +18,7 @@ use Thelia\Type\EnumListType;
 use Thelia\Type\TypeCollection;
 use TheliaBlocks\Model\Map\BlockGroupI18nTableMap;
 use TheliaBlocks\Model\Map\BlockGroupTableMap;
+use TheliaBlocks\Model\Map\ItemBlockGroupTableMap;
 
 class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 {
@@ -27,8 +30,6 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         return new ArgumentCollection(
             Argument::createIntListTypeArgument('id'),
             Argument::createIntListTypeArgument('exclude_id'),
-            Argument::createAlphaNumStringListTypeArgument('slug'),
-            Argument::createAlphaNumStringListTypeArgument('exclude_slug'),
             Argument::createAlphaNumStringListTypeArgument('tag'),
             Argument::createAlphaNumStringListTypeArgument('exclude_tag'),
             Argument::createBooleanOrBothTypeArgument('visible', 1),
@@ -45,22 +46,19 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
     public function parseResults(LoopResult $loopResult)
     {
+        $locale = $this->getCurrentRequest()->getSession()->getLang()->getLocale();
         /** @var PageModel $page */
         foreach ($loopResult->getResultDataCollection() as $page) {
             $loopResultRow = new LoopResultRow($page);
 
-            if (null !== $blockGroup = $page->getBlockGroup()){
-                $blockGroup->setLocale($this->getCurrentRequest()->getSession()->getLang()->getLocale());
-            }
-
             $loopResultRow
                 ->set('ID', $page->getId())
                 ->set('PAGE_TYPE', $page->getPageType())
-                ->set('PAGE_SLUG', $page->getVirtualColumn('i18n_SLUG'))
+                ->set('PAGE_URL', $page->getRewrittenUrl($locale))
                 ->set('PAGE_TAG', $page->getTag())
                 ->set('PAGE_VISIBLE', $page->getVisible())
                 ->set('PAGE_POSITION', $page->getPosition())
-                ->set('PAGE_BLOCK_GROUP_ID', $blockGroup?->getId())
+                ->set('PAGE_BLOCK_GROUP_ID', $page->hasVirtualColumn('block_group_id') ? $page->getVirtualColumn('block_group_id') : null)
                 ->set('PAGE_TITLE', $page->getVirtualColumn('i18n_TITLE'))
                 ->set('PAGE_CHAPO', $page->getVirtualColumn('i18n_CHAPO'))
                 ->set('PAGE_DESCRIPTION', $page->getVirtualColumn('i18n_DESCRIPTION'))
@@ -68,7 +66,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->set('PAGE_META_TITLE', $page->getVirtualColumn('i18n_META_TITLE'))
                 ->set('PAGE_META_DESCRIPTION', $page->getVirtualColumn('i18n_META_DESCRIPTION'))
                 ->set('PAGE_META_KEYWORDS', $page->getVirtualColumn('i18n_META_KEYWORDS'))
-                ->set('PAGE_BLOCK_GROUP_TITLE', $blockGroup?->getTitle());
+                ->set('PAGE_BLOCK_GROUP_TITLE', $page->hasVirtualColumn('block_group_title') ? $page->getVirtualColumn('block_group_title') : null);
 
             $loopResult->addRow($loopResultRow);
         }
@@ -83,9 +81,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
         $search = PageQuery::create();
 
-        $currentLocale = $this->getCurrentRequest()->getSession()->getLang()->getLocale();
-
-        $this->configureI18nProcessing($search, ['SLUG', 'TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS']);
+        $this->configureI18nProcessing($search, ['TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS']);
 
         if (null !== $id = $this->getId()) {
             $search->filterById($id, Criteria::IN);
@@ -93,22 +89,6 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
         if (null !== $excludeId = $this->getExcludeId()) {
             $search->filterById($excludeId, Criteria::NOT_IN);
-        }
-
-        if (null !== $slug = $this->getSlug()) {
-            $search
-                ->usePageI18nQuery()
-                    ->filterByLocale($currentLocale)
-                    ->filterBySlug($slug, Criteria::IN)
-                ->endUse();
-        }
-
-        if (null !== $slugs = $this->getExcludeSlug()) {
-            $search
-                ->usePageI18nQuery()
-                    ->filterByLocale($currentLocale)
-                    ->filterBySlug($slugs, Criteria::NOT_IN)
-                ->endUse();
         }
 
         if (null !== $tag = $this->getTag()) {
@@ -122,6 +102,48 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         if ($visible !== BooleanOrBothType::ANY) {
             $search->filterByVisible($visible ? 1 : 0);
         }
+
+        $joinItemBlockGroup = new Join();
+        $joinItemBlockGroup->setJoinType(Criteria::LEFT_JOIN);
+        $joinItemBlockGroup->addExplicitCondition(
+            PageTableMap::TABLE_NAME,
+            'ID',
+            null,
+            ItemBlockGroupTableMap::TABLE_NAME,
+            'ITEM_ID',
+            null
+        );
+        $search->addJoinObject($joinItemBlockGroup, 'item_block_group')
+            ->addJoinCondition(
+                'item_block_group',
+                '`item_block_group`.`item_type` = ?',
+                'page',
+                null,
+                \PDO::PARAM_STR
+            );
+        $search->withColumn('item_block_group.block_group_id', 'block_group_id');
+
+        $locale = $this->getCurrentRequest()->getSession()->getLang()->getLocale();
+        $joinBlockGroupI18n = new Join();
+        $joinBlockGroupI18n->setJoinType(Criteria::LEFT_JOIN);
+        $joinBlockGroupI18n->addExplicitCondition(
+            ItemBlockGroupTableMap::TABLE_NAME,
+            'BLOCK_GROUP_ID',
+            null,
+            BlockGroupI18nTableMap::TABLE_NAME,
+            'ID',
+            null
+        );
+
+        $search->addJoinObject($joinBlockGroupI18n, 'block_group_i18n')
+            ->addJoinCondition(
+                'block_group_i18n',
+                '`block_group_i18n`.`locale` = ?',
+                $locale,
+                null,
+                \PDO::PARAM_STR
+            );
+        $search->withColumn('block_group_i18n.title', 'block_group_title');
 
         $orders = $this->getOrder();
 

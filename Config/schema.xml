@@ -6,7 +6,6 @@
     <table name="page" namespace="Page\Model">
         <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER"/>
 
-        <column name="slug" size="50"/>
         <column defaultValue="0" name="visible" required="true" type="TINYINT"/>
         <column name="title" size="255" type="VARCHAR"/>
         <column name="description" type="CLOB"/>
@@ -16,21 +15,16 @@
         <column name="meta_description" type="LONGVARCHAR"/>
         <column name="meta_keywords" type="LONGVARCHAR"/>
 
-        <column name="block_group_id" type="INTEGER"/>
         <column name="type_id" type="INTEGER"/>
         <column name="position" type="INTEGER"/>
         <column name="tag" size="255" type="VARCHAR"/>
-
-        <foreign-key foreignTable="block_group" name="fk_page_block_group" onDelete="SET NULL">
-            <reference foreign="id" local="block_group_id"/>
-        </foreign-key>
 
         <foreign-key foreignTable="page_type" name="fk_page_type_page" onDelete="SET NULL">
             <reference foreign="id" local="type_id"/>
         </foreign-key>
 
         <behavior name="i18n">
-            <parameter name="i18n_columns" value="slug,title, description, chapo, postscriptum, meta_title, meta_description, meta_keywords"/>
+            <parameter name="i18n_columns" value="title, description, chapo, postscriptum, meta_title, meta_description, meta_keywords"/>
         </behavior>
 
         <behavior name="timestampable"/>

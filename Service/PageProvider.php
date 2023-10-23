@@ -46,16 +46,11 @@ class PageProvider
             ->setLocale($locale)
             ->setTitle($title)
             ->setDescription($description)
-            ->setBlockGroupId($blockGroupId)
             ->setTypeId($typeId)
             ->setVisible(true)
             ->save();
 
-        //$computedUrl = $this->handleRewritingUrl($page, $slug, $locale);
-        $computedUrl = $page->getRewrittenUrl($locale);
-
         $page->setLocale($locale)
-            ->setSlug($computedUrl)
             ->save();
 
         (new ItemBlockGroup())
@@ -107,7 +102,6 @@ class PageProvider
     /**
      * @param int $pageId
      * @param string $title
-     * @param string $slug
      * @param string|null $meta_title
      * @param string|null $meta_description
      * @param string|null $meta_keyword
@@ -119,7 +113,7 @@ class PageProvider
     public function updateSeoPage(
         int    $pageId,
         string $title,
-        string $slug,
+        string $url,
         string $meta_title = null,
         string $meta_description = null,
         string $meta_keyword = null,
@@ -131,12 +125,11 @@ class PageProvider
             throw new Exception('Page not Found');
         }
 
-        $page->setRewrittenUrl($locale, $slug);
+        $page->setRewrittenUrl($locale, $url);
 
         $page
             ->setLocale($locale)
             ->setTitle($title)
-            ->setSlug($page->getRewrittenUrl($locale))
             ->setMetaTitle($meta_title)
             ->setMetaDescription($meta_description)
             ->setMetaKeywords($meta_keyword)
