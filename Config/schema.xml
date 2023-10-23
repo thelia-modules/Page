@@ -7,6 +7,7 @@
         <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER"/>
 
         <column defaultValue="0" name="visible" required="true" type="TINYINT"/>
+        <column name="code" size="255" type="VARCHAR"/>
         <column name="title" size="255" type="VARCHAR"/>
         <column name="description" type="CLOB"/>
         <column name="chapo" type="LONGVARCHAR"/>

@@ -51,10 +51,21 @@ class KernelViewListener implements EventSubscriberInterface
             return;
         }
 
-        $template = 'page-' . $page->getPageType()->getType() . '.html';
+        $view = null;
+        $codeTemplateName = 'page-' . $page->getCode();
+        if ($this->parser->templateExists($codeTemplateName.'.html')) {
+            $view = $codeTemplateName;
+        }
 
-        if ($this->parser->templateExists($template)) {
-            $request->attributes->set('_view', 'page-' . $page->getPageType()->getType());
+        if (null === $view) {
+            $typeTemplateName = 'page-' . $page->getPageType()->getType();
+            if ($this->parser->templateExists($typeTemplateName.'.html')) {
+                $view = $typeTemplateName;
+            }
+        }
+
+        if (null !== $view) {
+            $request->attributes->set('_view', $view);
         }
 
         if ($currentTemplateDefinition) {

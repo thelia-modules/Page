@@ -40,6 +40,7 @@
                                 <tr>
                                     <th>{intl l="Id" d='page.bo.default'}</th>
                                     <th>{intl l="Title" d='page.bo.default'}</th>
+                                    <th>{intl l="Code" d='page.bo.default'}</th>
                                     <th>{intl l="Thelia block" d='page.bo.default'}</th>
                                     <th>{intl l="Url" d='page.bo.default'}</th>
                                     <th>{intl l="Tag" d='page.bo.default'}</th>
@@ -61,6 +62,9 @@
                                             <a href="{$link}">
                                                 {$PAGE_TITLE}
                                             </a>
+                                        </td>
+                                        <td>
+                                            {$PAGE_CODE}
                                         </td>
                                         <td>
                                             <a href="{url path="/admin/page/edit/%id" id=$ID current_tab='block'}">

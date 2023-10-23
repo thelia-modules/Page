@@ -21,8 +21,11 @@
                 {render_form_field field="error_url" value={url path="/admin/page/edit/{$page_id}" current_tab='general'}}
 
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-6">
                         {render_form_field field="title" value=$page_title}
+                    </div>
+                    <div class="col-md-2">
+                        {render_form_field field="code" value=$page_code}
                     </div>
                     <div class="col-md-2">
                         {form_field field="type"}

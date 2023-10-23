@@ -54,6 +54,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             $loopResultRow
                 ->set('ID', $page->getId())
                 ->set('PAGE_TYPE', $page->getPageType())
+                ->set('PAGE_CODE', $page->getCode())
                 ->set('PAGE_URL', $page->getRewrittenUrl($locale))
                 ->set('PAGE_TAG', $page->getTag())
                 ->set('PAGE_VISIBLE', $page->getVisible())

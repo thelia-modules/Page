@@ -13,6 +13,7 @@ CREATE TABLE `page`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `visible` TINYINT DEFAULT 0 NOT NULL,
+    `code` VARCHAR(255),
     `type_id` INTEGER,
     `position` INTEGER,
     `tag` VARCHAR(255),

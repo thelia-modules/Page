@@ -30,6 +30,14 @@ class EditPageForm extends PageForm
                 ]
             )
             ->add(
+                'code',
+                TextType::class,
+                [
+                    'required' => false,
+                    'label' => $this->translator->trans('Page code', [], 'page.bo.default')
+                ]
+            )
+            ->add(
                 'description',
                 TextareaType::class,
                 [
@@ -57,6 +65,7 @@ class EditPageForm extends PageForm
                 'type',
                 ChoiceType::class,
                 [
+                    "empty_data" => $this->translator->trans('Choose a block', [], 'page.bo.default'),
                     "choices" => $this->getPageTypes(),
                     'required' => false,
                     'label' => $this->translator->trans('Page type', [], 'page.bo.default'),
@@ -66,6 +75,7 @@ class EditPageForm extends PageForm
                 'tag',
                 TextType::class,
                 [
+
                     'label' => $this->translator->trans('Page tag', [], 'page.bo.default'),
                     'required' => false,
                     'attr' => [
@@ -78,28 +88,5 @@ class EditPageForm extends PageForm
         $this->formBuilder->remove("thelia-block");
 
         return null;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getTheliaBlocs(): array
-    {
-        $locale = $this->getRequest()->getSession()->getAdminEditionLang()->getLocale();
-        $choices = [];
-
-        //TODO: gestion des placeorlder est cassée
-        $choices[$this->translator->trans('Choose a block', [], 'page.bo.default')] = null;
-
-        $blocks = BlockGroupQuery::create()
-            ->find();
-
-        /** @var BlockGroup $block */
-        foreach ($blocks as $block) {
-            $block->setLocale($locale);
-            $choices[$block->getTitle()] = $block->getId();
-        }
-
-        return $choices;
     }
 }

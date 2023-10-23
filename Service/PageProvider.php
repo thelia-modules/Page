@@ -23,6 +23,7 @@ class PageProvider
      */
     public function createPage(
         string $title,
+        string $code,
         int    $typeId = null,
         int    $blockGroupId = null,
         string $description = null,
@@ -45,6 +46,7 @@ class PageProvider
         $page
             ->setLocale($locale)
             ->setTitle($title)
+            ->setCode($code)
             ->setDescription($description)
             ->setTypeId($typeId)
             ->setVisible(true)
@@ -75,6 +77,7 @@ class PageProvider
     public function updatePage(
         int    $pageId,
         string $title,
+        string $code,
         ?string $tag = null,
         int    $typeId = null,
         string $description = null,
@@ -91,6 +94,7 @@ class PageProvider
         $page->setLocale($locale);
         $page
             ->setTitle($title)
+            ->setCode($code)
             ->setTag($tag)
             ->setDescription($description)
             ->setTypeId($typeId)

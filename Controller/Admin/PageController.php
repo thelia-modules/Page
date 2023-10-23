@@ -66,6 +66,7 @@ class PageController extends BaseAdminController
 
             $pageProvider->createPage(
                 $formData['title'],
+                $formData['code'],
                 $formData['type'],
                 $formData['thelia-block'],
                 $formData['description'],
@@ -117,6 +118,7 @@ class PageController extends BaseAdminController
             "page_id" => $pageId,
             "page_url" => $page->getUrl(),
             "page_title" => $page->getTitle(),
+            "page_code" => $page->getCode(),
             "page_tag" => $page->getTag(),
             "page_type_id" => $page->getTypeId(),
             "page_description" => $page->getDescription(),
@@ -149,6 +151,7 @@ class PageController extends BaseAdminController
             $pageProvider->updatePage(
                 $pageId,
                 $formData['title'],
+                $formData['code'],
                 $formData['tag'],
                 $formData['type'],
                 $formData['description'],

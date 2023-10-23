@@ -31,6 +31,14 @@ class PageForm extends BaseForm
                 ]
             )
             ->add(
+                'code',
+                TextType::class,
+                [
+                    'required' => false,
+                    'label' => $this->translator->trans('Page code', [], 'page.bo.default')
+                ]
+            )
+            ->add(
                 'description',
                 TextareaType::class,
                 [
@@ -42,6 +50,7 @@ class PageForm extends BaseForm
                 'type',
                 ChoiceType::class,
                 [
+                    "empty_data" => $this->translator->trans('Choose a page type', [], 'page.bo.default'),
                     "choices" => $this->getPageTypes(),
                     'required' => false,
                     'label' => $this->translator->trans('Page type', [], 'page.bo.default'),
@@ -52,6 +61,7 @@ class PageForm extends BaseForm
                 'thelia-block',
                 ChoiceType::class,
                 [
+                    "empty_data" => $this->translator->trans('Choose a block', [], 'page.bo.default'),
                     "choices" => $this->getTheliaBlocs(),
                     'required' => false,
                     'label' => $this->translator->trans('Thelia block', [], 'page.bo.default'),
@@ -70,9 +80,6 @@ class PageForm extends BaseForm
         $choices = [];
         $types = PageTypeQuery::create()->find();
 
-        //TODO: gestion des placeorlder est cassée
-        $choices[$this->translator->trans('Choose a page type', [], 'page.bo.default')] = null;
-
         /** @var PageType $type */
         foreach ($types as $type) {
             $choices[$type->getType()] = $type->getId();
@@ -88,9 +95,6 @@ class PageForm extends BaseForm
     {
         $locale = $this->getRequest()->getSession()->getAdminEditionLang()->getLocale();
         $choices = [];
-
-        //TODO: gestion des placeorlder est cassée
-        $choices[$this->translator->trans('Choose a block', [], 'page.bo.default')] = null;
 
         $blocks = BlockGroupQuery::create()
             ->filterByVisible(1)
