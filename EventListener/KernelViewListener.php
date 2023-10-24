@@ -3,6 +3,7 @@
 namespace Page\EventListener;
 
 use Page\Model\PageQuery;
+use Page\Service\PageService;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Exception\PropelException;
 use SmartyException;
@@ -15,11 +16,21 @@ use TheliaSmarty\Template\SmartyParser;
 
 class KernelViewListener implements EventSubscriberInterface
 {
+    protected TemplateHelperInterface $templateHelper;
+    protected SmartyParser $parser;
+    protected RequestStack $requestStack;
+    protected PageService $pageService;
+
     public function __construct(
-        protected RequestStack            $requestStack,
-        protected SmartyParser            $parser,
-        protected TemplateHelperInterface $templateHelper
+        RequestStack  $requestStack,
+        SmartyParser  $parser,
+        TemplateHelperInterface $templateHelper,
+        PageService $pageService
     ) {
+        $this->requestStack = $requestStack;
+        $this->parser = $parser;
+        $this->templateHelper = $templateHelper;
+        $this->pageService = $pageService;
     }
 
     /**
@@ -51,18 +62,7 @@ class KernelViewListener implements EventSubscriberInterface
             return;
         }
 
-        $view = null;
-        $codeTemplateName = 'page-' . $page->getCode();
-        if ($this->parser->templateExists($codeTemplateName.'.html')) {
-            $view = $codeTemplateName;
-        }
-
-        if (null === $view) {
-            $typeTemplateName = 'page-' . $page->getPageType()->getType();
-            if ($this->parser->templateExists($typeTemplateName.'.html')) {
-                $view = $typeTemplateName;
-            }
-        }
+        $view = $this->pageService->getPageTemplateName($page);
 
         if (null !== $view) {
             $request->attributes->set('_view', $view);

@@ -33,6 +33,10 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             Argument::createAlphaNumStringListTypeArgument('tag'),
             Argument::createAlphaNumStringListTypeArgument('exclude_tag'),
             Argument::createBooleanOrBothTypeArgument('visible', 1),
+            Argument::createIntTypeArgument('parent_tree_left'),
+            Argument::createIntTypeArgument('parent_tree_right'),
+            Argument::createIntTypeArgument('parent_tree_level', 0),
+            Argument::createBooleanTypeArgument('only_direct_child'),
             new Argument(
                 'order',
                 new TypeCollection(
@@ -58,7 +62,9 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->set('PAGE_URL', $page->getRewrittenUrl($locale))
                 ->set('PAGE_TAG', $page->getTag())
                 ->set('PAGE_VISIBLE', $page->getVisible())
-                ->set('PAGE_POSITION', $page->getPosition())
+                ->set('PAGE_TREE_LEFT', $page->getTreeLeft())
+                ->set('PAGE_TREE_RIGHT', $page->getTreeRight())
+                ->set('PAGE_TREE_LEVEL', $page->getTreeLevel())
                 ->set('PAGE_BLOCK_GROUP_ID', $page->hasVirtualColumn('block_group_id') ? $page->getVirtualColumn('block_group_id') : null)
                 ->set('PAGE_TITLE', $page->getVirtualColumn('i18n_TITLE'))
                 ->set('PAGE_CHAPO', $page->getVirtualColumn('i18n_CHAPO'))
@@ -102,6 +108,15 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
         if ($visible !== BooleanOrBothType::ANY) {
             $search->filterByVisible($visible ? 1 : 0);
+        }
+
+        if (null !== $this->getParentTreeLeft()) {
+            $search->filterByTreeLeft($this->getParentTreeLeft(), Criteria::GREATER_THAN);
+            $search->filterByTreeRight($this->getParentTreeRight(), Criteria::LESS_THAN);
+        }
+
+        if (true === $this->getOnlyDirectChild()) {
+            $search->filterByTreeLevel($this->getParentTreeLevel() + 1);
         }
 
         $joinItemBlockGroup = new Join();
@@ -166,10 +181,10 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                     $search->addDescendingOrderByColumn('i18n_TITLE');
                     break;
                 case 'position':
-                    $search->orderByPosition();
+                    $search->orderByTreeLeft();
                     break;
                 case 'position-reverse':
-                    $search->orderByPosition(Criteria::DESC);
+                    $search->orderByTreeLeft(Criteria::DESC);
                     break;
             }
         }

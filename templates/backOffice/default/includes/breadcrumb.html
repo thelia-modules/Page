@@ -1,9 +1,12 @@
 {* Breadcrumb for pages browsing and editing *}
-
+<br>
 <ul class="breadcrumb">
 	<li><a href="{url path='admin/home'}">{intl l="Home" d='page.bo.default'}</a></li>
 	<li><a href="{url path='admin/page'}">{intl l="Pages" d='page.bo.default'}</a></li>
-	{if $current|default:false}
+    {foreach from=$ancestors|default:[] item=ancestor}
+        <li><a href="{url path='admin/page/edit/%id' id=$ancestor['id']}">{$ancestor['title']}</a></li>
+    {/foreach}
+    {if $current|default:false}
 		<li>{$current}</li>
 	{/if}
 </ul>

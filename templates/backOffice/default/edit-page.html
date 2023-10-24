@@ -13,7 +13,7 @@
 <div class="pagesList">
     <div id="wrapper" class="container">
         {$noTitle = {intl l='No title' d='page.bo.default'}}
-        {include file="includes/breadcrumb.html" current={intl l='Modifying "%title"' title=$page_title|default:$noTitle d='page.bo.default'}}
+        {include file="includes/breadcrumb.html" ancestors=$ancestors current={intl l='Modifying "%title"' title=$page_title|default:$noTitle d='page.bo.default'} }
         <div class="row">
             <div class="col-md-12">
                 <ul class="nav nav-tabs" id="tabbed-menu">
@@ -23,6 +23,7 @@
                     <li><a href="#images" data-toggle="tab">{intl l="Images" d='page.bo.default'}</a></li>
                     <li><a href="#documents" data-toggle="tab">{intl l="Documents" d='page.bo.default'}</a></li>
                     <li><a href="#module" data-toggle="tab">{intl l="Module" d='page.bo.default'}</a></li>
+                    <li><a href="#subPages" data-toggle="tab">{intl l="Sous pages" d='page.bo.default'}</a></li>
                 </ul>
 
                 <div class="tab-content">
@@ -52,6 +53,11 @@
                     <div class="tab-pane fade" id="module">
                         <div class="general-block-decorator">
                             {include file="includes/module-tab-content.html" hook="page.tab-content" id="{$page_id}" view="page"}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="subPages">
+                        <div class="general-block-decorator">
+                            {include file="includes/pages-list.html"}
                         </div>
                     </div>
                 </div>

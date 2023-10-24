@@ -5,6 +5,7 @@ namespace Page\Controller\Admin;
 use Exception;
 use Page\Form\EditPageForm;
 use Page\Form\EditPageSeoForm;
+use Page\Model\Page;
 use Page\Service\PageProvider;
 use Page\Service\PageService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -43,9 +44,9 @@ class PageController extends BaseAdminController
     /**
      * @Route("/new", name="_new_page", methods="GET")
      */
-    public function newPageViewAction()
+    public function newPageViewAction(Request $request)
     {
-        return $this->render('new-page');
+        return $this->render('new-page', ['parent' => $request->get('parent')]);
     }
 
     /**
@@ -70,7 +71,8 @@ class PageController extends BaseAdminController
                 $formData['type'],
                 $formData['thelia-block'],
                 $formData['description'],
-                $locale
+                $locale,
+                $formData['parent']
             );
 
             return $this->generateSuccessRedirect($form);
@@ -110,6 +112,20 @@ class PageController extends BaseAdminController
             $page = $pageService->getPageData($pageId);
             $page->setLocale($locale);
 
+            $ancestors = array_filter(array_map(
+                function(Page $page) use ($locale) {
+                    $page->setLocale($locale);
+                    if ($page->isRoot()) {
+                        return null;
+                    }
+                    return [
+                        'id' => $page->getId(),
+                        'title' => $page->getTitle(),
+                    ];
+                },
+                iterator_to_array($page->getAncestors())
+            ));
+
         } catch (Exception $e) {
             return $this->generateRedirect('/admin/page?error=' . $e->getMessage());
         }
@@ -120,6 +136,9 @@ class PageController extends BaseAdminController
             "page_title" => $page->getTitle(),
             "page_code" => $page->getCode(),
             "page_tag" => $page->getTag(),
+            "page_tree_left" => $page->getTreeLeft(),
+            "page_tree_right" => $page->getTreeRight(),
+            "page_tree_level" => $page->getTreeLevel(),
             "page_type_id" => $page->getTypeId(),
             "page_description" => $page->getDescription(),
             "page_chapo" => $page->getChapo(),
@@ -127,6 +146,7 @@ class PageController extends BaseAdminController
             "page_meta_title" => $page->getMetaTitle(),
             "page_meta_description" => $page->getMetaDescription(),
             "page_meta_keywords" => $page->getMetaKeywords(),
+            "ancestors" => $ancestors,
             'current_tab' => $request->get('current_tab')
         ]);
     }

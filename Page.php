@@ -2,6 +2,7 @@
 
 namespace Page;
 
+use Page\Model\PageQuery;
 use Propel\Runtime\Connection\ConnectionInterface;
 use SplFileInfo;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
@@ -103,6 +104,26 @@ class Page extends BaseModule
             if (version_compare($currentVersion, $file->getBasename('.sql'), '<')) {
                 $database->insertSql(null, [$file->getPathname()]);
             }
+        }
+
+        if ($newVersion === "1.1.2") {
+            $database->insertSql(null, [__DIR__ . DS . 'Config' . DS . 'update'. DS .'nested_sets_1.sql']);
+
+            $pages = PageQuery::create()
+                ->orderByPosition()
+                ->find();
+
+            $pageRoot = new \Page\Model\Page();
+            $pageRoot->setCode('root');
+            $pageRoot->makeRoot();
+            $pageRoot->save();
+
+            foreach ($pages as $page) {
+                $page->insertAsLastChildOf($pageRoot);
+                $page->save();
+            }
+
+            $database->insertSql(null, [__DIR__ . DS . 'Config' . DS . 'update'. DS .'nested_sets_2.sql']);
         }
     }
 }

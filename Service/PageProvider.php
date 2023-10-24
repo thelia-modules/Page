@@ -23,11 +23,12 @@ class PageProvider
      */
     public function createPage(
         string $title,
-        string $code,
+        string $code = null,
         int    $typeId = null,
         int    $blockGroupId = null,
         string $description = null,
-        string $locale = 'en_US'
+        string $locale = 'en_US',
+        int $parentId = null
     ): void
     {
         if (!$blockGroupId) {
@@ -41,6 +42,22 @@ class PageProvider
             $blockGroupId = $newBlockGroup->getId();
         }
 
+        $parent = null;
+        if (null !== $parentId) {
+            $parent = PageQuery::create()->filterById($parentId)->findOne();
+        }
+
+        if (null === $parent) {
+            $parent = PageQuery::create()->findRoot();
+        }
+
+        if (null === $parent) {
+            $root = new Page();
+            $root->makeRoot();
+            $root->save();
+            $parent = $root;
+        }
+
         $page = new Page();
 
         $page
@@ -50,6 +67,7 @@ class PageProvider
             ->setDescription($description)
             ->setTypeId($typeId)
             ->setVisible(true)
+            ->insertAsLastChildOf($parent)
             ->save();
 
         $page->setLocale($locale)
@@ -77,7 +95,7 @@ class PageProvider
     public function updatePage(
         int    $pageId,
         string $title,
-        string $code,
+        string $code = null,
         ?string $tag = null,
         int    $typeId = null,
         string $description = null,

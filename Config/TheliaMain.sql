@@ -15,10 +15,12 @@ CREATE TABLE `page`
     `visible` TINYINT DEFAULT 0 NOT NULL,
     `code` VARCHAR(255),
     `type_id` INTEGER,
-    `position` INTEGER,
     `tag` VARCHAR(255),
     `created_at` DATETIME,
     `updated_at` DATETIME,
+    `tree_left` INTEGER,
+    `tree_right` INTEGER,
+    `tree_level` INTEGER,
     PRIMARY KEY (`id`),
     INDEX `fi_page_type_page` (`type_id`),
     CONSTRAINT `fk_page_type_page`

@@ -6,6 +6,7 @@ use OpenApi\Constraint\NotBlank;
 use Page\Model\PageType;
 use Page\Model\PageTypeQuery;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Form\BaseForm;
@@ -37,6 +38,10 @@ class PageForm extends BaseForm
                     'required' => false,
                     'label' => $this->translator->trans('Page code', [], 'page.bo.default')
                 ]
+            )
+            ->add(
+                'parent',
+                HiddenType::class
             )
             ->add(
                 'description',

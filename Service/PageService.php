@@ -3,6 +3,7 @@
 namespace Page\Service;
 
 use InvalidArgumentException;
+use Page\Model\Page as PageModel;
 use Page\Model\PageDocument;
 use Page\Model\PageDocumentQuery;
 use Page\Model\PageQuery;
@@ -10,11 +11,43 @@ use Page\Page;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Thelia\Core\Translation\Translator;
-use TheliaBlocks\Model\Map\BlockGroupI18nTableMap;
-use TheliaBlocks\Model\Map\BlockGroupTableMap;
+use TheliaSmarty\Template\SmartyParser;
 
 class PageService
 {
+    private SmartyParser $parser;
+
+    public function __construct(SmartyParser $parser)
+    {
+        $this->parser = $parser;
+
+    }
+    public function getPageTemplateName(PageModel $page, bool $readCode = true)
+    {
+        if ($readCode) {
+            $codeTemplateName = 'page-' . $page->getCode();
+            if ($this->parser->templateExists($codeTemplateName.'.html')) {
+                return $codeTemplateName;
+            }
+        }
+
+        if ($page->getPageType()) {
+            $typeTemplateName = 'page-' . $page->getPageType()->getType();
+            if ($this->parser->templateExists($typeTemplateName.'.html')) {
+                return $typeTemplateName;
+            }
+        }
+
+        $parent = $page->getParent();
+
+        if (null === $parent) {
+            return null;
+        }
+
+        return $this->getPageTemplateName($parent, false);
+    }
+
+
     /**
      * @param $pageId
      * @return \Page\Model\Page
@@ -81,10 +114,10 @@ class PageService
         if (null !== $page = PageQuery::create()->findPk($pageId)) {
             switch ($mode) {
                 case 'down':
-                    $page->movePositionDown();
+                    $page->moveToNextSiblingOf($page->getNextSibling());
                     break;
                 case 'up':
-                    $page->movePositionUp();
+                    $page->moveToPrevSiblingOf($page->getPrevSibling());
                     break;
                 default:
                     $page->changeAbsolutePosition($position);
