@@ -25,7 +25,6 @@ use Thelia\Tools\URL;
  */
 class Page extends BasePage
 {
-    use PositionManagementTrait;
     use UrlRewritingTrait;
 
     public function getRewrittenUrlViewName()
@@ -33,29 +32,16 @@ class Page extends BasePage
         return 'page';
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function preInsert(ConnectionInterface $con = null)
+    protected function createSlug()
     {
-        $this->setPosition($this->getNextPosition());
+        // create the slug based on the `slug_pattern` and the object properties
+        $slug = $this->code ?? $this->createRawSlug();
+        // truncate the slug to accommodate the size of the slug column
+        $slug = $this->limitSlugSize($slug);
+        // add an incremental index to make sure the slug is unique
+        $slug = $this->makeSlugUnique($slug);
 
-        parent::preInsert($con);
-
-        return true;
-    }
-
-    public function preDelete(ConnectionInterface $con = null)
-    {
-        parent::preDelete($con);
-
-        $this->reorderBeforeDelete(
-            [
-                'id' => $this->getId(),
-            ]
-        );
-
-        return true;
+        return $slug;
     }
 
     public function postDelete(ConnectionInterface $con = null): void

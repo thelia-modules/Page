@@ -30,6 +30,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         return new ArgumentCollection(
             Argument::createIntListTypeArgument('id'),
             Argument::createIntListTypeArgument('exclude_id'),
+            Argument::createAlphaNumStringListTypeArgument('code'),
             Argument::createAlphaNumStringListTypeArgument('tag'),
             Argument::createAlphaNumStringListTypeArgument('exclude_tag'),
             Argument::createBooleanOrBothTypeArgument('visible', 1),
@@ -96,6 +97,10 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
         if (null !== $excludeId = $this->getExcludeId()) {
             $search->filterById($excludeId, Criteria::NOT_IN);
+        }
+
+        if (null !== $code = $this->getCode()) {
+            $search->filterByCode($code);
         }
 
         if (null !== $tag = $this->getTag()) {

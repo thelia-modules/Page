@@ -27,7 +27,11 @@
         <behavior name="i18n">
             <parameter name="i18n_columns" value="title, description, chapo, postscriptum, meta_title, meta_description, meta_keywords"/>
         </behavior>
-
+        <behavior name="sluggable">
+            <parameter name="slug_column" value="code" />
+            <parameter name="slug_pattern" value="{Title}" />
+            <parameter name="replace_pattern" value="/[^\w\/]+/u" />
+        </behavior>
         <behavior name="timestampable"/>
         <behavior name="nested_set"/>
     </table>

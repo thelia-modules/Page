@@ -109,16 +109,19 @@ class Page extends BaseModule
         if ($newVersion === "1.1.2") {
             $database->insertSql(null, [__DIR__ . DS . 'Config' . DS . 'update'. DS .'nested_sets_1.sql']);
 
-            $pages = PageQuery::create()
-                ->orderByPosition()
-                ->find();
+            $query = "SELECT page.* from page order by position";
+            $stmt = $con->prepare($query);
+
+            $results = $stmt->execute();
+
 
             $pageRoot = new \Page\Model\Page();
             $pageRoot->setCode('root');
             $pageRoot->makeRoot();
             $pageRoot->save();
 
-            foreach ($pages as $page) {
+            foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $pageData) {
+                $page = PageQuery::create()->findPk($pageData['id']);
                 $page->insertAsLastChildOf($pageRoot);
                 $page->save();
             }
