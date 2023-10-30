@@ -3,16 +3,9 @@
 namespace Page\Model;
 
 use Page\Model\Base\Page as BasePage;
+use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Connection\ConnectionInterface;
-use Propel\Runtime\Exception\PropelException;
-use Thelia\Core\Event\GenerateRewrittenUrlEvent;
-use Thelia\Core\Event\TheliaEvents;
-use Thelia\Exception\UrlRewritingException;
-use Thelia\Model\FolderQuery;
-use Thelia\Model\RewritingUrl;
-use Thelia\Model\Tools\PositionManagementTrait;
 use Thelia\Model\Tools\UrlRewritingTrait;
-use Thelia\Tools\URL;
 
 /**
  * Skeleton subclass for representing a row from the 'page' table.
@@ -49,5 +42,78 @@ class Page extends BasePage
         parent::postDelete($con);
 
         $this->markRewrittenUrlObsolete();
+    }
+
+    public function getParent(ConnectionInterface $con = null)
+    {
+        return $this->setSameLocale(parent::getParent($con));
+    }
+
+    public function getPrevSibling(ConnectionInterface $con = null)
+    {
+        return $this->setSameLocale(parent::getPrevSibling($con));
+    }
+
+    public function getNextSibling(ConnectionInterface $con = null)
+    {
+        return $this->setSameLocale(parent::getNextSibling($con));
+    }
+
+    public function getChildren(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        return $this->setSameLocaleCollectionOrArray(parent::getChildren($criteria, $con));
+    }
+
+    public function getFirstChild(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        return $this->setSameLocale(parent::getFirstChild($con));
+    }
+
+    public function getLastChild(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        return $this->setSameLocale(parent::getLastChild($con));
+    }
+
+    public function getSiblings($includeNode = false, Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        return $this->setSameLocaleCollectionOrArray(parent::getSiblings($criteria, $con));
+    }
+
+    public function getDescendants(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        return $this->setSameLocaleCollectionOrArray(parent::getDescendants($criteria, $con));
+    }
+
+    public function getBranch(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        return $this->setSameLocaleCollectionOrArray(parent::getBranch($criteria, $con));
+    }
+
+    public function getAncestors(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        return $this->setSameLocaleCollectionOrArray(parent::getAncestors($criteria, $con));
+    }
+
+    private function setSameLocale(?Page $page = null)
+    {
+        if (null !== $page) {
+            $page->setLocale($this->getLocale());
+        }
+
+        return $page;
+    }
+
+    private function setSameLocaleCollectionOrArray($pages)
+    {
+        if (!is_array($pages)) {
+            $pages = iterator_to_array($pages);
+        }
+
+        return array_map(
+            function (Page $page) {
+                return $page->setLocale($this->getLocale());
+            },
+            $pages
+        );
     }
 }

@@ -68,6 +68,9 @@ class KernelViewListener implements EventSubscriberInterface
             $request->attributes->set('_view', $view);
         }
 
+        $page->setLocale($this->requestStack->getCurrentRequest()->getSession()->getLang()->getLocale());
+        $this->parser->assign('page', $page);
+
         if ($currentTemplateDefinition) {
             $this->parser->setTemplateDefinition($currentTemplateDefinition, $currentFallbackToDefaultTemplate);
         }
