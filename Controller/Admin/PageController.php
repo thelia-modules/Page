@@ -116,7 +116,7 @@ class PageController extends BaseAdminController
             if (!is_array($ancestors)) {
                 $ancestors = iterator_to_array($ancestors);
             }
-            
+
             $ancestors = array_filter(array_map(
                 function(Page $page) use ($locale) {
                     $page->setLocale($locale);
@@ -128,7 +128,7 @@ class PageController extends BaseAdminController
                         'title' => $page->getTitle(),
                     ];
                 },
-                $page->getAncestors()
+                $ancestors
             ));
 
         } catch (Exception $e) {
@@ -155,7 +155,7 @@ class PageController extends BaseAdminController
             'current_tab' => $request->get('current_tab')
         ]);
     }
-
+    
     /**
      * @Route("/update/{pageId}", name="_update_page_action", methods="POST")
      */
