@@ -112,6 +112,11 @@ class PageController extends BaseAdminController
             $page = $pageService->getPageData($pageId);
             $page->setLocale($locale);
 
+            $ancestors = $page->getAncestors();
+            if (!is_array($ancestors)) {
+                $ancestors = iterator_to_array($ancestors);
+            }
+            
             $ancestors = array_filter(array_map(
                 function(Page $page) use ($locale) {
                     $page->setLocale($locale);
