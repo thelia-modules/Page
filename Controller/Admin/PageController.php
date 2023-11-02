@@ -128,7 +128,7 @@ class PageController extends BaseAdminController
                         'title' => $page->getTitle(),
                     ];
                 },
-                iterator_to_array($page->getAncestors())
+                $page->getAncestors()
             ));
 
         } catch (Exception $e) {
