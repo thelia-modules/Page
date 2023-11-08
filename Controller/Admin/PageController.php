@@ -137,7 +137,7 @@ class PageController extends BaseAdminController
 
         return $this->render('edit-page', [
             "page_id" => $pageId,
-            "page_url" => $page->getUrl(),
+            "page_url" => $page->getRewrittenUrl(),
             "page_title" => $page->getTitle(),
             "page_code" => $page->getCode(),
             "page_tag" => $page->getTag(),
