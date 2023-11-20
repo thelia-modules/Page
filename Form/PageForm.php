@@ -55,7 +55,6 @@ class PageForm extends BaseForm
                 'type',
                 ChoiceType::class,
                 [
-                    "empty_data" => $this->translator->trans('Choose a page type', [], 'page.bo.default'),
                     "choices" => $this->getPageTypes(),
                     'required' => false,
                     'label' => $this->translator->trans('Page type', [], 'page.bo.default'),
@@ -84,7 +83,7 @@ class PageForm extends BaseForm
     {
         $choices = [];
         $types = PageTypeQuery::create()->find();
-
+        $choices['No type'] = '';
         /** @var PageType $type */
         foreach ($types as $type) {
             $choices[$type->getType()] = $type->getId();

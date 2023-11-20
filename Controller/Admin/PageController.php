@@ -68,7 +68,7 @@ class PageController extends BaseAdminController
             $pageProvider->createPage(
                 $formData['title'],
                 $formData['code'],
-                $formData['type'],
+                $formData['type'] ?: null,
                 $formData['thelia-block'],
                 $formData['description'],
                 $locale,
@@ -155,7 +155,7 @@ class PageController extends BaseAdminController
             'current_tab' => $request->get('current_tab')
         ]);
     }
-    
+
     /**
      * @Route("/update/{pageId}", name="_update_page_action", methods="POST")
      */
@@ -178,7 +178,7 @@ class PageController extends BaseAdminController
                 $formData['title'],
                 $formData['code'],
                 $formData['tag'],
-                $formData['type'],
+                $formData['type'] ?: null,
                 $formData['description'],
                 $formData['chapo'],
                 $formData['postscriptum'],

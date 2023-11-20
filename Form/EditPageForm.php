@@ -65,7 +65,6 @@ class EditPageForm extends PageForm
                 'type',
                 ChoiceType::class,
                 [
-                    "empty_data" => $this->translator->trans('Choose a block', [], 'page.bo.default'),
                     "choices" => $this->getPageTypes(),
                     'required' => false,
                     'label' => $this->translator->trans('Page type', [], 'page.bo.default'),
