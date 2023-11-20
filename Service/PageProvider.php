@@ -97,7 +97,7 @@ class PageProvider
         string $title,
         string $code = null,
         ?string $tag = null,
-        int    $typeId = null,
+        ?int    $typeId = null,
         string $description = null,
         string $chapo = null,
         string $postscriptum = null,
