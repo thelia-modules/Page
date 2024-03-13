@@ -1,0 +1,5 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+ALTER TABLE `page` ADD `is_home` boolean DEFAULT false AFTER `tag`;
+
+SET FOREIGN_KEY_CHECKS = 1;

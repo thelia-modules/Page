@@ -75,7 +75,8 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->set('PAGE_META_TITLE', $page->getVirtualColumn('i18n_META_TITLE'))
                 ->set('PAGE_META_DESCRIPTION', $page->getVirtualColumn('i18n_META_DESCRIPTION'))
                 ->set('PAGE_META_KEYWORDS', $page->getVirtualColumn('i18n_META_KEYWORDS'))
-                ->set('PAGE_BLOCK_GROUP_TITLE', $page->hasVirtualColumn('block_group_title') ? $page->getVirtualColumn('block_group_title') : null);
+                ->set('PAGE_BLOCK_GROUP_TITLE', $page->hasVirtualColumn('block_group_title') ? $page->getVirtualColumn('block_group_title') : null)
+                ->set('PAGE_IS_HOME', $page->getIsHome());
 
             $loopResult->addRow($loopResultRow);
         }
