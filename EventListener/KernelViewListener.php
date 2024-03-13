@@ -53,10 +53,7 @@ class KernelViewListener implements EventSubscriberInterface
         }
 
         if ($viewId) {
-            $page = PageQuery::create()
-            ->filterById($viewId)
-            ->usePageTypeQuery('', Criteria::INNER_JOIN)
-            ->endUse()
+            $page = PageQuery::create()->filterById($viewId)
             ->findOne();
         }
 
@@ -67,7 +64,7 @@ class KernelViewListener implements EventSubscriberInterface
             ->endUse()
             ->findOne();
         }
-        
+
         if (!$page) {
             return;
         }

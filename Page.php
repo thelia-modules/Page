@@ -112,8 +112,7 @@ class Page extends BaseModule
             $query = "SELECT page.* from page order by position";
             $stmt = $con->prepare($query);
 
-            $results = $stmt->execute();
-
+            $stmt->execute();
 
             $pageRoot = new \Page\Model\Page();
             $pageRoot->setCode('root');

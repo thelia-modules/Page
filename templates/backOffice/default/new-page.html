@@ -52,7 +52,20 @@
                                                 {render_form_field field="type"}
                                             </div>
                                             <div class="col-md-6">
-                                                {render_form_field field="thelia-block"}
+                                                {form_field field="thelia-block"}
+                                                <div class="form-group ">
+                                                    <label for="{$label_attr.for}" class="control-label">{$label}</label>
+                                                    <select id="page_form_page_form-id-thelia-block" name="{$name}" class="form-control ">
+                                                        {foreach $choices as $choice}
+                                                            {if $choice->value != 0}
+                                                                <option value="{$choice->value}">{$choice->label}</option>
+                                                            {else}
+                                                                <option value="0">-- {intl l='Créer un TheliaBlock'} --</option>
+                                                            {/if}
+                                                        {/foreach}
+                                                    </select>
+                                                </div>
+                                                {/form_field}
                                             </div>
                                             <div class="col-md-12">
                                                 {render_form_field field="description" extra_class="wysiwyg"}

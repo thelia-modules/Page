@@ -103,7 +103,7 @@ class PageForm extends BaseForm
             ->filterByVisible(1)
             ->find();
 
-        $choices['Create New'] = '0';
+        $choices[] = null;
 
         /** @var BlockGroup $block */
         foreach ($blocks as $block) {
