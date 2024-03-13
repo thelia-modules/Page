@@ -19,6 +19,7 @@
 
         <column name="type_id" type="INTEGER"/>
         <column name="tag" size="255" type="VARCHAR"/>
+        <column name="is_home" defaultValue="false" type="BOOLEAN"/>
 
         <foreign-key foreignTable="page_type" name="fk_page_type_page" onDelete="SET NULL">
             <reference foreign="id" local="type_id"/>

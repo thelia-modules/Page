@@ -27,6 +27,7 @@
             <th>{intl l="Url" d='page.bo.default'}</th>
             <th>{intl l="Tag" d='page.bo.default'}</th>
             <th>{intl l="Visible" d='page.bo.default'}</th>
+            <th>{intl l="Homepage" d='page.bo.default'}</th>
             <th>{intl l="Position" d='page.bo.default'}</th>
             <th class="actions">{intl l="Actions" d='page.bo.default'}</th>
         </tr>
@@ -58,6 +59,11 @@
                 <td>
                     <div class="make-switch switch-small change-visible" data-on="success" data-off="danger" data-on-label="<i class='glyphicon glyphicon-ok'></i>" data-off-label="<i class='glyphicon glyphicon-remove'></i>">
                         <input type="checkbox" name="visible" value="{$ID}" {if $PAGE_VISIBLE}checked="checked"{/if}/>
+                    </div>
+                </td>
+                <td>
+                    <div class="make-switch switch-small change-home" data-on="success" data-off="danger" data-on-label="<i class='glyphicon glyphicon-ok'></i>" data-off-label="<i class='glyphicon glyphicon-remove'></i>">
+                        <input type="checkbox" name="visible" value="1" {if $PAGE_IS_HOME}checked="checked"{/if}/>
                     </div>
                 </td>
                 <td>

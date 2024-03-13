@@ -65,7 +65,6 @@ class PageForm extends BaseForm
                 'thelia-block',
                 ChoiceType::class,
                 [
-                    "empty_data" => $this->translator->trans('Choose a block', [], 'page.bo.default'),
                     "choices" => $this->getTheliaBlocs(),
                     'required' => false,
                     'label' => $this->translator->trans('Thelia block', [], 'page.bo.default'),
@@ -103,6 +102,8 @@ class PageForm extends BaseForm
         $blocks = BlockGroupQuery::create()
             ->filterByVisible(1)
             ->find();
+
+        $choices['Create New'] = '0';
 
         /** @var BlockGroup $block */
         foreach ($blocks as $block) {

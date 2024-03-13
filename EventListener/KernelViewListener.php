@@ -48,16 +48,26 @@ class KernelViewListener implements EventSubscriberInterface
         $view = $request->attributes->get('_view');
         $viewId = $request->attributes->get($view . '_id');
 
-        if ($view !== 'page' || !$viewId) {
+        if ($view !== 'page' && $view !== "index") {
             return;
         }
 
-        $page = PageQuery::create()
+        if ($viewId) {
+            $page = PageQuery::create()
             ->filterById($viewId)
             ->usePageTypeQuery('', Criteria::INNER_JOIN)
             ->endUse()
             ->findOne();
+        }
 
+        if ($view === "index") {
+            $page = PageQuery::create()
+            ->filterByIsHome(1)
+            ->usePageTypeQuery('', Criteria::INNER_JOIN)
+            ->endUse()
+            ->findOne();
+        }
+        
         if (!$page) {
             return;
         }

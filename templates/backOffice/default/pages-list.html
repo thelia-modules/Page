@@ -39,6 +39,11 @@
                 url = url.replace('__VISIBLE__', $("input", this).is(':checked') ? 1 : 0);
                 location.href = url;
             });
+            $('.change-home').on("switch-change", function(event, data) {
+                var url = "{url noamp='1' path='/admin/page/set-home' page_id='__ID__'}";
+                url = url.replace('__ID__', $("input", this).val());
+                location.href = url;
+            });
         });
     </script>
 {/block}

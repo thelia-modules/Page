@@ -29,8 +29,8 @@ class PageProvider
         string $description = null,
         string $locale = 'en_US',
         int $parentId = null
-    ): void
-    {
+    ): void {
+        
         if (!$blockGroupId) {
             $newBlockGroup = new BlockGroup();
             $newBlockGroup
@@ -41,7 +41,7 @@ class PageProvider
 
             $blockGroupId = $newBlockGroup->getId();
         }
-
+        
         $parent = null;
         if (null !== $parentId) {
             $parent = PageQuery::create()->filterById($parentId)->findOne();
@@ -59,7 +59,7 @@ class PageProvider
         }
 
         $page = new Page();
-
+        
         $page
             ->setLocale($locale)
             ->setTitle($title)
@@ -101,8 +101,8 @@ class PageProvider
         string $description = null,
         string $chapo = null,
         string $postscriptum = null,
-        string $locale = 'en_US'): void
-    {
+        string $locale = 'en_US'
+    ): void {
         $page = PageQuery::create()->findPk($pageId);
 
         if (!$page) {
@@ -139,8 +139,8 @@ class PageProvider
         string $meta_title = null,
         string $meta_description = null,
         string $meta_keyword = null,
-        string $locale = 'en_US'): void
-    {
+        string $locale = 'en_US'
+    ): void {
         $page = PageQuery::create()->findPk($pageId);
 
         if (!$page) {
@@ -173,8 +173,8 @@ class PageProvider
         string $metaTitle = null,
         string $metaDescription = null,
         string $metaKeyWord = null,
-        string $locale = 'en_US'): void
-    {
+        string $locale = 'en_US'
+    ): void {
         $page = PageQuery::create()->findPk($pageId);
 
         if (!$page) {

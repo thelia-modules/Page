@@ -61,10 +61,10 @@ class PageController extends BaseAdminController
     {
         $form = $this->createForm(PageForm::class);
         $locale = $session->getAdminEditionLang()->getLocale();
-
+        
         try {
             $formData = $this->validateForm($form)->getData();
-
+            
             $pageProvider->createPage(
                 $formData['title'],
                 $formData['code'],
@@ -118,7 +118,7 @@ class PageController extends BaseAdminController
             }
 
             $ancestors = array_filter(array_map(
-                function(Page $page) use ($locale) {
+                function (Page $page) use ($locale) {
                     $page->setLocale($locale);
                     if ($page->isRoot()) {
                         return null;
@@ -248,8 +248,7 @@ class PageController extends BaseAdminController
     public function updatePagePosition(
         Request     $request,
         PageService $pageService
-    )
-    {
+    ) {
         try {
             $mode = $request->get('mode');
             $pageId = $request->get('page_id');
@@ -263,7 +262,8 @@ class PageController extends BaseAdminController
             $pageService->changePosition($mode, $pageId, $position);
 
         } catch (Exception $ex) {
-            return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/page',
+            return $this->generateRedirect(URL::getInstance()->absoluteUrl(
+                '/admin/page',
                 [
                     "error" => $ex->getMessage()
                 ]
@@ -278,8 +278,7 @@ class PageController extends BaseAdminController
      */
     public function togglePageVisibility(
         Request     $request
-    )
-    {
+    ) {
         try {
             $pageId = $request->get('page_id');
             $visible = $request->get('visible');
@@ -299,7 +298,54 @@ class PageController extends BaseAdminController
             $page->setVisible($visible)->save();
 
         } catch (Exception $ex) {
-            return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/page',
+            return $this->generateRedirect(URL::getInstance()->absoluteUrl(
+                '/admin/page',
+                [
+                    "error" => $ex->getMessage()
+                ]
+            ));
+        }
+
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/page'));
+    }
+
+    /**
+     * @Route("/set-home", name="_toggle_page_home_action", methods="GET")
+     */
+    public function toggleHome(
+        Request     $request
+    ) {
+        try {
+            $pageId = $request->get('page_id');
+            
+
+            if (!$pageId) {
+                throw new Exception("Page not found");
+            }
+
+            $prevHomepage = PageQuery::create()
+                ->filterByIsHome()
+                ->findOne();
+
+            
+            $page = PageQuery::create()
+                ->filterById($pageId)
+                ->findOne();
+
+            if (!$page) {
+                throw new Exception("Page not found");
+            }
+
+            if(null !== $prevHomepage) {
+                $prevHomepage->setIsHome(0)->save();
+            }
+
+            $page->setIsHome(1);
+            $page->save();
+
+        } catch (Exception $ex) {
+            return $this->generateRedirect(URL::getInstance()->absoluteUrl(
+                '/admin/page',
                 [
                     "error" => $ex->getMessage()
                 ]

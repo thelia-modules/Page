@@ -16,6 +16,7 @@ CREATE TABLE `page`
     `code` VARCHAR(255),
     `type_id` INTEGER,
     `tag` VARCHAR(255),
+    `is_home` TINYINT(1) DEFAULT 0,
     `created_at` DATETIME,
     `updated_at` DATETIME,
     `tree_left` INTEGER,
