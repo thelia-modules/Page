@@ -324,7 +324,7 @@ class PageController extends BaseAdminController
             }
 
             $prevHomepage = PageQuery::create()
-                ->filterByIsHome()
+                ->filterByIsHome(1)
                 ->findOne();
 
             
