@@ -24,6 +24,15 @@ class PageService
     }
     public function getPageTemplateName(PageModel $page, bool $readCode = true)
     {
+
+        if ($page->isHome()) {
+            $templateName = 'page-home';
+            if ($this->parser->templateExists($templateName.'.html')) {
+                return $templateName;
+            }
+        }
+
+
         if ($readCode) {
             $codeTemplateName = 'page-' . $page->getCode();
             if ($this->parser->templateExists($codeTemplateName.'.html')) {
@@ -37,6 +46,7 @@ class PageService
                 return $typeTemplateName;
             }
         }
+        
 
         $parent = $page->getParent();
 
@@ -44,7 +54,7 @@ class PageService
             return null;
         }
 
-        return $this->getPageTemplateName($parent, false);
+        return $this->getPageTemplateName($parent, true);
     }
 
 
