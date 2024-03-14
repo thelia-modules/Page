@@ -6,6 +6,7 @@ use Exception;
 use Page\Form\EditPageForm;
 use Page\Form\EditPageSeoForm;
 use Page\Model\Page;
+use Page\Model\PageTagCombinationQuery;
 use Page\Service\PageProvider;
 use Page\Service\PageService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -135,12 +136,18 @@ class PageController extends BaseAdminController
             return $this->generateRedirect('/admin/page?error=' . $e->getMessage());
         }
 
+        $tags = [];
+        $pageTagCombination= PageTagCombinationQuery::create()->findByPageId($pageId);
+        foreach ($pageTagCombination as $pageTag) {
+            $tags[] = $pageTag->getPageTag()->getTag();
+        }
+
         return $this->render('edit-page', [
             "page_id" => $pageId,
             "page_url" => $page->getRewrittenUrl($locale),
             "page_title" => $page->getTitle(),
             "page_code" => $page->getCode(),
-            "page_tag" => $page->getTag(),
+            "page_tag" => implode(", ", $tags),
             "page_tree_left" => $page->getTreeLeft(),
             "page_tree_right" => $page->getTreeRight(),
             "page_tree_level" => $page->getTreeLevel(),
@@ -177,7 +184,7 @@ class PageController extends BaseAdminController
                 $pageId,
                 $formData['title'],
                 $formData['code'],
-                $formData['tag'],
+                explode(',', $formData['tag']),
                 $formData['type'] ?: null,
                 $formData['description'],
                 $formData['chapo'],

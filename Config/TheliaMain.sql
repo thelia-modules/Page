@@ -15,7 +15,6 @@ CREATE TABLE `page`
     `visible` TINYINT DEFAULT 0 NOT NULL,
     `code` VARCHAR(255),
     `type_id` INTEGER,
-    `tag` VARCHAR(255),
     `is_home` TINYINT(1) DEFAULT 0,
     `created_at` DATETIME,
     `updated_at` DATETIME,
@@ -63,6 +62,48 @@ CREATE TABLE `page_document`
     CONSTRAINT `fk_page_document_page_id`
         FOREIGN KEY (`page_id`)
         REFERENCES `page` (`id`)
+        ON UPDATE RESTRICT
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+-- page_tag
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `page_tag`;
+
+CREATE TABLE `page_tag`
+(
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `tag` VARCHAR(255),
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `page_tag_unique` (`tag`)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+-- page_tag_combination
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `page_tag_combination`;
+
+CREATE TABLE `page_tag_combination`
+(
+    `page_id` INTEGER NOT NULL,
+    `page_tag_id` INTEGER NOT NULL,
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`page_id`,`page_tag_id`),
+    INDEX `fi_page_tag_combination_page_tag_id` (`page_tag_id`),
+    CONSTRAINT `fk_page_tag_combination_page_id`
+        FOREIGN KEY (`page_id`)
+        REFERENCES `page` (`id`)
+        ON UPDATE RESTRICT
+        ON DELETE CASCADE,
+    CONSTRAINT `fk_page_tag_combination_page_tag_id`
+        FOREIGN KEY (`page_tag_id`)
+        REFERENCES `page_tag` (`id`)
         ON UPDATE RESTRICT
         ON DELETE CASCADE
 ) ENGINE=InnoDB;

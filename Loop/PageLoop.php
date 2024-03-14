@@ -5,6 +5,8 @@ namespace Page\Loop;
 use Page\Model\Map\PageTableMap;
 use Page\Model\PageQuery;
 use Page\Model\Page as PageModel;
+use Page\Model\PageTagCombinationQuery;
+use Page\Model\PageTagQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\Join;
 use Thelia\Core\Template\Element\BaseI18nLoop;
@@ -25,7 +27,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
     /**
      * {@inheritdoc}
      */
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createIntListTypeArgument('id'),
@@ -49,12 +51,19 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
     }
 
 
-    public function parseResults(LoopResult $loopResult)
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         $locale = $this->getCurrentRequest()->getSession()->getLang()->getLocale();
         /** @var PageModel $page */
         foreach ($loopResult->getResultDataCollection() as $page) {
             $loopResultRow = new LoopResultRow($page);
+
+            $tags = [];
+            $pageTagCombinations = PageTagCombinationQuery::create()->findByPageId($page->getId());
+
+            foreach ($pageTagCombinations as $pageTagCombination) {
+                $tags[] = PageTagQuery::create()->findOneById($pageTagCombination->getPageTagId())?->getTag();
+            }
 
             $loopResultRow
                 ->set('ID', $page->getId())
@@ -62,7 +71,7 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                 ->set('PAGE_CODE', $page->getCode())
                 ->set('PAGE_PARENT', $page->getParent() ? $page->getParent()->getId() : null)
                 ->set('PAGE_URL', $page->getUrl($locale))
-                ->set('PAGE_TAG', $page->getTag())
+                ->set('PAGE_TAG', implode(',', $tags))
                 ->set('PAGE_VISIBLE', $page->getVisible())
                 ->set('PAGE_TREE_LEFT', $page->getTreeLeft())
                 ->set('PAGE_TREE_RIGHT', $page->getTreeRight())
@@ -106,11 +115,21 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         }
 
         if (null !== $tag = $this->getTag()) {
-            $search->filterByTag($tag);
+            $search
+                ->usePageTagCombinationQuery()
+                ->usePageTagQuery()
+                ->filterByTag($tag, Criteria::IN)
+                ->endUse()
+                ->endUse();
         }
 
         if (null !== $exludeTag = $this->getExcludeTag()) {
-            $search->filterByTag($exludeTag, Criteria::NOT_IN);
+            $search
+                ->usePageTagCombinationQuery()
+                ->usePageTagQuery()
+                ->filterByTag($exludeTag, Criteria::NOT_IN)
+                ->endUse()
+                ->endUse();
         }
 
         if ($visible !== BooleanOrBothType::ANY) {

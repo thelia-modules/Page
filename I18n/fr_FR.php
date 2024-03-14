@@ -16,6 +16,7 @@ return array(
     'Page type' => 'Type de page',
     'Rewriting URL' => 'URL ré-écrite',
     'Summary' => 'Résumé',
+    'Tag' => 'Étiquette',
     'Thelia block' => 'Thelia block',
     'This page tag' => 'L\'étiquette de cette page',
     'Type' => 'Type',
