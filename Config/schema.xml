@@ -18,7 +18,6 @@
         <column name="meta_keywords" type="LONGVARCHAR"/>
 
         <column name="type_id" type="INTEGER"/>
-        <column name="tag" size="255" type="VARCHAR"/>
         <column name="is_home" defaultValue="false" type="BOOLEAN"/>
 
         <foreign-key foreignTable="page_type" name="fk_page_type_page" onDelete="SET NULL">
@@ -69,6 +68,29 @@
             <parameter name="i18n_columns" value="file, title, description, chapo, postscriptum"/>
         </behavior>
 
+        <behavior name="timestampable"/>
+    </table>
+
+    <table name="page_tag" namespace="Page\Model">
+        <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER"/>
+        <column name="tag" size="255" type="VARCHAR"/>
+
+        <behavior name="timestampable"/>
+        <unique name="page_tag_unique">
+            <unique-column name="tag"/>
+        </unique>
+    </table>
+
+    <table name="page_tag_combination" namespace="Page\Model">
+        <column name="page_id" primaryKey="true" required="true" type="INTEGER"/>
+        <column name="page_tag_id" primaryKey="true" required="true" type="INTEGER"/>
+
+        <foreign-key foreignTable="page" name="fk_page_tag_combination_page_id" onDelete="CASCADE" onUpdate="RESTRICT">
+            <reference foreign="id" local="page_id"/>
+        </foreign-key>
+        <foreign-key foreignTable="page_tag" name="fk_page_tag_combination_page_tag_id" onDelete="CASCADE" onUpdate="RESTRICT">
+            <reference foreign="id" local="page_tag_id"/>
+        </foreign-key>
         <behavior name="timestampable"/>
     </table>
 

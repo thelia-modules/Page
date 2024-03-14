@@ -1,0 +1,25 @@
+{extends file="admin-layout.tpl"}
+
+{block name="no-return-functions"}
+    {$admin_current_location = 'Page'}
+{/block}
+
+{block name="page-title"}{intl l='Tags List' d='page.bo.default'}{/block}
+
+{block name="check-access"}view{/block}
+
+{block name="main-content"}
+    <div class="pageTagsList">
+        <div id="wrapper" class="container">
+            {include file="includes/breadcrumb-tag.html"}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="general-block-decorator">
+                        {if $smarty.get.error|default:null}<div class="alert alert-danger">{$smarty.get.error}</div>{/if}
+                        {include file="includes/page-tags-list.html"}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{/block}

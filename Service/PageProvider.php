@@ -5,6 +5,10 @@ namespace Page\Service;
 use Exception;
 use Page\Model\Page;
 use Page\Model\PageQuery;
+use Page\Model\PageTag;
+use Page\Model\PageTagCombination;
+use Page\Model\PageTagCombinationQuery;
+use Page\Model\PageTagQuery;
 use Propel\Runtime\Exception\PropelException;
 use Thelia\Exception\UrlRewritingException;
 use TheliaBlocks\Model\BlockGroup;
@@ -96,7 +100,7 @@ class PageProvider
         int    $pageId,
         string $title,
         string $code = null,
-        ?string $tag = null,
+        array $tags = null,
         ?int    $typeId = null,
         string $description = null,
         string $chapo = null,
@@ -109,11 +113,14 @@ class PageProvider
             throw new Exception('Page not Found');
         }
 
+        foreach ($tags as $tag) {
+            $this->createOrUpdatePageTagCombinaison($pageId, str_replace(" ", "", $tag));
+        }
+
         $page->setLocale($locale);
         $page
             ->setTitle($title)
             ->setCode($code)
-            ->setTag($tag)
             ->setDescription($description)
             ->setTypeId($typeId)
             ->setChapo($chapo)
@@ -187,5 +194,28 @@ class PageProvider
             ->setMetaDescription($metaDescription)
             ->setMetaKeywords($metaKeyWord)
             ->save();
+    }
+
+    /**
+     * @throws PropelException
+     */
+    public function createOrUpdatePageTagCombinaison($pageId, $tag): PageTagCombination
+    {
+        if (null === $pageTag = PageTagQuery::create()->findOneByTag($tag)) {
+            $pageTag = new PageTag();
+            $pageTag->setTag($tag);
+            $pageTag->save();
+        }
+
+        if (null === $pageTagCombination = PageTagCombinationQuery::create()->filterByPageId($pageId)->findOneByPageTagId($pageTag->getId())) {
+            $pageTagCombination = new PageTagCombination();
+        }
+
+        $pageTagCombination
+            ->setPageId($pageId)
+            ->setPageTagId($pageTag->getId())
+            ->save();
+
+        return $pageTagCombination;
     }
 }
