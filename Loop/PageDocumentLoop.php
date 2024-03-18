@@ -2,13 +2,17 @@
 
 namespace Page\Loop;
 
+use Imagick;
+use ImagickException;
 use Page\Model\PageDocument;
 use Page\Model\PageDocumentQuery;
 use Page\Model\PageTypeQuery;
+use Page\Page;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\Exception\PropelException;
 use Thelia\Core\Event\Document\DocumentEvent;
+use Thelia\Core\Event\Image\ImageEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\Template\Element\BaseI18nLoop;
 use Thelia\Core\Template\Element\LoopResult;
@@ -16,7 +20,8 @@ use Thelia\Core\Template\Element\LoopResultRow;
 use Thelia\Core\Template\Element\PropelSearchLoopInterface;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
-use Thelia\Model\ConfigQuery;
+use Thelia\Exception\ImageException;
+use Thelia\Log\Tlog;
 use Thelia\Type\BooleanOrBothType;
 use Thelia\Type\EnumListType;
 use Thelia\Type\TypeCollection;
@@ -34,40 +39,41 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
      */
     public function parseResults(LoopResult $loopResult): LoopResult
     {
-        $baseSourceFilePath = ConfigQuery::read('documents_library_path');
-        if ($baseSourceFilePath === null) {
-            $baseSourceFilePath = THELIA_LOCAL_DIR.'media'.DS.'documents';
-        } else {
-            $baseSourceFilePath = THELIA_ROOT.$baseSourceFilePath;
-        }
-
         /** @var PageDocument $pageDocument */
         foreach ($loopResult->getResultDataCollection() as $pageDocument) {
             $loopResultRow = new LoopResultRow($pageDocument);
 
-            $event = new DocumentEvent();
-            // Put source document file path
-            $sourceFilePath = sprintf(
-                '%s/%s/%s',
-                $baseSourceFilePath,
-                'page',
-                $pageDocument->getVirtualColumn('i18n_FILE')
-            );
+            $file = $pageDocument->getVirtualColumn('i18n_FILE');
 
-            $event->setSourceFilepath($sourceFilePath);
-            $event->setCacheSubdirectory('page_document');
+            $documentEvent = new DocumentEvent();
+            $sourceFilePath = sprintf('%s/%s', Page::getDocumentsUploadDir(), $file);
 
-            // Dispatch document processing event
-            $this->dispatcher->dispatch($event, TheliaEvents::DOCUMENT_PROCESS);
+            $documentEvent->setSourceFilepath($sourceFilePath);
+            $documentEvent->setCacheSubdirectory('page_document');
 
-            $path = $event->getDocumentPath();
+            $this->dispatcher->dispatch($documentEvent, TheliaEvents::DOCUMENT_PROCESS);
+
+            $imageEvent = new ImageEvent();
+            if (pathinfo($file, PATHINFO_EXTENSION) === 'pdf') {
+                try {
+                    $fileImageName = $this->getFirstPicturePdf(Page::getImagesUploadDir(), $sourceFilePath, $file);
+
+                    $imageEvent->setSourceFilepath($fileImageName);
+                    $imageEvent->setCacheSubdirectory('page_document');
+
+                    $this->dispatcher->dispatch($imageEvent, TheliaEvents::IMAGE_PROCESS);
+                } catch (ImagickException|ImageException $e) {
+                    Tlog::getInstance()->error($e->getMessage());
+                }
+            }
 
             $loopResultRow
                 ->set('ID', $pageDocument->getId())
                 ->set('PAGE_ID', $pageDocument->getPageId())
                 ->set('VISIBLE', $pageDocument->getVisible())
                 ->set('POSITION', $pageDocument->getPosition())
-                ->set('PAGE_DOCUMENT_PATH', $event->getDocumentPath())
+                ->set('PAGE_DOCUMENT_PATH', $documentEvent->getDocumentPath())
+                ->set('PAGE_DOCUMENT_PDF_IMAGE_SOURCE', $imageEvent->getFileUrl())
                 ->set('PAGE_DOCUMENT_FILE', $pageDocument->getVirtualColumn('i18n_FILE'))
                 ->set('PAGE_DOCUMENT_TITLE', $pageDocument->getVirtualColumn('i18n_TITLE'))
                 ->set('PAGE_DOCUMENT_DESCRIPTION', $pageDocument->getVirtualColumn('i18n_DESCRIPTION'))
@@ -113,5 +119,25 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
         }
 
         return $search;
+    }
+
+    /**
+     * @throws ImagickException
+     */
+    private function getFirstPicturePdf($sourceFirstPicturePath, $sourceImagePath, $fileName): string
+    {
+        if (!is_dir($sourceFirstPicturePath) && !mkdir($sourceFirstPicturePath, 0775, true) && !is_dir($sourceFirstPicturePath)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $sourceFirstPicturePath));
+        }
+
+        $pdfImage = new Imagick();
+
+        $pdfImage->readImage($sourceImagePath.'[0]');
+        $pdfImage->setFormat('jpg');
+
+        $fileImageName = $sourceFirstPicturePath .DS. $fileName. '.jpg';
+        $pdfImage->writeImage($fileImageName);
+
+        return $fileImageName;
     }
 }

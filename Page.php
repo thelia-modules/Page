@@ -69,6 +69,15 @@ class Page extends BaseModule
         return THELIA_ROOT . $uploadDir . DS . self::DOMAIN_NAME;
     }
 
+    public static function getImagesUploadDir(): string
+    {
+        if (!$uploadDir = ConfigQuery::read('images_library_path')) {
+            $uploadDir = THELIA_LOCAL_DIR . 'media' . DS . 'images';
+        }
+
+        return THELIA_ROOT . $uploadDir . DS . self::DOMAIN_NAME;
+    }
+
     /**
      * Defines how services are loaded in your modules
      *

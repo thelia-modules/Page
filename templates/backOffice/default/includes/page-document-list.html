@@ -1,17 +1,21 @@
 {ifloop rel="page_document_loop"}
-    <ul id="js-sort-document" class="list-unstyled document-list">
+    <ul id="js-sort-image" class="row list-unstyled ui-sortable">
         {loop type="page_document_loop" name="page_document_loop" page_id=$page_id}
-            <li class="clearfix ui-state-default" data-sort-id="{$ID}">
-                <a href="{$PAGE_DOCUMENT_PATH}" title="{$PAGE_DOCUMENT_TITLE}" class="pull-left" target="_blank">{$PAGE_DOCUMENT_TITLE}</a>
+            <li class="clearfix col-sm-6 col-md-3 ui-state-default" data-sort-id="{$ID}">
+                <div class="thumbnail-container">
+                    <a href="{$PAGE_DOCUMENT_PATH}" title="{$PAGE_DOCUMENT_TITLE}" class="thumbnail" target="_blank">
+                        <img src="{$PAGE_DOCUMENT_PDF_IMAGE_SOURCE}" alt="{$PAGE_DOCUMENT_TITLE}" />
+                    </a>
 
-                <div class="btn-group pull-right">
-                    <a class="document-update-btn btn btn-default btn-xs disabled js-sorted-position" href="#">{$POSITION}</a>
-                    <a class="document-toggle-btn btn btn-default btn-xs {if $VISIBLE}visibility-visible{/if}" href="#" data-error-message="{intl l='Please retry' d='page.bo.default'}">
-                        <i class="glyphicon glyphicon-eye-open"></i><i class="glyphicon glyphicon-eye-close"></i>
-                    </a>
-                    <a class="btn btn-default btn-xs" id="document-{$ID}" data-id="{$ID}" href="{url path="/admin/page/document/delete/%page_document_id/%page_id" page_id=$page_id page_document_id=$ID} " data-error-message="{intl l='Please retry' d='page.bo.default'}">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </a>
+                    <div class="container-btn-right btn-group">
+                        <a class="document-update-btn btn btn-default btn-xs disabled js-sorted-position" href="#">{$POSITION}</a>
+                        <a class="document-toggle-btn btn btn-default btn-xs {if $VISIBLE}visibility-visible{/if}" href="#" data-error-message="{intl l='Please retry' d='page.bo.default'}">
+                            <i class="glyphicon glyphicon-eye-open"></i><i class="glyphicon glyphicon-eye-close"></i>
+                        </a>
+                        <a class="btn btn-default btn-xs" id="document-{$ID}" data-id="{$ID}" href="{url path="/admin/page/document/delete/%page_document_id/%page_id" page_id=$page_id page_document_id=$ID} " data-error-message="{intl l='Please retry' d='page.bo.default'}">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    </div>
                 </div>
             </li>
         {/loop}

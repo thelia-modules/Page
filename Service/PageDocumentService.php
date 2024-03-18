@@ -105,6 +105,11 @@ class PageDocumentService
             unlink($filePath);
         }
 
+        $imageDirectory = Page::getImagesUploadDir();
+        if (file_exists($filePath = $imageDirectory . DS . $fileName. '.jpg')) {
+            unlink($filePath);
+        }
+
         $pageDocument->delete();
     }
 }
