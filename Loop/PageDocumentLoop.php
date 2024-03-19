@@ -130,13 +130,15 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $sourceFirstPicturePath));
         }
 
-        $pdfImage = new Imagick();
-
-        $pdfImage->readImage($sourceImagePath.'[0]');
-        $pdfImage->setFormat('jpg');
-
         $fileImageName = $sourceFirstPicturePath .DS. $fileName. '.jpg';
-        $pdfImage->writeImage($fileImageName);
+
+        if (!file_exists($fileImageName)) {
+            $pdfImage = new Imagick();
+
+            $pdfImage->readImage($sourceImagePath.'[0]');
+            $pdfImage->setFormat('jpg');
+            $pdfImage->writeImage($fileImageName);
+        }
 
         return $fileImageName;
     }
