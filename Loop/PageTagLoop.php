@@ -6,7 +6,7 @@ use Page\Model\PageTag;
 use Page\Model\PageTagQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
-use Thelia\Core\Template\Element\BaseI18nLoop;
+use Thelia\Core\Template\Element\BaseLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
 use Thelia\Core\Template\Element\PropelSearchLoopInterface;
@@ -16,7 +16,7 @@ use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
 /**
  * @method getId()
  */
-class PageTagLoop extends BaseI18nLoop implements PropelSearchLoopInterface
+class PageTagLoop extends BaseLoop implements PropelSearchLoopInterface
 {
     protected function getArgDefinitions(): ArgumentCollection
     {

@@ -10,6 +10,9 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Thelia\Core\Translation\Translator;
 use Thelia\Files\Exception\ProcessFileException;
+use TheliaLibrary\Model\LibraryItemImageQuery;
+use TheliaLibrary\Service\LibraryImageService;
+use TheliaLibrary\Service\LibraryItemImageService;
 use function ini_get;
 
 class PageDocumentService
@@ -83,12 +86,19 @@ class PageDocumentService
     }
 
     /**
+     * @param LibraryItemImageService $libraryItemImageService
+     * @param LibraryImageService $libraryImageService
      * @param int $pageDocumentId
      * @param string $locale
      * @return void
      * @throws PropelException
      */
-    public function deletePageDocument(int $pageDocumentId, string $locale): void
+    public function deletePageDocument(
+        LibraryItemImageService $libraryItemImageService,
+        LibraryImageService     $libraryImageService,
+        int $pageDocumentId,
+        string $locale
+    ): void
     {
         $pageDocument = PageDocumentQuery::create()
             ->filterById($pageDocumentId)
@@ -103,6 +113,16 @@ class PageDocumentService
 
         if (file_exists($filePath = $directory . DS . $fileName)) {
             unlink($filePath);
+        }
+
+        $imageDirectory = Page::getImagesUploadDir();
+        if (file_exists($filePath = $imageDirectory . DS . $fileName. '.jpg')) {
+            unlink($filePath);
+        }
+
+        if (null !== $theliaLibraryImage = LibraryItemImageQuery::create()->filterByItemType(Page::PAGE_DOCUMENT_PREVIEW)->findOneByItemId($pageDocument->getId())) {
+            $libraryItemImageService->deleteImageAssociation($theliaLibraryImage->getId());
+            $libraryImageService->deleteImage($theliaLibraryImage->getImageId());
         }
 
         $pageDocument->delete();

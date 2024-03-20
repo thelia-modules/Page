@@ -1,0 +1,41 @@
+{extends file="layout.tpl"}
+
+{block name='init'}
+  {assign var="page_id" value={page attr="id"}}
+{/block}
+
+{* Body Class *}
+{block name="body-class"}{strip}
+  page
+{/strip}{/block}
+
+{* Page Title *}
+{block name='no-return-functions' append}
+{/block}
+
+{* Meta *}
+{block name="meta"}
+{/block}
+
+{* Breadcrumb *}
+{block name='no-return-functions' append}
+{/block}
+
+{block name="main-content"}
+  <div class="Page-document">
+    {ifloop rel="page_document_loop"}
+      {loop type="page_document_loop" name="page_document_loop" page_id=$page_id order="alpha" visible=true}
+        <div>
+          <a href="{$PAGE_DOCUMENT_PATH}" title="{$PAGE_DOCUMENT_TITLE}" class="pull-left" target="_blank">{$PAGE_DOCUMENT_TITLE}</a>
+        </div>
+      {/loop}
+    {/ifloop}
+  {elseloop rel="page_document_loop"}
+    <div class="Page-wrapper">
+      <div class="mt-8 Page-content">
+        {intl l="no page document visible"}
+      </div>
+    </div>
+  {/elseloop}
+  </div>
+{/block}

@@ -17,6 +17,9 @@ class Page extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'page';
 
+    public const PAGE_DOCUMENT = 'page_document';
+    public const PAGE_DOCUMENT_PREVIEW = 'page_document_preview';
+
     public function getHooks()
     {
         return [
@@ -64,6 +67,15 @@ class Page extends BaseModule
     {
         if (!$uploadDir = ConfigQuery::read('documents_library_path')) {
             $uploadDir = THELIA_LOCAL_DIR . 'media' . DS . 'documents';
+        }
+
+        return THELIA_ROOT . $uploadDir . DS . self::DOMAIN_NAME;
+    }
+
+    public static function getImagesUploadDir(): string
+    {
+        if (!$uploadDir = ConfigQuery::read('images_library_path')) {
+            $uploadDir = THELIA_LOCAL_DIR . 'media' . DS . 'images';
         }
 
         return THELIA_ROOT . $uploadDir . DS . self::DOMAIN_NAME;
