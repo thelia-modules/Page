@@ -17,6 +17,9 @@ class Page extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'page';
 
+    public const PAGE_DOCUMENT = 'page_document';
+    public const PAGE_DOCUMENT_PREVIEW = 'page_document_preview';
+
     public function getHooks()
     {
         return [

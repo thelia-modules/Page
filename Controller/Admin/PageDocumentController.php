@@ -14,6 +14,8 @@ use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Tools\Rest\ResponseRest;
 use Thelia\Tools\URL;
+use TheliaLibrary\Service\LibraryImageService;
+use TheliaLibrary\Service\LibraryItemImageService;
 
 /**
  * Class PageDocumentController
@@ -87,16 +89,18 @@ class PageDocumentController extends BaseAdminController
      * @return RedirectResponse|Response
      */
     public function deleteDocumentAction(
-        Session             $session,
-        PageDocumentService $pageDocumentService,
-                            $pageDocumentId,
-                            $pageId
+        Session                 $session,
+        PageDocumentService     $pageDocumentService,
+        LibraryItemImageService $libraryItemImageService,
+        LibraryImageService     $libraryImageService,
+                                $pageDocumentId,
+                                $pageId
     ): RedirectResponse|Response
     {
         try {
             $locale = $session->getAdminEditionLang()->getLocale();
 
-            $pageDocumentService->deletePageDocument($pageDocumentId, $locale);
+            $pageDocumentService->deletePageDocument($libraryItemImageService, $libraryImageService, $pageDocumentId, $locale);
 
         } catch (Exception $e) {
             $error_message = $e->getMessage();
