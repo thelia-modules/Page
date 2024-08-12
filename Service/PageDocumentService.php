@@ -98,8 +98,7 @@ class PageDocumentService
         LibraryImageService     $libraryImageService,
         int $pageDocumentId,
         string $locale
-    ): void
-    {
+    ): void {
         $pageDocument = PageDocumentQuery::create()
             ->filterById($pageDocumentId)
             ->findOne();
@@ -116,7 +115,7 @@ class PageDocumentService
         }
 
         $imageDirectory = Page::getImagesUploadDir();
-        if (file_exists($filePath = $imageDirectory . DS . $fileName. '.jpg')) {
+        if (file_exists($filePath = $imageDirectory . DS . $fileName . '.jpg')) {
             unlink($filePath);
         }
 
@@ -126,5 +125,23 @@ class PageDocumentService
         }
 
         $pageDocument->delete();
+    }
+
+    /**
+     * @param int $pageDocumentId
+     * @param int $position
+     * @return void
+     */
+    public function updatePositionPageDocument(int $pageDocumentId, int $position): void
+    {
+        $pageDocument = PageDocumentQuery::create()
+            ->filterById($pageDocumentId)
+            ->findOne();
+
+        if (!$pageDocument) {
+            throw new Exception("Page document not found");
+        }
+
+        $pageDocument->changeAbsolutePosition($position);
     }
 }

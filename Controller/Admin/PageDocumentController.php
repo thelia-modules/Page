@@ -54,9 +54,8 @@ class PageDocumentController extends BaseAdminController
         Session             $session,
         PageDocumentService $pageDocumentService,
         PageService         $pageService,
-                            $pageId
-    ): ResponseRest
-    {
+        $pageId
+    ): ResponseRest {
         try {
             $extensionBlackListed = [];
 
@@ -71,7 +70,6 @@ class PageDocumentController extends BaseAdminController
             $fileUploaded = $pageDocumentService->uploadedPageDocument($fileBeingUploaded, $pageId);
 
             $pageService->savePageDocument($fileUploaded, $pageId, $locale);
-
         } catch (Exception $e) {
             return new ResponseRest($e->getMessage(), 'text', 404);
         }
@@ -93,20 +91,41 @@ class PageDocumentController extends BaseAdminController
         PageDocumentService     $pageDocumentService,
         LibraryItemImageService $libraryItemImageService,
         LibraryImageService     $libraryImageService,
-                                $pageDocumentId,
-                                $pageId
-    ): RedirectResponse|Response
-    {
+        $pageDocumentId,
+        $pageId
+    ): RedirectResponse|Response {
         try {
             $locale = $session->getAdminEditionLang()->getLocale();
 
             $pageDocumentService->deletePageDocument($libraryItemImageService, $libraryImageService, $pageDocumentId, $locale);
-
         } catch (Exception $e) {
             $error_message = $e->getMessage();
             //TODO: handle error message
         }
 
-        return new RedirectResponse(URL::getInstance()->absoluteUrl('admin/page/edit/' . $pageId .'?current_tab=documents'));
+        return new RedirectResponse(URL::getInstance()->absoluteUrl('admin/page/edit/' . $pageId . '?current_tab=documents'));
+    }
+
+    /**
+     * @Route("/update-position/{pageId}", name="_document_update_position", methods="POST")
+     *
+     * @param Request $request
+     * @param PageDocumentService $pageDocumentService
+     * @return void
+     */
+    public function updatePositionDocumentAction(
+        Request             $request,
+        PageDocumentService $pageDocumentService
+    ) {
+        try {
+            $pageDocumentService->updatePositionPageDocument(
+                $request->request->get('document_id'),
+                $request->request->get('position')
+            );
+
+            return new ResponseRest(['status' => true, 'message' => '']);
+        } catch (Exception $e) {
+            return new ResponseRest($e->getMessage(), 'text', 404);
+        }
     }
 }

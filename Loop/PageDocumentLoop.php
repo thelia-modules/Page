@@ -39,8 +39,7 @@ use TheliaLibrary\TheliaLibrary;
  */
 class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 {
-    public function __construct(protected LibraryItemImageService $libraryImageService) {
-    }
+    public function __construct(protected LibraryItemImageService $libraryImageService) {}
 
     /**
      * @throws PropelException
@@ -84,7 +83,7 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                     $imageEvent->setCacheSubdirectory(Page::PAGE_DOCUMENT_PREVIEW);
 
                     $this->dispatcher->dispatch($imageEvent, TheliaEvents::IMAGE_PROCESS);
-                } catch (ImagickException|ImageException $e) {
+                } catch (ImagickException | ImageException $e) {
                     Tlog::getInstance()->error($e->getMessage());
                 }
             }
@@ -118,7 +117,7 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             new Argument(
                 'order',
                 new TypeCollection(
-                    new EnumListType(['alpha', 'alpha-reverse', 'id'])
+                    new EnumListType(['alpha', 'alpha-reverse', 'id', 'manual'])
                 ),
                 'position'
             ),
@@ -140,6 +139,25 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             $search->filterByVisible($visible ? 1 : 0);
         }
 
+        if (null !== $orders = $this->getOrder()) {
+            foreach ($orders as $order) {
+                switch ($order) {
+                    case 'alpha':
+                        $search->addAscendingOrderByColumn('title');
+                        break;
+                    case 'alpha_reverse':
+                        $search->addDescendingOrderByColumn('title');
+                        break;
+                    case 'id':
+                        $search->orderById();
+                        break;
+                    case 'manual':
+                        $search->orderByPosition();
+                        break;
+                };
+            }
+        }
+
         return $search;
     }
 
@@ -152,12 +170,12 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             throw new RuntimeException(sprintf('Directory "%s" was not created', $sourceFirstPicturePath));
         }
 
-        $fileImageName = $sourceFirstPicturePath .DS. $fileName. '.jpg';
+        $fileImageName = $sourceFirstPicturePath . DS . $fileName . '.jpg';
 
         if (!file_exists($fileImageName)) {
             $pdfImage = new Imagick();
 
-            $pdfImage->readImage($sourceImagePath.'[0]');
+            $pdfImage->readImage($sourceImagePath . '[0]');
             $pdfImage->setFormat('jpg');
             $pdfImage->writeImage($fileImageName);
         }

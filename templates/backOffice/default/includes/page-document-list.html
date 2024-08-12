@@ -1,6 +1,6 @@
 {ifloop rel="page_document_loop"}
-    <ul id="js-sort-image" class="row list-unstyled ui-sortable">
-        {loop type="page_document_loop" name="page_document_loop" page_id=$page_id}
+    <ul id="js-sort-document" class="row list-unstyled ui-sortable">
+        {loop type="page_document_loop" name="page_document_loop" page_id=$page_id order="manual"}
             <li class="clearfix col-sm-6 col-md-3 ui-state-default" data-sort-id="{$ID}">
                 <div class="thumbnail-container">
                     <a href="{$PAGE_DOCUMENT_PATH}" title="{$PAGE_DOCUMENT_TITLE}" class="thumbnail" target="_blank">
@@ -24,3 +24,7 @@
 {elseloop rel="page_document_loop"}
     <div class="alert alert-info">{intl l='There is no page document attached to this page.' d='page.bo.default'}</div>
 {/elseloop}
+
+<script>
+    window.documentReorder = "/admin/page/document/update-position/{$page_id}";
+</script>
