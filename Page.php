@@ -10,6 +10,7 @@ use Symfony\Component\Finder\Finder;
 use Thelia\Core\Template\TemplateDefinition;
 use Thelia\Install\Database;
 use Thelia\Model\ConfigQuery;
+use Thelia\Model\Lang;
 use Thelia\Module\BaseModule;
 
 class Page extends BaseModule
@@ -128,7 +129,7 @@ class Page extends BaseModule
 
             $pageRoot = new \Page\Model\Page();
             $pageRoot->setCode('root');
-            $pageRoot->makeRoot();
+            $pageRoot->safeMakeRoot(Lang::getDefaultLanguage()->getLocale());
             $pageRoot->save();
 
             foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $pageData) {

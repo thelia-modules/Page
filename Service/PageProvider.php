@@ -34,7 +34,7 @@ class PageProvider
         string $locale = 'en_US',
         int $parentId = null
     ): void {
-        
+
         if (!$blockGroupId) {
             $newBlockGroup = new BlockGroup();
             $newBlockGroup
@@ -45,7 +45,7 @@ class PageProvider
 
             $blockGroupId = $newBlockGroup->getId();
         }
-        
+
         $parent = null;
         if (null !== $parentId) {
             $parent = PageQuery::create()->filterById($parentId)->findOne();
@@ -57,13 +57,12 @@ class PageProvider
 
         if (null === $parent) {
             $root = new Page();
-            $root->makeRoot();
-            $root->save();
+            $root->safeMakeRoot($locale)->save();
             $parent = $root;
         }
 
         $page = new Page();
-        
+
         $page
             ->setLocale($locale)
             ->setTitle($title)

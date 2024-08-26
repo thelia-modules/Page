@@ -5,6 +5,8 @@ namespace Page\Model;
 use Page\Model\Base\Page as BasePage;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Connection\ConnectionInterface;
+use Propel\Runtime\Exception\PropelException;
+use Thelia\Core\Translation\Translator;
 use Thelia\Model\Tools\UrlRewritingTrait;
 
 /**
@@ -25,6 +27,25 @@ class Page extends BasePage
         return 'page';
     }
 
+    /**
+     * Be sur to have a locale and a title when creating a root node
+     *
+     * @param string $locale
+     * @return $this|Page
+     * @throws PropelException*
+     */
+    public function safeMakeRoot(string $locale)
+    {
+        if ($locale !== $this->getLocale()) {
+            $this->setLocale($locale);
+        }
+
+        if (! $this->getTitle()) {
+            $this->setTitle(Translator::getInstance()->trans("Root node", [], \Page\Page::DOMAIN_NAME));
+        }
+
+        return $this->makeRoot();
+    }
     protected function createSlug()
     {
         // create the slug based on the `slug_pattern` and the object properties
