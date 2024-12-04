@@ -135,4 +135,47 @@ class PageService
             }
         }
     }
+
+    public function togglePageVisibility($pageId, $visible)
+    {
+        if (!$pageId) {
+            throw new Exception("Page not found");
+        }
+
+        $page = PageQuery::create()
+            ->filterById($pageId)
+            ->findOne();
+
+        if (!$page) {
+            throw new Exception("Page not found");
+        }
+
+        $page->setVisible($visible)->save();
+    }
+
+    public function toggleHome($pageId)
+    {
+        if (!$pageId) {
+            throw new Exception("Page not found");
+        }
+
+        $prevHomepage = PageQuery::create()
+            ->filterByIsHome(1)
+            ->findOne();
+
+        $page = PageQuery::create()
+            ->filterById($pageId)
+            ->findOne();
+
+        if (!$page) {
+            throw new Exception("Page not found");
+        }
+
+        if(null !== $prevHomepage) {
+            $prevHomepage->setIsHome(0)->save();
+        }
+
+        $page->setIsHome(1);
+        $page->save();
+    }
 }
