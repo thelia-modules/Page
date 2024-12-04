@@ -83,6 +83,30 @@
         <script src="{$asset_url}"></script>
     {/javascripts}
 
+    {javascripts file='assets/js/bootstrap-switch/bootstrap-switch.js'}
+        <script src="{$asset_url}"></script>
+    {/javascripts}
+
+    <script type="text/javascript">
+        $(function() {
+            $('.change-visible').on("switch-change", function(event, data) {
+                var url = "{url noamp='1' path='/admin/page/set-visible-ajax' page_id='__ID__' visible='__VISIBLE__'}";
+                url = url.replace('__ID__', $("input", this).val());
+                url = url.replace('__VISIBLE__', $("input", this).is(':checked') ? 1 : 0);
+                $.ajax({
+                    url: url,
+                });
+            });
+            $('.change-home').on("switch-change", function(event, data) {
+                var url = "{url noamp='1' path='/admin/page/set-home-ajax' page_id='__ID__'}";
+                url = url.replace('__ID__', $("input", this).val());
+                $.ajax({
+                    url: url,
+                });
+            });
+        });
+    </script>
+
     <script type="text/javascript">
         $(function() {
             $('.nav-tabs a[data-href]').on('shown.bs.tab', function (ev) {

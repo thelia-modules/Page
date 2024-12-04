@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Thelia\Controller\Admin\BaseAdminController;
 use Page\Form\PageForm;
 use Page\Model\PageQuery;
+use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Core\Template\ParserContext;
@@ -284,25 +285,14 @@ class PageController extends BaseAdminController
      * @Route("/set-visible", name="_toggle_page_visibility_action", methods="GET")
      */
     public function togglePageVisibility(
-        Request     $request
+        Request     $request,
+        PageService         $pageService
     ) {
         try {
             $pageId = $request->get('page_id');
             $visible = $request->get('visible');
 
-            if (!$pageId) {
-                throw new Exception("Page not found");
-            }
-
-            $page = PageQuery::create()
-                ->filterById($pageId)
-                ->findOne();
-
-            if (!$page) {
-                throw new Exception("Page not found");
-            }
-
-            $page->setVisible($visible)->save();
+            $pageService->togglePageVisibility($pageId, $visible);
 
         } catch (Exception $ex) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl(
@@ -317,38 +307,36 @@ class PageController extends BaseAdminController
     }
 
     /**
-     * @Route("/set-home", name="_toggle_page_home_action", methods="GET")
+     * @Route("/set-visible-ajax", name="_toggle_page_visibility_ajax_action", methods="GET")
      */
-    public function toggleHome(
-        Request     $request
+    public function togglePageVisibilityAjax(
+        Request     $request,
+        PageService         $pageService
     ) {
         try {
             $pageId = $request->get('page_id');
-            
+            $visible = $request->get('visible');
 
-            if (!$pageId) {
-                throw new Exception("Page not found");
-            }
+            $pageService->togglePageVisibility($pageId, $visible);
 
-            $prevHomepage = PageQuery::create()
-                ->filterByIsHome(1)
-                ->findOne();
+        } catch (Exception $ex) {
+            return  new JsonResponse(['erreur'=> $ex->getMessage()], 500);
+        }
 
-            
-            $page = PageQuery::create()
-                ->filterById($pageId)
-                ->findOne();
+        return  new JsonResponse([]);
 
-            if (!$page) {
-                throw new Exception("Page not found");
-            }
+    }
 
-            if(null !== $prevHomepage) {
-                $prevHomepage->setIsHome(0)->save();
-            }
-
-            $page->setIsHome(1);
-            $page->save();
+    /**
+     * @Route("/set-home", name="_toggle_page_home_action", methods="GET")
+     */
+    public function toggleHome(
+        Request     $request,
+        PageService         $pageService
+    ) {
+        try {
+            $pageId = $request->get('page_id');
+            $pageService->toggleHome($pageId);
 
         } catch (Exception $ex) {
             return $this->generateRedirect(URL::getInstance()->absoluteUrl(
@@ -360,6 +348,24 @@ class PageController extends BaseAdminController
         }
 
         return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/page'));
+    }
+
+    /**
+     * @Route("/set-home-ajax", name="_toggle_page_home_ajax_action", methods="GET")
+     */
+    public function toggleHomeAjax(
+        Request     $request,
+        PageService         $pageService
+    ) {
+        try {
+            $pageId = $request->get('page_id');
+            $pageService->toggleHome($pageId);
+
+        } catch (Exception $ex) {
+            return  new JsonResponse(['erreur'=> $ex->getMessage()], 500);
+        }
+
+        return  new JsonResponse();
     }
 
     /**
