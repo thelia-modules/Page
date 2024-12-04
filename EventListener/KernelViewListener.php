@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Page\EventListener;
 
 use Page\Model\Map\PageTableMap;
+use Page\Model\Page;
 use Page\Model\PageQuery;
 use Page\Service\PageService;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\Join;
 use Propel\Runtime\Exception\PropelException;
-use SmartyException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -20,44 +30,38 @@ use Thelia\Model\Tools\ModelCriteriaTools;
 use TheliaBlocks\Model\Map\BlockGroupI18nTableMap;
 use TheliaBlocks\Model\Map\ItemBlockGroupTableMap;
 use TheliaBlocks\Service\JsonBlockService;
-use TheliaBlocks\TheliaBlocks;
-use TheliaSmarty\Template\SmartyParser;
 
 class KernelViewListener implements EventSubscriberInterface
 {
+    protected ParserInterface $parser;
 
-    protected ParserInterface  $parser;
+    public static ?Page $page = null;
 
     public function __construct(
-        protected RequestStack  $requestStack,
-        protected ParserResolver  $parserResolver,
+        protected RequestStack $requestStack,
+        protected ParserResolver $parserResolver,
         protected TemplateHelperInterface $templateHelper,
         protected PageService $pageService,
-        protected JsonBlockService $jsonBlockService
+        protected JsonBlockService $jsonBlockService,
     ) {
-        
-        
     }
 
     /**
-     * @throws SmartyException
+     * @throws \SmartyException
      * @throws PropelException
      */
-    public function onKernelView(ViewEvent $event)
+    public function onKernelView(ViewEvent $event): void
     {
         $request = $this->requestStack->getCurrentRequest();
         $view = $request->attributes->get('_view');
-        $viewId = $request->attributes->get($view . '_id');
+        $viewId = $request->attributes->get($view.'_id');
 
- 
-        
-
-        if ($view !== 'page' && $view !== "index") {
+        if ($view !== 'page' && $view !== 'index') {
             return;
         }
 
         $pageQuery = PageQuery::create();
-        
+
         ModelCriteriaTools::getI18n(
             false,
             $this->requestStack->getCurrentRequest()?->getSession()?->getLang()?->getId(),
@@ -65,7 +69,7 @@ class KernelViewListener implements EventSubscriberInterface
             $this->requestStack->getCurrentRequest()?->getSession()?->getLang()?->getLocale(),
             ['TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS'],
             null,
-            "ID",
+            'ID',
             true
         );
 
@@ -117,18 +121,17 @@ class KernelViewListener implements EventSubscriberInterface
             ->findOne();
         }
 
-        if ($view === "index") {
+        if ($view === 'index') {
             $page = $pageQuery
             ->filterByIsHome(1)
             ->findOne();
         }
-        
-        
+
         if (!$page) {
             return;
         }
-        
 
+        self::$page = $page;
 
         $path = $this->templateHelper->getActiveFrontTemplate()->getAbsolutePath();
         $this->parser = $this->parserResolver->getParser($path, $view);
@@ -137,10 +140,8 @@ class KernelViewListener implements EventSubscriberInterface
             $this->parser->getTemplateDefinition() ?: $this->templateHelper->getActiveFrontTemplate()
         );
 
-
         $currentTemplateDefinition = $this->parser->getTemplateDefinition();
         $currentFallbackToDefaultTemplate = $this->parser->getFallbackToDefaultTemplate();
-
 
         $view = $this->pageService->getPageTemplateName($page);
 
@@ -148,13 +149,7 @@ class KernelViewListener implements EventSubscriberInterface
             $request->attributes->set('_view', $view);
         }
 
-        
         $page->setLocale($this->requestStack->getCurrentRequest()?->getSession()?->getLang()?->getLocale());
-        
-        $htmlRender = $this->jsonBlockService->renderJsonBlocks($page->getVirtualColumn('block_group_content'));
-        
-        $this->parser->assign('pageHtmlRender', $htmlRender);
-        $this->parser->assign('page', $page);
 
         if ($currentTemplateDefinition) {
             $this->parser->setTemplateDefinition($currentTemplateDefinition, $currentFallbackToDefaultTemplate);
@@ -165,7 +160,7 @@ class KernelViewListener implements EventSubscriberInterface
     {
         return [
             KernelEvents::VIEW => [
-                ['onKernelView', 3]
+                ['onKernelView', 3],
             ],
         ];
     }
