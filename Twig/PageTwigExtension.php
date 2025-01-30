@@ -15,6 +15,7 @@ namespace Page\Twig;
 use Page\EventListener\KernelViewListener;
 use Page\Model\PageI18nQuery;
 use Page\Model\PageQuery;
+use Propel\Runtime\ActiveQuery\Criteria;
 use Symfony\Component\HttpFoundation\RequestStack;
 use TheliaBlocks\Service\JsonBlockService;
 use TheliaLibrary\Model\LibraryItemImageQuery;
@@ -30,8 +31,7 @@ class PageTwigExtension extends AbstractExtension
         private LibraryImageService $libraryImageService,
         private LibraryImage $theliaLibraryTwigImage,
         protected RequestStack $requestStack,
-    ) {
-    }
+    ) {}
 
     public function getFunctions(): array
     {
@@ -46,27 +46,46 @@ class PageTwigExtension extends AbstractExtension
         return KernelViewListener::$page;
     }
 
-
-
-    public function getPageList() {
-        
+    public function getPageList(?array $params = [])
+    {
         $query = PageQuery::create();
+
+        if (array_key_exists('parent_tree_level', $params)) {
+            $query->filterByTreeLevel($params['parent_tree_level']);
+        }
+        if (array_key_exists('code', $params)) {
+            $query->filterByCode($params['code']);
+        }
+        if (array_key_exists('id', $params)) {
+            $query->filterById($params['id']);
+        }
+        if (array_key_exists('exclude_id', $params)) {
+            $query->filterById($params['exclude_id'], Criteria::NOT_IN);
+        }
+        if (array_key_exists('tag', $params)) {
+            $query
+                ->usePageTagCombinationQuery()
+                ->usePageTagQuery()
+                ->filterByTag($params['tag'], Criteria::IN)
+                ->endUse()
+                ->endUse();
+        }
+
         $pages = $query->filterByVisible(1);
 
         $results = [];
 
-       
-        foreach($pages as $page) {
+        foreach ($pages as $page) {
             $pageI18nQuery = PageI18nQuery::create();
             $imageTitle = $pageI18nQuery->filterById($page->getId())->findOne();
-          
+
             $results[] = [
                 'CODE' => $page->getCode(),
                 'ID' => $page->getId(),
                 'TITLE' =>  $imageTitle->getTitle(),
+                'URL' => $page->getUrl(),
             ];
         }
-
 
         return $results;
     }
