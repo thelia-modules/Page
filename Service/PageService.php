@@ -10,43 +10,38 @@ use Page\Model\PageQuery;
 use Page\Page;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Thelia\Core\Template\Parser\ParserResolver;
+use Thelia\Core\Template\ParserInterface;
+use Thelia\Core\Template\TemplateHelperInterface;
 use Thelia\Core\Translation\Translator;
-use TheliaSmarty\Template\SmartyParser;
 
 class PageService
 {
-    private SmartyParser $parser;
+    protected ParserInterface $parser;
 
-    public function __construct(SmartyParser $parser)
-    {
-        $this->parser = $parser;
+    public function __construct(protected ParserResolver $parserResolver, protected TemplateHelperInterface $templateHelper) {}
 
-    }
     public function getPageTemplateName(PageModel $page, bool $readCode = true)
     {
 
         if ($page->isHome()) {
             $templateName = 'page-home';
-            if ($this->parser->templateExists($templateName.'.html')) {
+        } else if ($readCode) {
+            $templateName = 'page-' . $page->getCode();
+        } else if ($page->getPageType()) {
+            $templateName = 'page-' . $page->getPageType()->getType();
+        }
+
+        if ($templateName) {
+            $path = $this->templateHelper->getActiveFrontTemplate()->getAbsolutePath();
+            $this->parser = $this->parserResolver->getParser($path, $templateName);
+
+            $filePath = $path . DS . $templateName . '.' . $this->parser->getFileExtension();
+
+            if (file_exists($filePath)) {
                 return $templateName;
             }
         }
-
-
-        if ($readCode) {
-            $codeTemplateName = 'page-' . $page->getCode();
-            if ($this->parser->templateExists($codeTemplateName.'.html')) {
-                return $codeTemplateName;
-            }
-        }
-
-        if ($page->getPageType()) {
-            $typeTemplateName = 'page-' . $page->getPageType()->getType();
-            if ($this->parser->templateExists($typeTemplateName.'.html')) {
-                return $typeTemplateName;
-            }
-        }
-        
 
         $parent = $page->getParent();
 
@@ -92,8 +87,8 @@ class PageService
 
         $pageDocument = PageDocumentQuery::create()
             ->usePageDocumentI18nQuery()
-                ->filterByLocale($locale)
-                ->filterByFile($uploadedFile->getFilename())
+            ->filterByLocale($locale)
+            ->filterByFile($uploadedFile->getFilename())
             ->endUse()
             ->findOne();
 
