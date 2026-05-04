@@ -29,15 +29,11 @@ use Thelia\Tools\URL;
  * @author Bertrand Tourlonias <btourlonias@openstudio.fr>
  */
 
-/**
- */
+#[Route('/admin/page', name: 'page')]
 class PageController extends BaseAdminController
 {
-    /**
-     * @Route("", name="_list", methods="GET")
-     */
-    #[Route('/admin/page', name: 'page')]
-    public function listPageAction()
+    #[Route('', name: '_list', methods: ['GET'])]
+    public function listPageAction(): Response
     {
         return $this->render('pages-list');
     }
@@ -45,7 +41,7 @@ class PageController extends BaseAdminController
     /**
      */
     #[Route('/new', name: '_new_page', methods: ['GET'])]
-    public function newPageViewAction(Request $request)
+    public function newPageViewAction(Request $request): Response
     {
         return $this->render('new-page', ['parent' => $request->get('parent')]);
     }
@@ -58,14 +54,14 @@ class PageController extends BaseAdminController
      * @return RedirectResponse|Response|null
      */
     #[Route('/create', name: '_create_page_action', methods: ['POST'])]
-    public function createPageAction(Session $session, PageProvider $pageProvider, ParserContext $parserContext)
+    public function createPageAction(Session $session, PageProvider $pageProvider, ParserContext $parserContext): RedirectResponse|Response|null
     {
         $form = $this->createForm(PageForm::class);
         $locale = $session->getAdminEditionLang()->getLocale();
-        
+
         try {
             $formData = $this->validateForm($form)->getData();
-            
+
             $pageProvider->createPage(
                 $formData['title'],
                 $formData['code'],
@@ -97,10 +93,10 @@ class PageController extends BaseAdminController
      * @param Session $session
      * @param PageService $pageService
      * @param $pageId
-     * @return string|RedirectResponse|Response|\Thelia\Core\HttpFoundation\Response
+     * @return RedirectResponse|Response
      */
     #[Route('/edit/{pageId}', name: '_edit_page', methods: ['GET'])]
-    public function editPageViewAction(Request $request, Session $session, PageService $pageService, $pageId)
+    public function editPageViewAction(Request $request, Session $session, PageService $pageService, $pageId): RedirectResponse|Response
     {
         try {
             $locale = $session->getAdminEditionLang()->getLocale();
@@ -166,7 +162,7 @@ class PageController extends BaseAdminController
     /**
      */
     #[Route('/update/{pageId}', name: '_update_page_action', methods: ['POST'])]
-    public function updatePageAction(Request $request, Session $session, PageProvider $pageProvider, ParserContext $parserContext, int $pageId)
+    public function updatePageAction(Request $request, Session $session, PageProvider $pageProvider, ParserContext $parserContext, int $pageId): ?RedirectResponse
     {
         $form = $this->createForm(EditPageForm::class);
 
@@ -210,7 +206,7 @@ class PageController extends BaseAdminController
     /**
      */
     #[Route('/update/{pageId}/seo', name: '_update_seo_page_action', methods: ['POST'])]
-    public function updateSeoPageAction(Request $request, Session $session, PageProvider $pageProvider, ParserContext $parserContext, int $pageId)
+    public function updateSeoPageAction(Request $request, Session $session, PageProvider $pageProvider, ParserContext $parserContext, int $pageId): ?RedirectResponse
     {
         $form = $this->createForm(EditPageSeoForm::class);
 
@@ -255,7 +251,8 @@ class PageController extends BaseAdminController
     public function updatePagePosition(
         Request     $request,
         PageService $pageService
-    ) {
+    ): RedirectResponse
+    {
         try {
             $mode = $request->get('mode');
             $pageId = $request->get('page_id');
@@ -285,7 +282,8 @@ class PageController extends BaseAdminController
     #[Route('/set-visible', name: '_toggle_page_visibility_action', methods: ['GET'])]
     public function togglePageVisibility(
         Request     $request
-    ) {
+    ): RedirectResponse
+    {
         try {
             $pageId = $request->get('page_id');
             $visible = $request->get('visible');
@@ -321,10 +319,11 @@ class PageController extends BaseAdminController
     #[Route('/set-home', name: '_toggle_page_home_action', methods: ['GET'])]
     public function toggleHome(
         Request     $request
-    ) {
+    ): RedirectResponse
+    {
         try {
             $pageId = $request->get('page_id');
-            
+
 
             if (!$pageId) {
                 throw new Exception("Page not found");
@@ -334,7 +333,7 @@ class PageController extends BaseAdminController
                 ->filterByIsHome(1)
                 ->findOne();
 
-            
+
             $page = PageQuery::create()
                 ->filterById($pageId)
                 ->findOne();
@@ -367,7 +366,7 @@ class PageController extends BaseAdminController
      * @return RedirectResponse|Response
      */
     #[Route('/delete/{pageId}', name: '_delete_page_action', methods: ['GET'])]
-    public function deletePageAction($pageId)
+    public function deletePageAction($pageId): RedirectResponse|Response
     {
         try {
             $page = PageQuery::create()
