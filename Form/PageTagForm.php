@@ -2,7 +2,7 @@
 
 namespace Page\Form;
 
-use OpenApi\Constraint\NotBlank;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Page\Page;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Form\BaseForm;

@@ -5,7 +5,9 @@
   "type": "thelia-module",
   "require": {
     "thelia/installer": "~1.1",
-    "ext-imagick": "*"
+    "ext-imagick": "*",
+    "thelia/thelia-blocks-module": "dev-twig",
+    "thelia/thelia-library-module": "dev-twig"
   },
   "extra": {
     "installer-name": "Page"

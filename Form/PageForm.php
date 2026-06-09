@@ -2,7 +2,7 @@
 
 namespace Page\Form;
 
-use OpenApi\Constraint\NotBlank;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Page\Model\PageType;
 use Page\Model\PageTypeQuery;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
