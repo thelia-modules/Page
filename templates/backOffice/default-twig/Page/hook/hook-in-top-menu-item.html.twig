@@ -1,0 +1,7 @@
+{# Top menu item injected via main.in-top-menu-items hook #}
+<li class="{{ admin_current_location starts with 'page' ? 'active' : '' }}">
+    <a title="Page" href="{{ path('page_list') }}">
+        <i class="bi bi-file-earmark"></i>
+        <span class="item-text">{{ 'Pages'|trans({}, 'page.bo.default') }}</span>
+    </a>
+</li>
