@@ -16,6 +16,12 @@ class PageMenuHook extends BaseHook
                     "method" => "onMainInTopMenuItems"
                 ],
             ],
+            "module.configuration" => [
+                [
+                    "type" => "back",
+                    "method" => "onModuleConfiguration"
+                ],
+            ],
         ];
     }
 
@@ -23,6 +29,13 @@ class PageMenuHook extends BaseHook
     {
         $event->add(
             $this->render('Page/hook/hook-in-top-menu-item.html.twig', $event->getTemplateVars())
+        );
+    }
+
+    public function onModuleConfiguration(HookRenderEvent $event): void
+    {
+        $event->add(
+            $this->render('Page/hook/module-configuration.html.twig')
         );
     }
 }

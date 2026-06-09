@@ -1,0 +1,13 @@
+{# Module configuration fragment for the Page module (rendered in /admin/module/Page) #}
+<div class="card mb-3">
+    <div class="card-header">
+        <h2 class="card-title h5 mb-0">{{ 'Pages'|trans({}, 'page.bo.default') }}</h2>
+    </div>
+    <div class="card-body">
+        <p>{{ 'This module lets you manage static pages from a dedicated administration section.'|trans({}, 'page.bo.default') }}</p>
+        <a class="btn btn-primary" href="{{ path('page_list') }}">
+            <i class="bi bi-file-earmark"></i>
+            {{ 'Manage pages'|trans({}, 'page.bo.default') }}
+        </a>
+    </div>
+</div>

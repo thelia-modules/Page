@@ -29,6 +29,8 @@ return array(
     'Page types configurations' => 'Configurer les types de page',
     'Pages' => 'Pages',
     'Pages List' => 'Liste des pages',
+    'Manage pages' => 'Gérer les pages',
+    'This module lets you manage static pages from a dedicated administration section.' => 'Ce module permet de gérer des pages statiques depuis une section d\'administration dédiée.',
     'Please retry' => 'Merci de ré-essayer',
     'Position' => 'Position',
     'SEO' => 'SEO',
