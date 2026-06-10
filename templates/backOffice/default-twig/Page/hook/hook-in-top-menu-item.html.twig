@@ -1,7 +1,8 @@
 {# Top menu item injected via main.in-top-menu-items hook #}
-<li class="{{ admin_current_location starts with 'page' ? 'active' : '' }}">
-    <a title="Page" href="{{ path('page_list') }}">
-        <i class="bi bi-file-earmark"></i>
+{% set is_active = admin_current_location is defined and admin_current_location starts with 'page' %}
+<li class="nav-item">
+    <a class="nav-link {{ is_active ? 'active' : '' }}" title="Page" href="{{ path('page_list') }}">
+        <i class="bi bi-file-earmark me-2" aria-hidden="true"></i>
         <span class="item-text">{{ 'Pages'|trans({}, 'page.bo.default') }}</span>
     </a>
 </li>
