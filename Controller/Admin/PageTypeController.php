@@ -12,7 +12,6 @@
 
 namespace Page\Controller\Admin;
 
-use Page\Form\PageForm;
 use Page\Form\PageTypeForm;
 use Page\Service\PageTypeProvider;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,22 +26,26 @@ use Thelia\Form\Exception\FormValidationException;
  * @author Bertrand Tourlonias <btourlonias@openstudio.fr>
  */
 
-/**
- */
+#[Route('/admin/page-type', name: 'page_type')]
 class PageTypeController extends BaseAdminController
 {
-    /**
-     * @Route("", name="_page_type_list", methods="GET")
-     */
-    #[Route('/admin/page-type', name: 'page_type')]
+    #[Route('', name: '_list', methods: ['GET'])]
     public function listPageTypeAction()
     {
-        return $this->render('page-type');
+        $types = [];
+        foreach (\Page\Model\PageTypeQuery::create()->orderById()->find() as $type) {
+            $types[] = ['id' => $type->getId(), 'type' => $type->getType()];
+        }
+
+        return $this->render('page-type', [
+            'page_types' => $types,
+            'type_form' => $this->createForm(PageTypeForm::class)->getForm()->createView(),
+        ]);
     }
 
     /**
      */
-    #[Route('/create', name: '_create_page_type_list', methods: ['POST'])]
+    #[Route('/create', name: '_create', methods: ['POST'])]
     public function createPageTypeAction(ParserContext $parserContext, PageTypeProvider $pageTypeProvider)
     {
         $form = $this->createForm(PageTypeForm::class);
@@ -73,10 +76,10 @@ class PageTypeController extends BaseAdminController
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
      */
-    #[Route('/update', name: '_update_page_type_list', methods: ['POST'])]
+    #[Route('/update/{pagesTypeId}', name: '_update', methods: ['POST'])]
     public function updatePagesTypeAction(ParserContext $parserContext, PageTypeProvider $pageTypeProvider, int $pagesTypeId)
     {
-        $form = $this->createForm(PageForm::class);
+        $form = $this->createForm(PageTypeForm::class);
 
         try {
             $formData = $this->validateForm($form)->getData();
@@ -105,7 +108,7 @@ class PageTypeController extends BaseAdminController
      *
      * @return string|null
      */
-    #[Route('/delete', name: '_update_page_type_list', methods: ['GET'])]
+    #[Route('/delete/{pagesTypeId}', name: '_delete', methods: ['GET'])]
     public function deletePagesTypeAction(PageTypeProvider $pageTypeProvider, $pagesTypeId)
     {
         try {
@@ -113,9 +116,9 @@ class PageTypeController extends BaseAdminController
         } catch (\Exception $e) {
             $error_message = $e->getMessage();
 
-            return $this->generateRedirect('admin/page?error='.$error_message);
+            return $this->generateRedirect('/admin/page-type?error='.$error_message);
         }
 
-        return $this->generateRedirect('admin/page-type');
+        return $this->generateRedirect('/admin/page-type');
     }
 }

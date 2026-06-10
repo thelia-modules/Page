@@ -24,18 +24,35 @@ use TheliaLibrary\Service\LibraryItemImageService;
 
 /**
  */
+#[Route('/admin/page/image', name: 'page_image')]
 class PageImageController extends BaseAdminController
 {
-    /**
-     * @Route("/list/{pageId}", name="_image_list", methods="POST")
-     *
-     * @param $pageId
-     * @return string|Response
-     */
-    #[Route('/admin/page/image', name: 'page_image')]
-    public function getImageListAction($pageId): Response|string
+    #[Route('/list/{pageId}', name: '_list', methods: ['POST'])]
+    public function getImageListAction(LibraryImageService $libraryImageService, $pageId): Response|string
     {
-        return $this->render('includes/page-image-list', ["page_id" => $pageId]);
+        $images = [];
+        $itemImages = \TheliaLibrary\Model\LibraryItemImageQuery::create()
+            ->filterByItemType('page')
+            ->filterByItemId($pageId)
+            ->orderByPosition()
+            ->find();
+
+        foreach ($itemImages as $itemImage) {
+            $libraryImage = $itemImage->getLibraryImage();
+            if (null === $libraryImage) {
+                continue;
+            }
+            $images[] = [
+                'id' => $itemImage->getId(),
+                'title' => $libraryImage->getTitle(),
+                'url' => $libraryImageService->getImagePublicUrl($libraryImage, 200, 100),
+            ];
+        }
+
+        return $this->render('includes/page-image-list', [
+            'page_id' => $pageId,
+            'images' => $images,
+        ]);
     }
 
 
@@ -47,7 +64,7 @@ class PageImageController extends BaseAdminController
      * @param $pageId
      * @return ResponseRest
      */
-    #[Route('/upload/{pageId}', name: '_image_upload', methods: ['POST'])]
+    #[Route('/upload/{pageId}', name: '_upload', methods: ['POST'])]
     public function uploadImageAction(
         Request                 $request,
         Session                 $session,
@@ -97,7 +114,7 @@ class PageImageController extends BaseAdminController
      * @param $pageId
      * @return RedirectResponse|Response
      */
-    #[Route('/delete/{pageImageId}/{pageId}', name: '_image_delete', methods: ['GET'])]
+    #[Route('/delete/{pageImageId}/{pageId}', name: '_delete', methods: ['GET'])]
     public function deleteImageAction(
         LibraryItemImageService $libraryItemImageService,
         LibraryImageService     $libraryImageService,

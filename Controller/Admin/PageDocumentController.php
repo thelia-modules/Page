@@ -25,18 +25,42 @@ use TheliaLibrary\Service\LibraryItemImageService;
 
 /**
  */
+#[Route('/admin/page/document', name: 'page_document')]
 class PageDocumentController extends BaseAdminController
 {
-    /**
-     * @Route("/list/{pageId}", name="_document_list", methods="POST")
-     *
-     * @param $pageId
-     * @return string|Response
-     */
-    #[Route('/admin/page/document', name: 'page_document')]
-    public function getDocumentListAction($pageId): Response|string
-    {
-        return $this->render('includes/page-document-list', ["page_id" => $pageId]);
+    #[Route('/list/{pageId}', name: '_list', methods: ['POST'])]
+    public function getDocumentListAction(
+        Session $session,
+        \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $dispatcher,
+        $pageId
+    ): Response|string {
+        $locale = $session->getLang()->getLocale();
+
+        $documents = [];
+        $search = \Page\Model\PageDocumentQuery::create()->filterByPageId($pageId)->orderByPosition();
+
+        foreach ($search->find() as $pageDocument) {
+            $pageDocument->setLocale($locale);
+            $file = $pageDocument->getFile();
+
+            $documentEvent = new \Thelia\Core\Event\Document\DocumentEvent();
+            $documentEvent->setSourceFilepath(sprintf('%s/%s', Page::getDocumentsUploadDir(), $file));
+            $documentEvent->setCacheSubdirectory(Page::PAGE_DOCUMENT);
+            $dispatcher->dispatch($documentEvent, \Thelia\Core\Event\TheliaEvents::DOCUMENT_PROCESS);
+
+            $documents[] = [
+                'id' => $pageDocument->getId(),
+                'title' => $pageDocument->getTitle(),
+                'visible' => (bool) $pageDocument->getVisible(),
+                'position' => $pageDocument->getPosition(),
+                'path' => $documentEvent->getDocumentPath(),
+            ];
+        }
+
+        return $this->render('includes/page-document-list', [
+            'page_id' => $pageId,
+            'documents' => $documents,
+        ]);
     }
 
     /**
@@ -48,7 +72,7 @@ class PageDocumentController extends BaseAdminController
      * @param $pageId
      * @return ResponseRest
      */
-    #[Route('/upload/{pageId}', name: '_document_upload', methods: ['POST'])]
+    #[Route('/upload/{pageId}', name: '_upload', methods: ['POST'])]
     public function uploadDocumentAction(
         Request             $request,
         Session             $session,
@@ -85,7 +109,7 @@ class PageDocumentController extends BaseAdminController
      * @param $pageId
      * @return RedirectResponse|Response
      */
-    #[Route('/delete/{pageDocumentId}/{pageId}', name: '_document_delete', methods: ['GET'])]
+    #[Route('/delete/{pageDocumentId}/{pageId}', name: '_delete', methods: ['GET'])]
     public function deleteDocumentAction(
         Session                 $session,
         PageDocumentService     $pageDocumentService,
@@ -112,7 +136,7 @@ class PageDocumentController extends BaseAdminController
      * @param PageDocumentService $pageDocumentService
      * @return void
      */
-    #[Route('/update-position/{pageId}', name: '_document_update_position', methods: ['POST'])]
+    #[Route('/update-position/{pageId}', name: '_update_position', methods: ['POST'])]
     public function updatePositionDocumentAction(
         Request             $request,
         PageDocumentService $pageDocumentService
