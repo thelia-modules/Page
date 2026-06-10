@@ -1,0 +1,27 @@
+{# Document list fragment for a page (loaded into the Documents tab) #}
+{% if documents is not empty %}
+    <ul class="row list-unstyled">
+        {% for document in documents %}
+            <li class="col-sm-6 col-md-3" data-sort-id="{{ document.id }}">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <a href="{{ document.path }}" title="{{ document.title }}" target="_blank" rel="noopener">
+                            <i class="bi bi-file-earmark-text" aria-hidden="true" style="font-size:2rem"></i>
+                            <span class="d-block text-truncate">{{ document.title }}</span>
+                        </a>
+                    </div>
+                    <div class="card-footer p-2 text-end">
+                        <span class="badge text-bg-secondary">{{ document.position }}</span>
+                        <a class="btn btn-sm btn-outline-danger page-document-delete" id="document-{{ document.id }}" data-id="{{ document.id }}"
+                           href="{{ path('page_document_delete', { pageDocumentId: document.id, pageId: page_id }) }}"
+                           title="{{ 'Delete'|trans({}, 'page.bo.default') }}">
+                            <i class="bi bi-trash" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <div class="alert alert-info mb-0">{{ 'There is no page document attached to this page.'|trans({}, 'page.bo.default') }}</div>
+{% endif %}

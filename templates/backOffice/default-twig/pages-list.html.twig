@@ -1,0 +1,46 @@
+{% extends '@BackOfficeDefaultTwig/base.html.twig' %}
+
+{% block title %}{{ 'Pages List'|trans({}, 'page.bo.default') }}{% endblock %}
+{% block body_testid %}pages-list-page{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('admin.home') }}">{{ 'Home'|trans({}, 'page.bo.default') }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'Pages'|trans({}, 'page.bo.default') }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid" data-testid="pages-list-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 mb-0">{{ 'Pages List'|trans({}, 'page.bo.default') }}</h1>
+            <div class="d-flex gap-2">
+                <a href="{{ path('page_tag_list') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-tags" aria-hidden="true"></i> {{ 'Manage page tags'|trans({}, 'page.bo.default') }}
+                </a>
+                <a href="{{ path('page_type_list') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-collection" aria-hidden="true"></i> {{ 'Manage page type'|trans({}, 'page.bo.default') }}
+                </a>
+                <a href="{{ path('page_new_page') }}" class="btn btn-primary flex-shrink-0" data-testid="page-add-btn">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> {{ 'Add a new page'|trans({}, 'page.bo.default') }}
+                </a>
+            </div>
+        </div>
+
+        {% if app.request.query.get('error') %}
+            <div class="alert alert-danger">{{ app.request.query.get('error') }}</div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-body">
+                {% include 'Page/include/pages-table.html.twig' with { pages: pages } only %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts_extra %}
+    {% include 'Page/include/pages-list-js.html.twig' %}
+{% endblock %}

@@ -33,9 +33,13 @@ use Thelia\Tools\URL;
 class PageController extends BaseAdminController
 {
     #[Route('', name: '_list', methods: ['GET'])]
-    public function listPageAction(): Response
+    public function listPageAction(Session $session): Response
     {
-        return $this->render('pages-list');
+        $locale = $session->getLang()->getLocale();
+
+        return $this->render('pages-list', [
+            'pages' => $this->buildPageRows($locale, 0),
+        ]);
     }
 
     /**
@@ -43,7 +47,71 @@ class PageController extends BaseAdminController
     #[Route('/new', name: '_new_page', methods: ['GET'])]
     public function newPageViewAction(Request $request): Response
     {
-        return $this->render('new-page', ['parent' => $request->get('parent')]);
+        $parent = $request->query->get('parent');
+
+        return $this->render('new-page', [
+            'parent' => $parent,
+            'create_form' => $this->createForm(PageForm::class)->getForm()->createView(),
+        ]);
+    }
+
+    /**
+     * Build the rows displayed by the pages list, mirroring the legacy `page_loop`
+     * (direct children of a parent tree level, ordered by position/tree-left).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildPageRows(string $locale, int $parentTreeLevel, ?int $parentTreeLeft = null, ?int $parentTreeRight = null): array
+    {
+        $search = PageQuery::create()
+            ->filterByTreeLevel($parentTreeLevel + 1)
+            ->orderByTreeLeft();
+
+        if (null !== $parentTreeLeft && null !== $parentTreeRight) {
+            $search
+                ->filterByTreeLeft($parentTreeLeft, \Propel\Runtime\ActiveQuery\Criteria::GREATER_THAN)
+                ->filterByTreeRight($parentTreeRight, \Propel\Runtime\ActiveQuery\Criteria::LESS_THAN);
+        }
+
+        $rows = [];
+        $position = 0;
+        foreach ($search->find() as $page) {
+            $page->setLocale($locale);
+
+            $tags = [];
+            foreach (PageTagCombinationQuery::create()->findByPageId($page->getId()) as $combination) {
+                $pageTag = $combination->getPageTag();
+                if (null !== $pageTag) {
+                    $tags[] = $pageTag->getTag();
+                }
+            }
+
+            $blockGroupTitle = null;
+            $itemBlockGroup = \TheliaBlocks\Model\ItemBlockGroupQuery::create()
+                ->filterByItemType('page')
+                ->filterByItemId($page->getId())
+                ->findOne();
+            if (null !== $itemBlockGroup) {
+                $blockGroup = $itemBlockGroup->getBlockGroup();
+                if (null !== $blockGroup) {
+                    $blockGroupTitle = $blockGroup->setLocale($locale)->getTitle();
+                }
+            }
+
+            $rows[] = [
+                'id' => $page->getId(),
+                'title' => $page->getTitle(),
+                'code' => $page->getCode(),
+                'block_group_title' => $blockGroupTitle,
+                'url' => $page->getUrl($locale),
+                'tag' => implode(', ', array_filter($tags)),
+                'visible' => (bool) $page->getVisible(),
+                'is_home' => (bool) $page->getIsHome(),
+                'position' => ++$position,
+            ];
+        }
+
+        return $rows;
     }
 
     /**
@@ -138,6 +206,13 @@ class PageController extends BaseAdminController
             $tags[] = $pageTag->getPageTag()->getTag();
         }
 
+        $editLanguageId = $request->query->get('edit_language_id');
+
+        $pageTypes = [];
+        foreach (\Page\Model\PageTypeQuery::create()->orderById()->find() as $type) {
+            $pageTypes[] = ['id' => $type->getId(), 'type' => $type->getType()];
+        }
+
         return $this->render('edit-page', [
             "page_id" => $pageId,
             "page_url" => $page->getRewrittenUrl($locale),
@@ -155,7 +230,12 @@ class PageController extends BaseAdminController
             "page_meta_description" => $page->getMetaDescription(),
             "page_meta_keywords" => $page->getMetaKeywords(),
             "ancestors" => $ancestors,
-            'current_tab' => $request->get('current_tab')
+            'current_tab' => $request->query->get('current_tab'),
+            'edit_language_id' => $editLanguageId,
+            'page_types' => $pageTypes,
+            'sub_pages' => $this->buildPageRows($locale, (int) $page->getTreeLevel(), (int) $page->getTreeLeft(), (int) $page->getTreeRight()),
+            'edit_form' => $this->createForm(EditPageForm::class)->getForm()->createView(),
+            'seo_form' => $this->createForm(EditPageSeoForm::class)->getForm()->createView(),
         ]);
     }
 

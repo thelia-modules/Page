@@ -1,0 +1,8 @@
+{# Shared fields for the page tag create/update forms (PREFIXED names — endpoint uses validateForm) #}
+<input type="hidden" name="{{ form.vars.full_name }}[_token]" value="{{ form._token.vars.value }}">
+<input type="hidden" name="{{ form.vars.full_name }}[success_url]" value="{{ success_url }}">
+<input type="hidden" name="{{ form.vars.full_name }}[error_url]" value="{{ error_url }}">
+<div class="mb-3">
+    <label class="form-label" for="page_tag_field">{{ 'Tag'|trans({}, 'page.bo.default') }}</label>
+    <input type="text" class="form-control" id="page_tag_field" name="{{ form.vars.full_name }}[tag]" value="{{ tag_value }}" required>
+</div>

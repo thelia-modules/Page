@@ -1,0 +1,216 @@
+{% extends '@BackOfficeDefaultTwig/base.html.twig' %}
+
+{% block title %}{{ 'Edit page'|trans({}, 'page.bo.default') }} - {{ page_title }}{% endblock %}
+{% block body_testid %}page-edit-page{% endblock %}
+
+{% set lang_param = edit_language_id ? { edit_language_id: edit_language_id } : {} %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('admin.home') }}">{{ 'Home'|trans({}, 'page.bo.default') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('page_list') }}">{{ 'Pages'|trans({}, 'page.bo.default') }}</a></li>
+            {% for ancestor in ancestors %}
+                <li class="breadcrumb-item"><a href="{{ path('page_edit_page', { pageId: ancestor.id }) }}">{{ ancestor.title }}</a></li>
+            {% endfor %}
+            <li class="breadcrumb-item active" aria-current="page">{{ page_title ?: 'No title'|trans({}, 'page.bo.default') }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid" data-testid="page-edit-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 mb-0">{{ 'Edit page'|trans({}, 'page.bo.default') }} <small class="text-muted">#{{ page_id }}</small></h1>
+            <a href="{{ path('page_list') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> {{ 'Back'|trans({}, 'page.bo.default') }}
+            </a>
+        </div>
+
+        <div class="bo-tab-bar">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ current_tab|default('block') == 'block' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-block" type="button" data-testid="page-tab-block">{{ 'Block'|trans({}, 'page.bo.default') }}</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ current_tab|default('') == 'general' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-general" type="button" data-testid="page-tab-general">{{ 'Configuration'|trans({}, 'page.bo.default') }}</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ current_tab|default('') == 'seo' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-seo" type="button" data-testid="page-tab-seo">{{ 'SEO'|trans({}, 'page.bo.default') }}</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ current_tab|default('') == 'images' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-images" data-href="{{ path('page_image_list', { pageId: page_id }) }}" type="button" data-testid="page-tab-images">{{ 'Images'|trans({}, 'page.bo.default') }}</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ current_tab|default('') == 'documents' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-documents" data-href="{{ path('page_document_list', { pageId: page_id }) }}" type="button" data-testid="page-tab-documents">{{ 'Documents'|trans({}, 'page.bo.default') }}</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ current_tab|default('') == 'module' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-module" type="button" data-testid="page-tab-module">{{ 'Module'|trans({}, 'page.bo.default') }}</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ current_tab|default('') == 'subPages' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-subpages" type="button" data-testid="page-tab-subpages">{{ 'Sub pages'|trans({}, 'page.bo.default') }}</button>
+                </li>
+            </ul>
+            <div class="bo-tab-bar__aside">
+                {{ component('BoLanguageSwitcher', { currentLanguageId: edit_language_id }) }}
+            </div>
+        </div>
+
+        <div class="tab-content">
+            {# --- Block tab --- #}
+            <div class="tab-pane fade {{ current_tab|default('block') == 'block' ? 'show active' : '' }}" id="tab-block" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        {{ safe_hook('thelia.blocks.item.configuration', { itemType: 'page', itemId: page_id }) }}
+                    </div>
+                </div>
+            </div>
+
+            {# --- Configuration (general) tab --- #}
+            <div class="tab-pane fade {{ current_tab|default('') == 'general' ? 'show active' : '' }}" id="tab-general" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        {% set prefix = edit_form.vars.full_name %}
+                        <form method="post" action="{{ path('page_update_page_action', { pageId: page_id }|merge(lang_param)) }}" data-testid="page-edit-form">
+                            <input type="hidden" name="{{ prefix }}[_token]" value="{{ edit_form._token.vars.value }}">
+                            <input type="hidden" name="{{ prefix }}[success_url]" value="{{ path('page_edit_page', { pageId: page_id, current_tab: 'general' }) }}">
+                            <input type="hidden" name="{{ prefix }}[error_url]" value="{{ path('page_edit_page', { pageId: page_id, current_tab: 'general' }) }}">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="edit_title">{{ 'Page title'|trans({}, 'page.bo.default') }}</label>
+                                    <input type="text" class="form-control" id="edit_title" name="{{ prefix }}[title]" value="{{ page_title }}" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label" for="edit_code">{{ 'Page code'|trans({}, 'page.bo.default') }}</label>
+                                    <input type="text" class="form-control" id="edit_code" name="{{ prefix }}[code]" value="{{ page_code }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label" for="edit_type">{{ 'Page type'|trans({}, 'page.bo.default') }}</label>
+                                    <select class="form-select" id="edit_type" name="{{ prefix }}[type]">
+                                        <option value="">{{ 'No type'|trans({}, 'page.bo.default') }}</option>
+                                        {% for type in page_types %}
+                                            <option value="{{ type.id }}" {{ type.id == page_type_id ? 'selected' : '' }}>{{ type.type }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label" for="edit_tag">{{ 'Page tag'|trans({}, 'page.bo.default') }}</label>
+                                    <input type="text" class="form-control" id="edit_tag" name="{{ prefix }}[tag]" value="{{ page_tag }}">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label" for="edit_chapo">{{ 'Summary'|trans({}, 'page.bo.default') }}</label>
+                                    <textarea class="form-control wysiwyg" id="edit_chapo" name="{{ prefix }}[chapo]" rows="4">{{ page_chapo }}</textarea>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label" for="edit_description">{{ 'Description'|trans({}, 'page.bo.default') }}</label>
+                                    <textarea class="form-control wysiwyg" id="edit_description" name="{{ prefix }}[description]" rows="6">{{ page_description }}</textarea>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label" for="edit_postscriptum">{{ 'Conclusion'|trans({}, 'page.bo.default') }}</label>
+                                    <textarea class="form-control wysiwyg" id="edit_postscriptum" name="{{ prefix }}[postscriptum]" rows="4">{{ page_postscriptum }}</textarea>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary" data-testid="page-edit-submit">
+                                    <i class="bi bi-check2" aria-hidden="true"></i> {{ 'Save'|trans({}, 'page.bo.default') }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {# --- SEO tab --- #}
+            <div class="tab-pane fade {{ current_tab|default('') == 'seo' ? 'show active' : '' }}" id="tab-seo" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        {% set seo_prefix = seo_form.vars.full_name %}
+                        <form method="post" action="{{ path('page_update_seo_page_action', { pageId: page_id }|merge(lang_param)) }}" data-testid="page-seo-form">
+                            <input type="hidden" name="{{ seo_prefix }}[_token]" value="{{ seo_form._token.vars.value }}">
+                            <input type="hidden" name="{{ seo_prefix }}[success_url]" value="{{ path('page_edit_page', { pageId: page_id, current_tab: 'seo' }) }}">
+                            <input type="hidden" name="{{ seo_prefix }}[error_url]" value="{{ path('page_edit_page', { pageId: page_id, current_tab: 'seo' }) }}">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label" for="seo_url">{{ 'Rewriting URL'|trans({}, 'page.bo.default') }}</label>
+                                    <input type="text" class="form-control" id="seo_url" name="{{ seo_prefix }}[url]" value="{{ page_url }}" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label" for="seo_title">{{ 'Page title'|trans({}, 'page.bo.default') }}</label>
+                                    <input type="text" class="form-control" id="seo_title" name="{{ seo_prefix }}[title]" value="{{ page_title }}" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label" for="seo_meta_title">{{ 'Meta title'|trans({}, 'page.bo.default') }}</label>
+                                    <input type="text" class="form-control" id="seo_meta_title" name="{{ seo_prefix }}[meta_title]" value="{{ page_meta_title }}">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label" for="seo_meta_description">{{ 'Meta description'|trans({}, 'page.bo.default') }}</label>
+                                    <textarea class="form-control" id="seo_meta_description" name="{{ seo_prefix }}[meta_description]" rows="3">{{ page_meta_description }}</textarea>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label" for="seo_meta_keyword">{{ 'Meta keywords'|trans({}, 'page.bo.default') }}</label>
+                                    <textarea class="form-control" id="seo_meta_keyword" name="{{ seo_prefix }}[meta_keyword]" rows="2">{{ page_meta_keywords }}</textarea>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary" data-testid="page-seo-submit">
+                                    <i class="bi bi-check2" aria-hidden="true"></i> {{ 'Save'|trans({}, 'page.bo.default') }}
+                                </button>
+                            </div>
+                        </form>
+                        {{ safe_hook('tab-seo.bottom', { id: page_id, type: 'page' }) }}
+                    </div>
+                </div>
+            </div>
+
+            {# --- Images tab (loaded via AJAX) --- #}
+            <div class="tab-pane fade {{ current_tab|default('') == 'images' ? 'show active' : '' }}" id="tab-images" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        {% include 'Page/include/file-uploader.html.twig' with {
+                            kind: 'image',
+                            upload_url: path('page_image_upload', { pageId: page_id }),
+                            list_url: path('page_image_list', { pageId: page_id })
+                        } only %}
+                    </div>
+                </div>
+            </div>
+
+            {# --- Documents tab (loaded via AJAX) --- #}
+            <div class="tab-pane fade {{ current_tab|default('') == 'documents' ? 'show active' : '' }}" id="tab-documents" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        {% include 'Page/include/file-uploader.html.twig' with {
+                            kind: 'document',
+                            upload_url: path('page_document_upload', { pageId: page_id }),
+                            list_url: path('page_document_list', { pageId: page_id })
+                        } only %}
+                    </div>
+                </div>
+            </div>
+
+            {# --- Module tab --- #}
+            <div class="tab-pane fade {{ current_tab|default('') == 'module' ? 'show active' : '' }}" id="tab-module" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        {{ safe_hook('page.tab-content', { id: page_id, view: 'page', location: 'page-edit' }) }}
+                    </div>
+                </div>
+            </div>
+
+            {# --- Sub pages tab --- #}
+            <div class="tab-pane fade {{ current_tab|default('') == 'subPages' ? 'show active' : '' }}" id="tab-subpages" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        {% include 'Page/include/pages-table.html.twig' with { pages: sub_pages } only %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts_extra %}
+    {% include 'Page/include/pages-list-js.html.twig' %}
+    {% include 'Page/include/edit-page-js.html.twig' %}
+    {{ safe_hook('wysiwyg.js', { location: 'page-edit-js' }) }}
+{% endblock %}

@@ -1,0 +1,49 @@
+{# Image/document tab: load list fragments on demand + handle uploads #}
+<script type="module">
+    const loadList = (container) => {
+        const url = container.dataset.listUrl;
+        if (!url || container.dataset.loaded === '1') {
+            return;
+        }
+        fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then((r) => r.text())
+            .then((html) => {
+                container.innerHTML = html;
+                container.dataset.loaded = '1';
+            })
+            .catch(() => {
+                container.innerHTML = '<div class="alert alert-danger mb-0">{{ 'Unable to load the list, please refresh.'|trans({}, 'page.bo.default')|e('js') }}</div>';
+            });
+    };
+
+    // Load a list when its tab is shown.
+    document.querySelectorAll('button[data-bs-toggle="tab"][data-href]').forEach((btn) => {
+        btn.addEventListener('shown.bs.tab', () => {
+            const pane = document.querySelector(btn.dataset.bsTarget);
+            const container = pane ? pane.querySelector('.page-file-list') : null;
+            if (container) {
+                loadList(container);
+            }
+        });
+    });
+
+    // Eager-load any list whose tab is already active on page load.
+    document.querySelectorAll('.tab-pane.active .page-file-list').forEach(loadList);
+
+    // Handle uploads, then reload the matching list.
+    document.querySelectorAll('.page-file-uploader').forEach((form) => {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = new FormData(form);
+            fetch(form.dataset.uploadUrl, { method: 'POST', body: data, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(() => {
+                    const container = form.parentElement.querySelector('.page-file-list');
+                    if (container) {
+                        container.dataset.loaded = '0';
+                        loadList(container);
+                    }
+                    form.reset();
+                });
+        });
+    });
+</script>

@@ -1,0 +1,61 @@
+{% extends '@BackOfficeDefaultTwig/base.html.twig' %}
+
+{% block title %}{{ 'Tags List'|trans({}, 'page.bo.default') }}{% endblock %}
+{% block body_testid %}page-tags-list-page{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('admin.home') }}">{{ 'Home'|trans({}, 'page.bo.default') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('page_list') }}">{{ 'Pages'|trans({}, 'page.bo.default') }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'Tags'|trans({}, 'page.bo.default') }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid" data-testid="page-tags-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 mb-0">{{ 'Tags List'|trans({}, 'page.bo.default') }}</h1>
+            <a href="{{ path('page_tag_new_tag') }}" class="btn btn-primary flex-shrink-0" data-testid="page-tag-add-btn">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i> {{ 'Add a new tag'|trans({}, 'page.bo.default') }}
+            </a>
+        </div>
+
+        {% if app.request.query.get('error') %}
+            <div class="alert alert-danger">{{ app.request.query.get('error') }}</div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped align-middle mb-0" data-testid="page-tags-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'Id'|trans({}, 'page.bo.default') }}</th>
+                            <th>{{ 'Tag'|trans({}, 'page.bo.default') }}</th>
+                            <th class="text-end">{{ 'Actions'|trans({}, 'page.bo.default') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tag in page_tags %}
+                            <tr data-testid="page-tag-row-{{ tag.id }}">
+                                <td><a href="{{ path('page_tag_edit_page', { tagId: tag.id }) }}">{{ tag.id }}</a></td>
+                                <td><a href="{{ path('page_tag_edit_page', { tagId: tag.id }) }}">{{ tag.tag }}</a></td>
+                                <td class="text-end">
+                                    <a href="{{ path('page_tag_edit_page', { tagId: tag.id }) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'Edit this tag'|trans({}, 'page.bo.default') }}">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i>
+                                    </a>
+                                    <a href="{{ path('page_tag_delete_page', { tagId: tag.id }) }}" class="btn btn-sm btn-outline-danger" title="{{ 'Delete this tag'|trans({}, 'page.bo.default') }}" data-testid="page-tag-delete-{{ tag.id }}">
+                                        <i class="bi bi-trash" aria-hidden="true"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="3" class="text-muted text-center">{{ 'No tag yet.'|trans({}, 'page.bo.default') }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

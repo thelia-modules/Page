@@ -1,0 +1,20 @@
+{# Visible / homepage toggles for the pages list — navigate to the GET toggle routes #}
+<script type="module">
+    const visibleUrl = "{{ path('page_toggle_page_visibility_action') }}";
+    const homeUrl = "{{ path('page_toggle_page_home_action') }}";
+
+    document.querySelectorAll('.page-toggle-visible').forEach((el) => {
+        el.addEventListener('change', (e) => {
+            const id = e.target.dataset.pageId;
+            const visible = e.target.checked ? 1 : 0;
+            window.location.href = `${visibleUrl}?page_id=${id}&visible=${visible}`;
+        });
+    });
+
+    document.querySelectorAll('.page-toggle-home').forEach((el) => {
+        el.addEventListener('change', (e) => {
+            const id = e.target.dataset.pageId;
+            window.location.href = `${homeUrl}?page_id=${id}`;
+        });
+    });
+</script>

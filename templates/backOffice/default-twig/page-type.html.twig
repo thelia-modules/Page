@@ -1,0 +1,71 @@
+{% extends '@BackOfficeDefaultTwig/base.html.twig' %}
+
+{% block title %}{{ 'Page type'|trans({}, 'page.bo.default') }}{% endblock %}
+{% block body_testid %}page-type-page{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('admin.home') }}">{{ 'Home'|trans({}, 'page.bo.default') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('page_list') }}">{{ 'Pages'|trans({}, 'page.bo.default') }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'Page type'|trans({}, 'page.bo.default') }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid" data-testid="page-type-content">
+        <h1 class="h3 mb-3">{{ 'Page types configurations'|trans({}, 'page.bo.default') }}</h1>
+
+        {% if app.request.query.get('error') %}
+            <div class="alert alert-danger">{{ app.request.query.get('error') }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">{{ 'Add Type'|trans({}, 'page.bo.default') }}</h2>
+                        <form method="post" action="{{ path('page_type_create') }}" data-testid="page-type-create-form">
+                            <input type="hidden" name="{{ type_form.vars.full_name }}[_token]" value="{{ type_form._token.vars.value }}">
+                            <input type="hidden" name="{{ type_form.vars.full_name }}[success_url]" value="{{ path('page_type_list') }}">
+                            <input type="hidden" name="{{ type_form.vars.full_name }}[error_url]" value="{{ path('page_type_list') }}">
+                            <div class="mb-3">
+                                <label class="form-label" for="page_type_input">{{ 'Type'|trans({}, 'page.bo.default') }}</label>
+                                <input type="text" class="form-control" id="page_type_input" name="{{ type_form.vars.full_name }}[type]" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" data-testid="page-type-create-submit">
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i> {{ 'Create'|trans({}, 'page.bo.default') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">{{ 'List of page types'|trans({}, 'page.bo.default') }}</h2>
+                        <table class="table table-striped align-middle mb-0" data-testid="page-type-table">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'Id'|trans({}, 'page.bo.default') }}</th>
+                                    <th>{{ 'Type'|trans({}, 'page.bo.default') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for type in page_types %}
+                                    <tr>
+                                        <td>{{ type.id }}</td>
+                                        <td>{{ type.type }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="2" class="text-muted text-center">{{ 'No page type yet.'|trans({}, 'page.bo.default') }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

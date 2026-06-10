@@ -20,13 +20,22 @@ class PageTagController extends BaseAdminController
     #[Route('', name:'_list', methods: 'GET')]
     public function listPageTagAction(): Response|RedirectResponse
     {
-        return $this->render('page-tags-list');
+        $tags = [];
+        foreach (PageTagQuery::create()->orderById()->find() as $tag) {
+            $tags[] = ['id' => $tag->getId(), 'tag' => $tag->getTag()];
+        }
+
+        return $this->render('page-tags-list', [
+            'page_tags' => $tags,
+        ]);
     }
 
     #[Route('/new', name:'_new_tag', methods: 'GET')]
     public function newPageTagViewAction(Request $request): Response|RedirectResponse
     {
-        return $this->render('new-tag');
+        return $this->render('new-tag', [
+            'tag_form' => $this->createForm(PageTagForm::class)->getForm()->createView(),
+        ]);
     }
 
     #[Route('/create', name:'_create_tag_action', methods: 'POST')]
@@ -65,7 +74,8 @@ class PageTagController extends BaseAdminController
 
         return $this->render('edit-tag', [
             "page_tag_id" => $tag->getId(),
-            "page_tag" => $tag->getTag()
+            "page_tag" => $tag->getTag(),
+            "tag_form" => $this->createForm(PageTagForm::class)->getForm()->createView(),
             ]
         );
     }

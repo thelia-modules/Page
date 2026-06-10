@@ -1,0 +1,15 @@
+{# Simple file uploader + list container for a page (images or documents) #}
+<form class="page-file-uploader d-flex gap-2 mb-3"
+      data-upload-url="{{ upload_url }}"
+      data-list-url="{{ list_url }}"
+      data-kind="{{ kind }}"
+      enctype="multipart/form-data"
+      data-testid="page-{{ kind }}-upload-form">
+    <input type="file" name="file" class="form-control" required>
+    <button type="submit" class="btn btn-info flex-shrink-0">
+        <i class="bi bi-upload" aria-hidden="true"></i> {{ 'Send files'|trans({}, 'page.bo.default') }}
+    </button>
+</form>
+<div class="page-file-list" data-list-url="{{ list_url }}" data-testid="page-{{ kind }}-list">
+    <div class="text-center"><span class="loading">{{ 'Please wait, loading'|trans({}, 'page.bo.default') }}</span></div>
+</div>

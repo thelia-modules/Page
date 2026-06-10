@@ -1,0 +1,21 @@
+{# Image list fragment for a page (loaded into the Images tab) #}
+{% if images is not empty %}
+    <ul class="list-unstyled row">
+        {% for image in images %}
+            <li class="col-sm-6 col-md-3" data-sort-id="{{ image.id }}">
+                <div class="card mb-3">
+                    <img src="{{ image.url }}" class="card-img-top" alt="{{ image.title }}">
+                    <div class="card-body p-2 text-end">
+                        <a class="btn btn-sm btn-outline-danger page-image-delete" id="image-{{ image.id }}"
+                           href="{{ path('page_image_delete', { pageImageId: image.id, pageId: page_id }) }}"
+                           title="{{ 'Delete'|trans({}, 'page.bo.default') }}">
+                            <i class="bi bi-trash" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <div class="alert alert-info mb-0">{{ 'There is no image attached to this page.'|trans({}, 'page.bo.default') }}</div>
+{% endif %}
