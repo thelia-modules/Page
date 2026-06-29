@@ -199,11 +199,7 @@
 
             {# --- Sub pages tab --- #}
             <div class="tab-pane fade {{ current_tab|default('') == 'subPages' ? 'show active' : '' }}" id="tab-subpages" role="tabpanel">
-                <div class="card">
-                    <div class="card-body">
-                        {% include 'Page/include/pages-table.html.twig' with { pages: sub_pages } only %}
-                    </div>
-                </div>
+                {% include 'Page/include/pages-table.html.twig' with { pages: sub_pages } only %}
             </div>
         </div>
     </div>

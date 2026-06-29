@@ -1,50 +1,69 @@
 {# Shared pages table (used by the list page and the sub-pages tab) #}
-<div class="table-responsive">
-    <table class="table table-striped align-middle mb-0" data-testid="pages-table">
-        <thead>
-            <tr>
-                <th>{{ 'Id'|trans({}, 'page.bo.default') }}</th>
-                <th>{{ 'Title'|trans({}, 'page.bo.default') }}</th>
-                <th>{{ 'Code'|trans({}, 'page.bo.default') }}</th>
-                <th>{{ 'Thelia block'|trans({}, 'page.bo.default') }}</th>
-                <th>{{ 'Url'|trans({}, 'page.bo.default') }}</th>
-                <th>{{ 'Tag'|trans({}, 'page.bo.default') }}</th>
-                <th>{{ 'Visible'|trans({}, 'page.bo.default') }}</th>
-                <th>{{ 'Homepage'|trans({}, 'page.bo.default') }}</th>
-                <th class="text-end">{{ 'Actions'|trans({}, 'page.bo.default') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for page in pages %}
-                <tr data-testid="page-row-{{ page.id }}">
-                    <td><a href="{{ path('page_edit_page', { pageId: page.id, current_tab: 'general' }) }}">{{ page.id }}</a></td>
-                    <td><a href="{{ path('page_edit_page', { pageId: page.id, current_tab: 'general' }) }}">{{ page.title }}</a></td>
-                    <td>{{ page.code }}</td>
-                    <td><a href="{{ path('page_edit_page', { pageId: page.id, current_tab: 'block' }) }}">{{ page.block_group_title }}</a></td>
-                    <td>{{ page.url }}</td>
-                    <td>{{ page.tag }}</td>
-                    <td>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input page-toggle-visible" type="checkbox" data-page-id="{{ page.id }}" {{ page.visible ? 'checked' : '' }} data-testid="page-visible-{{ page.id }}">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input page-toggle-home" type="checkbox" data-page-id="{{ page.id }}" {{ page.is_home ? 'checked' : '' }} data-testid="page-home-{{ page.id }}">
-                        </div>
-                    </td>
-                    <td class="text-end">
-                        <a href="{{ path('page_edit_page', { pageId: page.id, current_tab: 'general' }) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'Edit this page'|trans({}, 'page.bo.default') }}">
-                            <i class="bi bi-pencil" aria-hidden="true"></i>
-                        </a>
-                        <a href="{{ path('page_delete_page_action', { pageId: page.id }) }}" class="btn btn-sm btn-outline-danger" title="{{ 'Delete this page'|trans({}, 'page.bo.default') }}" data-testid="page-delete-{{ page.id }}">
-                            <i class="bi bi-trash" aria-hidden="true"></i>
-                        </a>
-                    </td>
-                </tr>
-            {% else %}
-                <tr><td colspan="9" class="text-muted text-center">{{ 'No page yet.'|trans({}, 'page.bo.default') }}</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+{% set table_rows = [] %}
+{% for page in pages %}
+    {% set edit_url = path('page_edit_page', { pageId: page.id, current_tab: 'general' }) %}
+    {% set visible_html %}
+        <div class="form-check form-switch">
+            <input class="form-check-input page-toggle-visible" type="checkbox"
+                   data-page-id="{{ page.id }}"
+                   {{ page.visible ? 'checked' : '' }}
+                   data-testid="page-visible-{{ page.id }}">
+        </div>
+    {% endset %}
+    {% set home_html %}
+        <div class="form-check form-switch">
+            <input class="form-check-input page-toggle-home" type="checkbox"
+                   data-page-id="{{ page.id }}"
+                   {{ page.is_home ? 'checked' : '' }}
+                   data-testid="page-home-{{ page.id }}">
+        </div>
+    {% endset %}
+    {% set action_html %}
+        <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'Row actions'|trans }}">
+            <a href="{{ edit_url }}"
+               class="btn btn-sm btn-outline-primary bo-action bo-action--edit"
+               title="{{ 'Edit this page'|trans({}, 'page.bo.default') }}"
+               aria-label="{{ 'Edit this page'|trans({}, 'page.bo.default') }}"
+               data-testid="datatable-action-edit">
+                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                <span class="visually-hidden">{{ 'Edit this page'|trans({}, 'page.bo.default') }}</span>
+            </a>
+            <a href="{{ path('page_delete_page_action', { pageId: page.id }) }}"
+               class="btn btn-sm btn-outline-danger bo-action bo-action--delete"
+               title="{{ 'Delete this page'|trans({}, 'page.bo.default') }}"
+               aria-label="{{ 'Delete this page'|trans({}, 'page.bo.default') }}"
+               data-testid="page-delete-{{ page.id }}">
+                <i class="bi bi-trash" aria-hidden="true"></i>
+                <span class="visually-hidden">{{ 'Delete this page'|trans({}, 'page.bo.default') }}</span>
+            </a>
+        </div>
+    {% endset %}
+    {% set table_rows = table_rows|merge([{
+        'id':                '<a href="' ~ edit_url ~ '">' ~ page.id|e ~ '</a>',
+        'title':             '<a href="' ~ edit_url ~ '">' ~ page.title|e ~ '</a>',
+        'code':              page.code,
+        'block_group_title': '<a href="' ~ path('page_edit_page', { pageId: page.id, current_tab: 'block' }) ~ '">' ~ page.block_group_title|e ~ '</a>',
+        'url':               page.url,
+        'tag':               page.tag,
+        'visible':           visible_html,
+        'is_home':           home_html,
+        '_action':           action_html,
+    }]) %}
+{% endfor %}
+
+{{ component('BoDataTable', {
+    id: 'pages',
+    columns: [
+        column_html('id',                'Id'|trans({}, 'page.bo.default')),
+        column_html('title',             'Title'|trans({}, 'page.bo.default')),
+        column_text('code',              'Code'|trans({}, 'page.bo.default')),
+        column_html('block_group_title', 'Thelia block'|trans({}, 'page.bo.default')),
+        column_text('url',               'Url'|trans({}, 'page.bo.default')),
+        column_text('tag',               'Tag'|trans({}, 'page.bo.default')),
+        column_html('visible',           'Visible'|trans({}, 'page.bo.default'),  'center'),
+        column_html('is_home',           'Homepage'|trans({}, 'page.bo.default'), 'center'),
+        column_html('_action',           'Actions'|trans({}, 'page.bo.default'),  'end'),
+    ],
+    rows: table_rows,
+    emptyMessage: 'No page yet.'|trans({}, 'page.bo.default'),
+}) }}
