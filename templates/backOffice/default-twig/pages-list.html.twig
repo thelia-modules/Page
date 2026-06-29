@@ -33,11 +33,7 @@
             <div class="alert alert-danger">{{ app.request.query.get('error') }}</div>
         {% endif %}
 
-        <div class="card">
-            <div class="card-body">
-                {% include 'Page/include/pages-table.html.twig' with { pages: pages } only %}
-            </div>
-        </div>
+        {% include 'Page/include/pages-table.html.twig' with { pages: pages } only %}
     </div>
 {% endblock %}
 
