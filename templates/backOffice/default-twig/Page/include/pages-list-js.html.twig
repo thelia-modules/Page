@@ -1,20 +1,26 @@
-{# Visible / homepage toggles for the pages list — navigate to the GET toggle routes #}
+{# Visible / homepage toggles for the pages list — POST to CSRF-protected routes #}
 <script type="module">
-    const visibleUrl = "{{ path('page_toggle_page_visibility_action') }}";
-    const homeUrl = "{{ path('page_toggle_page_home_action') }}";
+    const visibleUrl = "{{ path('page_toggle_page_visibility_action') }}?_token={{ assignToken() }}";
+    const homeUrl = "{{ path('page_toggle_page_home_action') }}?_token={{ assignToken() }}";
+
+    const postAction = (url) => {
+        fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then((r) => { if (!r.ok) { window.location.reload(); } })
+            .catch(() => { window.location.reload(); });
+    };
 
     document.querySelectorAll('.page-toggle-visible').forEach((el) => {
         el.addEventListener('change', (e) => {
             const id = e.target.dataset.pageId;
             const visible = e.target.checked ? 1 : 0;
-            window.location.href = `${visibleUrl}?page_id=${id}&visible=${visible}`;
+            postAction(`${visibleUrl}&page_id=${id}&visible=${visible}`);
         });
     });
 
     document.querySelectorAll('.page-toggle-home').forEach((el) => {
         el.addEventListener('change', (e) => {
             const id = e.target.dataset.pageId;
-            window.location.href = `${homeUrl}?page_id=${id}`;
+            postAction(`${homeUrl}&page_id=${id}`);
         });
     });
 </script>

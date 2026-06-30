@@ -20,6 +20,7 @@ use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Core\Template\ParserContext;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Model\LangQuery;
+use Thelia\Tools\TokenProvider;
 use Thelia\Tools\URL;
 
 /**
@@ -329,21 +330,24 @@ class PageController extends BaseAdminController
 
     /**
      */
-    #[Route('/update-position', name: '_update_page_position_action', methods: ['GET'])]
+    #[Route('/update-position', name: '_update_page_position_action', methods: ['POST'])]
     public function updatePagePosition(
-        Request     $request,
-        PageService $pageService
+        Request       $request,
+        PageService   $pageService,
+        TokenProvider $tokenProvider
     ): RedirectResponse
     {
+        $tokenProvider->checkToken((string) $request->query->get('_token'));
+
         try {
-            $mode = $request->attributes->get('mode', $request->query->get('mode', $request->request->get('mode')));
-            $pageId = $request->attributes->get('page_id', $request->query->get('page_id', $request->request->get('page_id')));
+            $mode = $request->query->get('mode');
+            $pageId = $request->query->get('page_id');
 
             if (!$mode || !$pageId) {
                 throw new Exception('Page or positon not set');
             }
 
-            $position = $request->attributes->get('position', $request->query->get('position', $request->request->get('position')));
+            $position = $request->query->get('position');
 
             $pageService->changePosition($mode, $pageId, $position);
 
@@ -361,14 +365,17 @@ class PageController extends BaseAdminController
 
     /**
      */
-    #[Route('/set-visible', name: '_toggle_page_visibility_action', methods: ['GET'])]
+    #[Route('/set-visible', name: '_toggle_page_visibility_action', methods: ['POST'])]
     public function togglePageVisibility(
-        Request     $request
+        Request       $request,
+        TokenProvider $tokenProvider
     ): RedirectResponse
     {
+        $tokenProvider->checkToken((string) $request->query->get('_token'));
+
         try {
-            $pageId = $request->attributes->get('page_id', $request->query->get('page_id', $request->request->get('page_id')));
-            $visible = $request->attributes->get('visible', $request->query->get('visible', $request->request->get('visible')));
+            $pageId = $request->query->get('page_id');
+            $visible = $request->query->get('visible');
 
             if (!$pageId) {
                 throw new Exception("Page not found");
@@ -398,14 +405,16 @@ class PageController extends BaseAdminController
 
     /**
      */
-    #[Route('/set-home', name: '_toggle_page_home_action', methods: ['GET'])]
+    #[Route('/set-home', name: '_toggle_page_home_action', methods: ['POST'])]
     public function toggleHome(
-        Request     $request
+        Request       $request,
+        TokenProvider $tokenProvider
     ): RedirectResponse
     {
-        try {
-            $pageId = $request->attributes->get('page_id', $request->query->get('page_id', $request->request->get('page_id')));
+        $tokenProvider->checkToken((string) $request->query->get('_token'));
 
+        try {
+            $pageId = $request->query->get('page_id');
 
             if (!$pageId) {
                 throw new Exception("Page not found");
@@ -415,7 +424,6 @@ class PageController extends BaseAdminController
                 ->filterByIsHome(1)
                 ->findOne();
 
-
             $page = PageQuery::create()
                 ->filterById($pageId)
                 ->findOne();
@@ -424,7 +432,7 @@ class PageController extends BaseAdminController
                 throw new Exception("Page not found");
             }
 
-            if(null !== $prevHomepage) {
+            if (null !== $prevHomepage) {
                 $prevHomepage->setIsHome(0)->save();
             }
 
@@ -447,9 +455,11 @@ class PageController extends BaseAdminController
      * @param $pageId
      * @return RedirectResponse|Response
      */
-    #[Route('/delete/{pageId}', name: '_delete_page_action', methods: ['GET'])]
-    public function deletePageAction($pageId): RedirectResponse|Response
+    #[Route('/delete/{pageId}', name: '_delete_page_action', methods: ['POST'])]
+    public function deletePageAction(Request $request, TokenProvider $tokenProvider, $pageId): RedirectResponse|Response
     {
+        $tokenProvider->checkToken((string) $request->query->get('_token'));
+
         try {
             $page = PageQuery::create()
                 ->filterById($pageId)
