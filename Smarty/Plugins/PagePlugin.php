@@ -24,7 +24,8 @@ class PagePlugin extends AbstractSmartyPlugin
 
     public function pageDataAccess($params, &$smarty)
     {
-        $pageId = $this->requestStack->getCurrentRequest()->get('page_id');
+        $request = $this->requestStack->getCurrentRequest();
+        $pageId = $request->attributes->get('page_id', $request->query->get('page_id', $request->request->get('page_id')));
 
         if ($pageId !== null) {
             return $pageId;

@@ -171,7 +171,7 @@ class PageController extends BaseAdminController
         try {
             $locale = $session->getAdminEditionLang()->getLocale();
 
-            if ($editlanguageId = $request->get('edit_language_id')) {
+            if ($editlanguageId = $request->attributes->get('edit_language_id', $request->query->get('edit_language_id', $request->request->get('edit_language_id')))) {
                 $lang = LangQuery::create()->findPk($editlanguageId);
                 $locale = ($lang) ? $lang->getLocale() : $locale;
             }
@@ -250,7 +250,7 @@ class PageController extends BaseAdminController
 
         $locale = $session->getAdminEditionLang()->getLocale();
 
-        if ($editlanguageId = $request->get('edit_language_id')) {
+        if ($editlanguageId = $request->attributes->get('edit_language_id', $request->query->get('edit_language_id', $request->request->get('edit_language_id')))) {
             $lang = LangQuery::create()->findPk($editlanguageId);
             $locale = ($lang) ? $lang->getLocale() : $locale;
         }
@@ -294,7 +294,7 @@ class PageController extends BaseAdminController
 
         $locale = $session->getAdminEditionLang()->getLocale();
 
-        if ($editlanguageId = $request->get('edit_language_id')) {
+        if ($editlanguageId = $request->attributes->get('edit_language_id', $request->query->get('edit_language_id', $request->request->get('edit_language_id')))) {
             $lang = LangQuery::create()->findPk($editlanguageId);
             $locale = ($lang) ? $lang->getLocale() : $locale;
         }
@@ -336,14 +336,14 @@ class PageController extends BaseAdminController
     ): RedirectResponse
     {
         try {
-            $mode = $request->get('mode');
-            $pageId = $request->get('page_id');
+            $mode = $request->attributes->get('mode', $request->query->get('mode', $request->request->get('mode')));
+            $pageId = $request->attributes->get('page_id', $request->query->get('page_id', $request->request->get('page_id')));
 
             if (!$mode || !$pageId) {
                 throw new Exception('Page or positon not set');
             }
 
-            $position = $request->get('position');
+            $position = $request->attributes->get('position', $request->query->get('position', $request->request->get('position')));
 
             $pageService->changePosition($mode, $pageId, $position);
 
@@ -367,8 +367,8 @@ class PageController extends BaseAdminController
     ): RedirectResponse
     {
         try {
-            $pageId = $request->get('page_id');
-            $visible = $request->get('visible');
+            $pageId = $request->attributes->get('page_id', $request->query->get('page_id', $request->request->get('page_id')));
+            $visible = $request->attributes->get('visible', $request->query->get('visible', $request->request->get('visible')));
 
             if (!$pageId) {
                 throw new Exception("Page not found");
@@ -404,7 +404,7 @@ class PageController extends BaseAdminController
     ): RedirectResponse
     {
         try {
-            $pageId = $request->get('page_id');
+            $pageId = $request->attributes->get('page_id', $request->query->get('page_id', $request->request->get('page_id')));
 
 
             if (!$pageId) {
