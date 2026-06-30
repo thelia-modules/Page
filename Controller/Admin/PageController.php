@@ -87,14 +87,16 @@ class PageController extends BaseAdminController
             }
 
             $blockGroupTitle = null;
-            $itemBlockGroup = \TheliaBlocks\Model\ItemBlockGroupQuery::create()
-                ->filterByItemType('page')
-                ->filterByItemId($page->getId())
-                ->findOne();
-            if (null !== $itemBlockGroup) {
-                $blockGroup = $itemBlockGroup->getBlockGroup();
-                if (null !== $blockGroup) {
-                    $blockGroupTitle = $blockGroup->setLocale($locale)->getTitle();
+            if (class_exists(\TheliaBlocks\Model\ItemBlockGroupQuery::class)) {
+                $itemBlockGroup = \TheliaBlocks\Model\ItemBlockGroupQuery::create()
+                    ->filterByItemType('page')
+                    ->filterByItemId($page->getId())
+                    ->findOne();
+                if (null !== $itemBlockGroup) {
+                    $blockGroup = $itemBlockGroup->getBlockGroup();
+                    if (null !== $blockGroup) {
+                        $blockGroupTitle = $blockGroup->setLocale($locale)->getTitle();
+                    }
                 }
             }
 
