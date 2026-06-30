@@ -96,7 +96,10 @@ class PageForm extends BaseForm
      */
     protected function getTheliaBlocs(): array
     {
-        $locale = $this->getRequest()->getSession()->getAdminEditionLang()->getLocale();
+        $request = $this->getRequest();
+        $locale = $request->hasSession()
+            ? $request->getSession()->getAdminEditionLang()->getLocale()
+            : (\Thelia\Model\LangQuery::create()->findOneByByDefault(true)?->getLocale() ?? 'en_US');
         $choices = [];
 
         $blocks = BlockGroupQuery::create()

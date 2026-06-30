@@ -46,7 +46,10 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
      */
     public function parseResults(LoopResult $loopResult): LoopResult
     {
-        $locale = $this->getCurrentRequest()->getSession()->getLang()->getLocale();
+        $request = $this->getCurrentRequest();
+        $locale = (null !== $request && $request->hasSession())
+            ? $request->getSession()->getLang()->getLocale()
+            : (\Thelia\Model\LangQuery::create()->findOneByByDefault(true)?->getLocale() ?? 'en_US');
 
         /** @var PageDocument $pageDocument */
         foreach ($loopResult->getResultDataCollection() as $pageDocument) {

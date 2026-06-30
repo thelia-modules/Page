@@ -54,7 +54,10 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
 
     public function parseResults(LoopResult $loopResult): LoopResult
     {
-        $locale = $this->getCurrentRequest()->getSession()->getLang()->getLocale();
+        $request = $this->getCurrentRequest();
+        $locale = (null !== $request && $request->hasSession())
+            ? $request->getSession()->getLang()->getLocale()
+            : (\Thelia\Model\LangQuery::create()->findOneByByDefault(true)?->getLocale() ?? 'en_US');
         /** @var PageModel $page */
         foreach ($loopResult->getResultDataCollection() as $page) {
             $loopResultRow = new LoopResultRow($page);
@@ -166,7 +169,10 @@ class PageLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             );
         $search->withColumn('item_block_group.block_group_id', 'block_group_id');
 
-        $locale = $this->getCurrentRequest()->getSession()->getLang()->getLocale();
+        $request = $this->getCurrentRequest();
+        $locale = (null !== $request && $request->hasSession())
+            ? $request->getSession()->getLang()->getLocale()
+            : (\Thelia\Model\LangQuery::create()->findOneByByDefault(true)?->getLocale() ?? 'en_US');
         $joinBlockGroupI18n = new Join();
         $joinBlockGroupI18n->setJoinType(Criteria::LEFT_JOIN);
         $joinBlockGroupI18n->addExplicitCondition(

@@ -61,13 +61,17 @@ class KernelViewListener implements EventSubscriberInterface
             return;
         }
 
+        $lang = (null !== $request && $request->hasSession())
+            ? $request->getSession()->getLang()
+            : \Thelia\Model\Lang::getDefaultLanguage();
+
         $pageQuery = PageQuery::create();
 
         ModelCriteriaTools::getI18n(
             false,
-            $this->requestStack->getCurrentRequest()?->getSession()?->getLang()?->getId(),
+            $lang->getId(),
             $pageQuery,
-            $this->requestStack->getCurrentRequest()?->getSession()?->getLang()?->getLocale(),
+            $lang->getLocale(),
             ['TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS'],
             null,
             'ID',
@@ -94,7 +98,7 @@ class KernelViewListener implements EventSubscriberInterface
             );
         $pageQuery->withColumn('item_block_group.block_group_id', 'block_group_id');
 
-        $locale = $this->requestStack->getCurrentRequest()->getSession()->getLang()->getLocale();
+        $locale = $lang->getLocale();
         $joinBlockGroupI18n = new Join();
         $joinBlockGroupI18n->setJoinType(Criteria::LEFT_JOIN);
         $joinBlockGroupI18n->addExplicitCondition(
@@ -152,7 +156,7 @@ class KernelViewListener implements EventSubscriberInterface
             $request->attributes->set('_view', $view);
         }
 
-        $page->setLocale($this->requestStack->getCurrentRequest()?->getSession()?->getLang()?->getLocale());
+        $page->setLocale($lang->getLocale());
 
         if ($currentTemplateDefinition) {
             $this->parser->setTemplateDefinition($currentTemplateDefinition, $currentFallbackToDefaultTemplate);
