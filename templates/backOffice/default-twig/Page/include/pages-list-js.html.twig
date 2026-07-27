@@ -9,18 +9,31 @@
             .catch(() => { window.location.reload(); });
     };
 
+    // The toggles render as bo-toggle buttons, so the state lives in data-state
+    // and the icon is swapped optimistically once the POST succeeds.
+    const swapIcon = (button, on, iconOn, iconOff) => {
+        button.dataset.state = on ? 'on' : 'off';
+        button.setAttribute('aria-pressed', on ? 'true' : 'false');
+        const icon = button.querySelector('i');
+        if (icon) {
+            icon.className = `bi ${on ? iconOn : iconOff}`;
+        }
+    };
+
     document.querySelectorAll('.page-toggle-visible').forEach((el) => {
-        el.addEventListener('change', (e) => {
-            const id = e.target.dataset.pageId;
-            const visible = e.target.checked ? 1 : 0;
+        el.addEventListener('click', () => {
+            const id = el.dataset.pageId;
+            const visible = el.dataset.state === 'on' ? 0 : 1;
+            swapIcon(el, visible === 1, 'bi-check-circle-fill text-success', 'bi-circle text-secondary');
             postAction(`${visibleUrl}&page_id=${id}&visible=${visible}`);
         });
     });
 
     document.querySelectorAll('.page-toggle-home').forEach((el) => {
-        el.addEventListener('change', (e) => {
-            const id = e.target.dataset.pageId;
-            postAction(`${homeUrl}&page_id=${id}`);
+        el.addEventListener('click', () => {
+            // Only one page can be the homepage, so let the server state win on reload.
+            postAction(`${homeUrl}&page_id=${el.dataset.pageId}`);
+            window.setTimeout(() => window.location.reload(), 300);
         });
     });
 </script>

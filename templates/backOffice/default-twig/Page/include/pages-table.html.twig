@@ -2,21 +2,28 @@
 {% set table_rows = [] %}
 {% for page in pages %}
     {% set edit_url = path('page_edit_page', { pageId: page.id, current_tab: 'general' }) %}
+    {# Same look as the native lists (bo-toggle icon), but POSTed by the list JS. #}
     {% set visible_html %}
-        <div class="form-check form-switch">
-            <input class="form-check-input page-toggle-visible" type="checkbox"
-                   data-page-id="{{ page.id }}"
-                   {{ page.visible ? 'checked' : '' }}
-                   data-testid="page-visible-{{ page.id }}">
-        </div>
+        <button type="button"
+                class="bo-toggle page-toggle-visible btn btn-link p-0 border-0"
+                data-page-id="{{ page.id }}"
+                data-state="{{ page.visible ? 'on' : 'off' }}"
+                aria-pressed="{{ page.visible ? 'true' : 'false' }}"
+                aria-label="{{ 'Visible'|trans({}, 'page.bo.default') }}"
+                data-testid="page-visible-{{ page.id }}">
+            <i class="bi {{ page.visible ? 'bi-check-circle-fill text-success' : 'bi-circle text-secondary' }}" aria-hidden="true"></i>
+        </button>
     {% endset %}
     {% set home_html %}
-        <div class="form-check form-switch">
-            <input class="form-check-input page-toggle-home" type="checkbox"
-                   data-page-id="{{ page.id }}"
-                   {{ page.is_home ? 'checked' : '' }}
-                   data-testid="page-home-{{ page.id }}">
-        </div>
+        <button type="button"
+                class="bo-toggle page-toggle-home btn btn-link p-0 border-0"
+                data-page-id="{{ page.id }}"
+                data-state="{{ page.is_home ? 'on' : 'off' }}"
+                aria-pressed="{{ page.is_home ? 'true' : 'false' }}"
+                aria-label="{{ 'Homepage'|trans({}, 'page.bo.default') }}"
+                data-testid="page-home-{{ page.id }}">
+            <i class="bi {{ page.is_home ? 'bi-star-fill text-warning' : 'bi-star text-secondary' }}" aria-hidden="true"></i>
+        </button>
     {% endset %}
     {% set action_html %}
         <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'Row actions'|trans }}">
@@ -45,7 +52,7 @@
         'title':             '<a href="' ~ edit_url ~ '">' ~ page.title|e ~ '</a>',
         'code':              page.code,
         'block_group_title': '<a href="' ~ path('page_edit_page', { pageId: page.id, current_tab: 'block' }) ~ '">' ~ page.block_group_title|e ~ '</a>',
-        'url':               page.url,
+        'url':               page.url ? '<a href="' ~ page.url|e('html_attr') ~ '" target="_blank" rel="noopener" class="text-decoration-none d-inline-block text-truncate" style="max-width: 18rem;" title="' ~ page.url|e('html_attr') ~ '">' ~ page.url|replace({'https://': '', 'http://': ''})|e ~ '</a>' : '',
         'tag':               page.tag,
         'visible':           visible_html,
         'is_home':           home_html,
@@ -60,7 +67,7 @@
         column_html('title',             'Title'|trans({}, 'page.bo.default')),
         column_text('code',              'Code'|trans({}, 'page.bo.default')),
         column_html('block_group_title', 'Thelia block'|trans({}, 'page.bo.default')),
-        column_text('url',               'Url'|trans({}, 'page.bo.default')),
+        column_html('url',               'Url'|trans({}, 'page.bo.default')),
         column_text('tag',               'Tag'|trans({}, 'page.bo.default')),
         column_html('visible',           'Visible'|trans({}, 'page.bo.default'),  'center'),
         column_html('is_home',           'Homepage'|trans({}, 'page.bo.default'), 'center'),
