@@ -121,6 +121,8 @@ class KernelViewListener implements EventSubscriberInterface
         $pageQuery->withColumn('block_group_i18n.title', 'block_group_title');
         $pageQuery->withColumn('block_group_i18n.json_content', 'block_group_content');
 
+        $page = null;
+
         if ($viewId) {
             $page = $pageQuery->filterById($viewId)
             ->findOne();
@@ -130,6 +132,12 @@ class KernelViewListener implements EventSubscriberInterface
             $page = $pageQuery
             ->filterByIsHome(1)
             ->findOne();
+
+            // No page is flagged as homepage: let the theme render its own
+            // index template instead of turning the storefront into a 404.
+            if (!$page || !$page->getVisible()) {
+                return;
+            }
         }
 
         if (!$page || !$page->getVisible()) {
