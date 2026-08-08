@@ -1,13 +1,13 @@
 {
   "name": "thelia/page-module",
   "description": "Page module for Thelia",
-  "license": "LGPL-3.0-or-later",
+  "license": "GPL-3.0-or-later",
   "type": "thelia-module",
   "require": {
-    "thelia/installer": "~1.1",
+    "thelia/installer": "^1.6",
     "ext-imagick": "*",
-    "thelia/thelia-blocks-module": "dev-twig",
-    "thelia/thelia-library-module": "dev-twig"
+    "thelia/thelia-blocks-module": "^3.0",
+    "thelia/thelia-library-module": "^2.0"
   },
   "extra": {
     "installer-name": "Page"
