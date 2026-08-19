@@ -10,6 +10,7 @@ use Page\Model\PageQuery;
 use Page\Page;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Thelia\Core\Template\Exception\ResourceNotFoundException;
 use Thelia\Core\Template\Parser\ParserResolver;
 use Thelia\Core\Template\ParserInterface;
 use Thelia\Core\Template\TemplateHelperInterface;
@@ -128,7 +129,12 @@ class PageService
 
     public function templateExist(string $templateName) : bool {
         $path = $this->templateHelper->getActiveFrontTemplate()->getAbsolutePath();
-        $this->parser = $this->parserResolver->getParser($path, $templateName);
+
+        try {
+            $this->parser = $this->parserResolver->getParser($path, $templateName);
+        } catch (ResourceNotFoundException) {
+            return false;
+        }
 
         $filePath = $path . DS . $templateName . '.' . $this->parser->getFileExtension();
 
