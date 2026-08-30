@@ -68,7 +68,9 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             $imageEvent = new ImageEvent();
             if (pathinfo($file, PATHINFO_EXTENSION) === 'pdf') {
                 try {
-                    if (null === $theliaLibraryImage = LibraryItemImageQuery::create()->filterByItemType(Page::PAGE_DOCUMENT_PREVIEW)->findOneByItemId($pageDocument->getId())) {
+                    $theliaLibraryImage = LibraryItemImageQuery::create()->filterByItemType(Page::PAGE_DOCUMENT_PREVIEW)->findOneByItemId($pageDocument->getId());
+
+                    if (null === $theliaLibraryImage && extension_loaded('imagick')) {
                         $fileImageName = $this->getFirstPicturePdf(Page::getImagesUploadDir(), $sourceFilePath, $file);
 
                         $filePageDocumentPreview = new File($fileImageName);
@@ -81,11 +83,13 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
                         );
                     }
 
-                    $sourceFilePathImage = TheliaLibrary::getImageDirectory() . $theliaLibraryImage->getLibraryImage()?->setLocale($locale)->getFileName();
-                    $imageEvent->setSourceFilepath($sourceFilePathImage);
-                    $imageEvent->setCacheSubdirectory(Page::PAGE_DOCUMENT_PREVIEW);
+                    if (null !== $theliaLibraryImage) {
+                        $sourceFilePathImage = TheliaLibrary::getImageDirectory() . $theliaLibraryImage->getLibraryImage()?->setLocale($locale)->getFileName();
+                        $imageEvent->setSourceFilepath($sourceFilePathImage);
+                        $imageEvent->setCacheSubdirectory(Page::PAGE_DOCUMENT_PREVIEW);
 
-                    $this->dispatcher->dispatch($imageEvent, TheliaEvents::IMAGE_PROCESS);
+                        $this->dispatcher->dispatch($imageEvent, TheliaEvents::IMAGE_PROCESS);
+                    }
                 } catch (ImagickException | ImageException $e) {
                     Tlog::getInstance()->error($e->getMessage());
                 }
