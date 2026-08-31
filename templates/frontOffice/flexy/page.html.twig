@@ -12,14 +12,21 @@
 {% block og_type %}article{% endblock %}
 
 {% block body %}
-    {{ include('@components/Layout/Subheader/ContentPage/SubheaderContentPage.html.twig', {title: pageData.title, description: pageData.chapo|raw}) }}
+    <twig:Layouts:Subheader:Base
+        title="{{ pageData.title }}"
+        container="single-3"
+        :breadcrumb="[{title: pageData.title}]"
+    />
 
-    <div class="px-[25px] lg:pr-[225px] lg:pl-[250px] xl:pr-[325px] xl:pl-[350px] flex gap-[173px] mt-[25px] lg:mt-[54px] mb-[80px] lg:mb-[120px]">
-        <article class="wysiwyg">
-            {{ pageData.description|raw }}
+    <div class="container-single-3 mt-6 mb-20 lg:mt-14 lg:mb-30">
+        <article class="wysiwyg wysiwyg-theme flex flex-col gap-10 min-w-0">
+            {% if pageData.chapo %}
+                <p class="paragraph-1">{{ pageData.chapo }}</p>
+            {% endif %}
+
+            <div>{{ pageData.description|raw }}</div>
 
             {{ pageHTML|raw }}
         </article>
     </div>
-
 {% endblock %}
