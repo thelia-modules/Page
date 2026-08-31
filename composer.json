@@ -5,9 +5,11 @@
   "type": "thelia-module",
   "require": {
     "thelia/installer": "^1.6",
-    "ext-imagick": "*",
     "thelia/thelia-blocks-module": "^3.0",
     "thelia/thelia-library-module": "^2.0"
+  },
+  "suggest": {
+    "ext-imagick": "Generates a preview image from the first page of PDF documents attached to a page. Without it, PDF documents are listed without a preview thumbnail."
   },
   "extra": {
     "installer-name": "Page"
