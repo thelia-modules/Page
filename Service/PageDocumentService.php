@@ -9,7 +9,7 @@ use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Thelia\Core\Translation\Translator;
-use Thelia\Files\Exception\ProcessFileException;
+use Thelia\Core\File\Exception\ProcessFileException;
 use TheliaLibrary\Model\LibraryItemImageQuery;
 use TheliaLibrary\Service\LibraryImageService;
 use TheliaLibrary\Service\LibraryItemImageService;
@@ -17,6 +17,18 @@ use function ini_get;
 
 class PageDocumentService
 {
+    /**
+     * Extensions a web server may decide to run rather than hand over.
+     *
+     * Refused whatever the module is configured with: the
+     * `extension_black_listed` configuration only adds to this list.
+     */
+    public const ALWAYS_REFUSED_EXTENSIONS = [
+        'php', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'phps', 'pht', 'phtml', 'phar',
+        'asp', 'aspx', 'cgi', 'pl', 'py', 'sh', 'bash', 'jsp', 'jspx',
+        'htaccess', 'htpasswd',
+    ];
+
     /**
      * @param UploadedFile $uploadedFile
      * @param array $extensionBlackListed
@@ -35,18 +47,26 @@ class PageDocumentService
             throw new ProcessFileException($sizeError, 403);
         }
 
-        if (empty($extensionBlackListed)) {
-            return;
-        }
+        $refused = array_unique(
+            array_merge(
+                self::ALWAYS_REFUSED_EXTENSIONS,
+                array_filter(array_map(static fn ($extension) => strtolower(trim((string) $extension)), $extensionBlackListed))
+            )
+        );
 
-        $regex = "#^(.+)\.(" . implode('|', $extensionBlackListed) . ')$#i';
+        // A name carries all of its dotted parts to the file system, and a
+        // server can be configured on any of them: "report.php.pdf" has to be
+        // read the same way as "report.php".
+        $parts = array_map('strtolower', array_slice(explode('.', $uploadedFile->getClientOriginalName()), 1));
 
-        if (preg_match($regex, $uploadedFile->getClientOriginalName())) {
+        $found = array_intersect($parts, $refused);
+
+        if ([] !== $found) {
             $message = Translator::getInstance()
                 ->trans(
                     'Files with the following extension are not allowed: %extension, please do an archive of the file if you want to upload it',
                     [
-                        '%extension' => $uploadedFile->getClientOriginalExtension(),
+                        '%extension' => reset($found),
                     ]
                 );
             throw new ProcessFileException($message, 403);
