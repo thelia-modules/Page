@@ -12,6 +12,7 @@ use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Thelia\Core\HttpFoundation\Session\Session;
+use Thelia\Core\File\Exception\ProcessFileException;
 use Thelia\Tools\Rest\ResponseRest;
 use Thelia\Tools\URL;
 use TheliaLibrary\Service\LibraryImageService;
@@ -86,16 +87,25 @@ class PageDocumentController extends BaseAdminController
             $locale = $session->getAdminEditionLang()->getLocale();
             $fileBeingUploaded = $request->files->get('file');
 
-            if (Page::getConfigValue('extensionBlackListed')) {
-                $extensionBlackListed = explode(',', Page::getConfigValue('extensionBlackListed'));
+            // The key written at activation is `extension_black_listed`; the
+            // camel-cased one was read here and never matched anything.
+            $configured = Page::getConfigValue('extension_black_listed')
+                ?: Page::getConfigValue('extensionBlackListed');
+
+            if ($configured) {
+                $extensionBlackListed = explode(',', $configured);
             }
 
             $pageDocumentService->checkFile($fileBeingUploaded, $extensionBlackListed);
             $fileUploaded = $pageDocumentService->uploadedPageDocument($fileBeingUploaded, $pageId);
 
             $pageService->savePageDocument($fileUploaded, $pageId, $locale);
+        } catch (ProcessFileException $e) {
+            return new ResponseRest(['status' => false, 'message' => $e->getMessage()], 'json', 415);
         } catch (Exception $e) {
-            return new ResponseRest($e->getMessage(), 'text', 404);
+            // ResponseRest serialises an array; handing it the message as a
+            // string turned every refusal into a 500.
+            return new ResponseRest(['status' => false, 'message' => $e->getMessage()], 'json', 400);
         }
 
         return new ResponseRest(['status' => true, 'message' => '']);
