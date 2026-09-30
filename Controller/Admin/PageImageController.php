@@ -66,18 +66,24 @@ class PageImageController extends BaseAdminController
      *
      * @param Request $request
      * @param Session $session
+     * @param TokenProvider $tokenProvider
      * @param LibraryItemImageService $libraryItemImageService,
      * @param $pageId
-     * @return ResponseRest
+     * @return Response
      */
     #[Route('/upload/{pageId}', name: '_upload', methods: ['POST'])]
     public function uploadImageAction(
         Request                 $request,
         Session                 $session,
+        TokenProvider           $tokenProvider,
         LibraryItemImageService $libraryItemImageService,
                                 $pageId
-    ): ResponseRest
+    ): Response
     {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
         try {
             $locale = $session->getAdminLang()->getLocale();
             $fileBeingUploaded = $request->files->get('file');

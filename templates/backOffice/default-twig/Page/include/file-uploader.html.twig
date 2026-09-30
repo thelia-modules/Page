@@ -5,6 +5,7 @@
       data-kind="{{ kind }}"
       enctype="multipart/form-data"
       data-testid="page-{{ kind }}-upload-form">
+    <input type="hidden" name="_token" value="{{ assignToken() }}">
     <input type="file" name="file" class="form-control" required>
     <button type="submit" class="btn btn-info flex-shrink-0">
         <i class="bi bi-upload" aria-hidden="true"></i> {{ 'Send files'|trans({}, 'page.bo.default') }}

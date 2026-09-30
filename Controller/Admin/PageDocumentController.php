@@ -73,19 +73,25 @@ class PageDocumentController extends BaseAdminController
      *
      * @param Request $request
      * @param Session $session
+     * @param TokenProvider $tokenProvider
      * @param PageDocumentService $pageDocumentService
      * @param PageService $pageService
      * @param $pageId
-     * @return ResponseRest
+     * @return Response
      */
     #[Route('/upload/{pageId}', name: '_upload', methods: ['POST'])]
     public function uploadDocumentAction(
         Request             $request,
         Session             $session,
+        TokenProvider       $tokenProvider,
         PageDocumentService $pageDocumentService,
         PageService         $pageService,
         $pageId
-    ): ResponseRest {
+    ): Response {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
         try {
             $extensionBlackListed = [];
 
@@ -158,14 +164,26 @@ class PageDocumentController extends BaseAdminController
     /**
      *
      * @param Request $request
+     * @param TokenProvider $tokenProvider
      * @param PageDocumentService $pageDocumentService
-     * @return void
+     * @param int $pageId
+     * @return Response
      */
-    #[Route('/update-position/{pageId}', name: '_update_position', methods: ['POST'])]
+    #[Route('/update-position/{pageId}', name: '_update_position', requirements: ['pageId' => '\d+'], methods: ['POST'])]
     public function updatePositionDocumentAction(
         Request             $request,
-        PageDocumentService $pageDocumentService
-    ) {
+        TokenProvider       $tokenProvider,
+        PageDocumentService $pageDocumentService,
+        int                 $pageId
+    ): Response {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
+        if (!PageDocumentQuery::create()->filterById((int) $request->request->get('document_id'))->filterByPageId($pageId)->exists()) {
+            return new ResponseRest(['status' => false, 'message' => 'Page document not found'], 'json', 404);
+        }
+
         try {
             $pageDocumentService->updatePositionPageDocument(
                 $request->request->get('document_id'),
