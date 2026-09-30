@@ -3,6 +3,7 @@
 namespace Page\Controller\Admin;
 
 use Exception;
+use Page\Service\LibraryImageDetacher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Controller\Admin\BaseAdminController;
@@ -15,6 +16,7 @@ use Thelia\Model\LangQuery;
 use Thelia\Tools\Rest\ResponseRest;
 use Thelia\Tools\TokenProvider;
 use Thelia\Tools\URL;
+use TheliaLibrary\Model\LibraryItemImageQuery;
 use TheliaLibrary\Service\LibraryImageService;
 use TheliaLibrary\Service\LibraryItemImageService;
 
@@ -112,29 +114,40 @@ class PageImageController extends BaseAdminController
 
     /**
      *
-     * @param LibraryItemImageService $libraryItemImageService
-     * @param LibraryImageService $libraryImageService
-     * @param $pageImageId
-     * @param $pageId
+     * @param Request $request
+     * @param TokenProvider $tokenProvider
+     * @param LibraryImageDetacher $libraryImageDetacher
+     * @param int $pageImageId
+     * @param int $pageId
      * @return RedirectResponse|Response
      */
-    #[Route('/delete/{pageImageId}/{pageId}', name: '_delete', methods: ['POST'])]
+    #[Route('/delete/{pageImageId}/{pageId}', name: '_delete', requirements: ['pageImageId' => '\d+', 'pageId' => '\d+'], methods: ['POST'])]
     public function deleteImageAction(
-        Request                 $request,
-        TokenProvider           $tokenProvider,
-        LibraryItemImageService $libraryItemImageService,
-        LibraryImageService     $libraryImageService,
-                                $pageImageId,
-                                $pageId
+        Request              $request,
+        TokenProvider        $tokenProvider,
+        LibraryImageDetacher $libraryImageDetacher,
+        int                  $pageImageId,
+        int                  $pageId
     ): RedirectResponse|Response
     {
         if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::DELETE)) {
             return $refusal;
         }
 
+        // The id is the one of the page association, never of the library image:
+        // the library is shared with the rest of the shop.
+        $itemImage = LibraryItemImageQuery::create()
+            ->filterById($pageImageId)
+            ->filterByItemType('page')
+            ->filterByItemId($pageId)
+            ->findOne();
+
+        if (null === $itemImage) {
+            return $this->pageNotFound();
+        }
+
         try {
-            $libraryItemImageService->deleteImageAssociation($pageImageId);
-            $libraryImageService->deleteImage($pageImageId);
+            $libraryImageDetacher->detach($itemImage);
         } catch (Exception $e) {
             Tlog::getInstance()->error($e->getMessage());
             //TODO: handle error message

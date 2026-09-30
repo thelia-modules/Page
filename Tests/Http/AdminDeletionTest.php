@@ -35,6 +35,7 @@ use Thelia\Test\FixtureFactory;
 use Thelia\Test\WebIntegrationTestCase;
 use Thelia\Tests\Support\BackOffice\AdminSessionInjector;
 use TheliaLibrary\Model\LibraryImage;
+use TheliaLibrary\Model\LibraryImageQuery;
 use TheliaLibrary\Model\LibraryItemImage;
 use TheliaLibrary\Model\LibraryItemImageQuery;
 
@@ -149,6 +150,92 @@ final class AdminDeletionTest extends WebIntegrationTestCase
 
         self::assertSame(302, $this->client->getResponse()->getStatusCode());
         self::assertFalse($stillThere());
+    }
+
+    #[Test]
+    public function anImageOfAnotherPageIsNotDeleted(): void
+    {
+        $this->logIn($this->fixtures->admin());
+        $token = $this->sessionToken();
+        $itemImage = $this->pageImage($this->page('Owner'));
+        $otherPage = $this->page('Other');
+
+        $this->client->request('POST', '/admin/page/image/delete/'.$itemImage->getId().'/'.$otherPage->getId(), ['_token' => $token]);
+
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
+        self::assertNotNull(LibraryItemImageQuery::create()->findPk($itemImage->getId()));
+        self::assertNotNull(LibraryImageQuery::create()->findPk($itemImage->getImageId()));
+    }
+
+    #[Test]
+    public function aLibraryImageNotAttachedToThePageIsNotDeleted(): void
+    {
+        $this->logIn($this->fixtures->admin());
+        $token = $this->sessionToken();
+        $page = $this->page('Without images');
+        $image = (new LibraryImage())->setLocale('en_US')->setTitle('Product picture');
+        $image->save();
+        $productImage = $this->associate($image, 'product', 1);
+
+        $this->client->request('POST', '/admin/page/image/delete/'.$image->getId().'/'.$page->getId(), ['_token' => $token]);
+
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
+        self::assertNotNull(LibraryImageQuery::create()->findPk($image->getId()));
+        self::assertNotNull(LibraryItemImageQuery::create()->findPk($productImage->getId()));
+    }
+
+    #[Test]
+    public function aLibraryImageStillUsedElsewhereKeepsItsFileAndOtherAssociations(): void
+    {
+        $this->logIn($this->fixtures->admin());
+        $token = $this->sessionToken();
+        $page = $this->page('Sharing an image');
+
+        // Same number for the association and the image: a handler that mixes the two
+        // ids up deletes the library image, and with it the product association.
+        $connection = Propel::getConnection('TheliaMain');
+        $connection->exec('INSERT INTO library_image (id, file_name) VALUES (900001, NULL)');
+        $connection->exec("INSERT INTO library_item_image (id, image_id, item_type, item_id, visible, position) VALUES (900001, 900001, 'page', ".$page->getId().', 1, 1)');
+        $itemImage = LibraryItemImageQuery::create()->findPk(900001);
+        $image = LibraryImageQuery::create()->findPk(900001);
+        self::assertNotNull($itemImage);
+        self::assertNotNull($image);
+        $productImage = $this->associate($image, 'product', 1);
+
+        $this->client->request('POST', '/admin/page/image/delete/'.$itemImage->getId().'/'.$page->getId(), ['_token' => $token]);
+
+        self::assertSame(302, $this->client->getResponse()->getStatusCode());
+        self::assertNull(LibraryItemImageQuery::create()->findPk($itemImage->getId()));
+        self::assertNotNull(LibraryImageQuery::create()->findPk($image->getId()));
+        self::assertNotNull(LibraryItemImageQuery::create()->findPk($productImage->getId()));
+    }
+
+    #[Test]
+    public function aLibraryImageUsedOnlyByThePageGoesWithIt(): void
+    {
+        $this->logIn($this->fixtures->admin());
+        $token = $this->sessionToken();
+        $page = $this->page('Own image');
+        $itemImage = $this->pageImage($page);
+
+        $this->client->request('POST', '/admin/page/image/delete/'.$itemImage->getId().'/'.$page->getId(), ['_token' => $token]);
+
+        self::assertSame(302, $this->client->getResponse()->getStatusCode());
+        self::assertNull(LibraryImageQuery::create()->findPk($itemImage->getImageId()));
+    }
+
+    #[Test]
+    public function aDocumentOfAnotherPageIsNotDeleted(): void
+    {
+        $this->logIn($this->fixtures->admin());
+        $token = $this->sessionToken();
+        [$url, $stillThere] = $this->documentTarget();
+        $otherPage = $this->page('Other');
+
+        $this->client->request('POST', preg_replace('#/\d+$#', '/'.$otherPage->getId(), $url), ['_token' => $token]);
+
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
+        self::assertTrue($stillThere());
     }
 
     #[Test]

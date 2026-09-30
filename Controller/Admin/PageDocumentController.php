@@ -3,6 +3,7 @@
 namespace Page\Controller\Admin;
 
 use Exception;
+use Page\Model\PageDocumentQuery;
 use Page\Page;
 use Page\Service\PageDocumentService;
 use Page\Service\PageService;
@@ -123,7 +124,7 @@ class PageDocumentController extends BaseAdminController
      * @param $pageId
      * @return RedirectResponse|Response
      */
-    #[Route('/delete/{pageDocumentId}/{pageId}', name: '_delete', methods: ['POST'])]
+    #[Route('/delete/{pageDocumentId}/{pageId}', name: '_delete', requirements: ['pageDocumentId' => '\d+', 'pageId' => '\d+'], methods: ['POST'])]
     public function deleteDocumentAction(
         Request                 $request,
         TokenProvider           $tokenProvider,
@@ -136,6 +137,10 @@ class PageDocumentController extends BaseAdminController
     ): RedirectResponse|Response {
         if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::DELETE)) {
             return $refusal;
+        }
+
+        if (!PageDocumentQuery::create()->filterById($pageDocumentId)->filterByPageId($pageId)->exists()) {
+            return $this->pageNotFound();
         }
 
         try {
