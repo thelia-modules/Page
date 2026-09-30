@@ -16,8 +16,11 @@ use Page\Form\PageTypeForm;
 use Page\Service\PageTypeProvider;
 use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Controller\Admin\BaseAdminController;
+use Thelia\Core\HttpFoundation\Request;
+use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Template\ParserContext;
 use Thelia\Form\Exception\FormValidationException;
+use Thelia\Tools\TokenProvider;
 
 /**
  * Class PageController.
@@ -29,6 +32,8 @@ use Thelia\Form\Exception\FormValidationException;
 #[Route('/admin/page-type', name: 'page_type')]
 class PageTypeController extends BaseAdminController
 {
+    use ChecksAdminWriteAccess;
+
     #[Route('', name: '_list', methods: ['GET'])]
     public function listPageTypeAction()
     {
@@ -48,6 +53,10 @@ class PageTypeController extends BaseAdminController
     #[Route('/create', name: '_create', methods: ['POST'])]
     public function createPageTypeAction(ParserContext $parserContext, PageTypeProvider $pageTypeProvider)
     {
+        if (null !== $refusal = $this->refuseUnlessGranted(AccessManager::CREATE)) {
+            return $refusal;
+        }
+
         $form = $this->createForm(PageTypeForm::class);
 
         try {
@@ -79,6 +88,10 @@ class PageTypeController extends BaseAdminController
     #[Route('/update/{pagesTypeId}', name: '_update', methods: ['POST'])]
     public function updatePagesTypeAction(ParserContext $parserContext, PageTypeProvider $pageTypeProvider, int $pagesTypeId)
     {
+        if (null !== $refusal = $this->refuseUnlessGranted(AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
         $form = $this->createForm(PageTypeForm::class);
 
         try {
@@ -108,9 +121,13 @@ class PageTypeController extends BaseAdminController
      *
      * @return string|null
      */
-    #[Route('/delete/{pagesTypeId}', name: '_delete', methods: ['GET'])]
-    public function deletePagesTypeAction(PageTypeProvider $pageTypeProvider, $pagesTypeId)
+    #[Route('/delete/{pagesTypeId}', name: '_delete', methods: ['POST'])]
+    public function deletePagesTypeAction(Request $request, TokenProvider $tokenProvider, PageTypeProvider $pageTypeProvider, $pagesTypeId)
     {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::DELETE)) {
+            return $refusal;
+        }
+
         try {
             $pageTypeProvider->deletePageType($pagesTypeId);
         } catch (\Exception $e) {

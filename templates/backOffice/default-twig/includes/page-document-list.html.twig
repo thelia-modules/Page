@@ -12,11 +12,15 @@
                     </div>
                     <div class="card-footer p-2 text-end">
                         <span class="badge text-bg-secondary">{{ document.position }}</span>
-                        <a class="btn btn-sm btn-outline-danger page-document-delete" id="document-{{ document.id }}" data-id="{{ document.id }}"
-                           href="{{ path('page_document_delete', { pageDocumentId: document.id, pageId: page_id }) }}"
-                           title="{{ 'Delete'|trans({}, 'page.bo.default') }}">
-                            <i class="bi bi-trash" aria-hidden="true"></i>
-                        </a>
+                        <form method="post" class="d-inline" action="{{ path('page_document_delete', { pageDocumentId: document.id, pageId: page_id }) }}">
+                            <input type="hidden" name="_token" value="{{ assignToken() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger page-document-delete" id="document-{{ document.id }}" data-id="{{ document.id }}"
+                                    title="{{ 'Delete'|trans({}, 'page.bo.default') }}"
+                                    aria-label="{{ 'Delete'|trans({}, 'page.bo.default') }}"
+                                    data-testid="page-document-delete-{{ document.id }}">
+                                <i class="bi bi-trash" aria-hidden="true"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </li>

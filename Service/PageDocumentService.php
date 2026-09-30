@@ -140,8 +140,7 @@ class PageDocumentService
         }
 
         if (null !== $theliaLibraryImage = LibraryItemImageQuery::create()->filterByItemType(Page::PAGE_DOCUMENT_PREVIEW)->findOneByItemId($pageDocument->getId())) {
-            $libraryItemImageService->deleteImageAssociation($theliaLibraryImage->getId());
-            $libraryImageService->deleteImage($theliaLibraryImage->getImageId());
+            (new LibraryImageDetacher($libraryItemImageService, $libraryImageService))->detach($theliaLibraryImage);
         }
 
         $pageDocument->delete();

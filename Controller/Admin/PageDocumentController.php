@@ -3,6 +3,7 @@
 namespace Page\Controller\Admin;
 
 use Exception;
+use Page\Model\PageDocumentQuery;
 use Page\Page;
 use Page\Service\PageDocumentService;
 use Page\Service\PageService;
@@ -13,7 +14,9 @@ use Thelia\Core\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Core\File\Exception\ProcessFileException;
+use Thelia\Core\Security\AccessManager;
 use Thelia\Tools\Rest\ResponseRest;
+use Thelia\Tools\TokenProvider;
 use Thelia\Tools\URL;
 use TheliaLibrary\Service\LibraryImageService;
 use TheliaLibrary\Service\LibraryItemImageService;
@@ -29,6 +32,8 @@ use TheliaLibrary\Service\LibraryItemImageService;
 #[Route('/admin/page/document', name: 'page_document')]
 class PageDocumentController extends BaseAdminController
 {
+    use ChecksAdminWriteAccess;
+
     #[Route('/list/{pageId}', name: '_list', methods: ['POST'])]
     public function getDocumentListAction(
         Session $session,
@@ -68,19 +73,25 @@ class PageDocumentController extends BaseAdminController
      *
      * @param Request $request
      * @param Session $session
+     * @param TokenProvider $tokenProvider
      * @param PageDocumentService $pageDocumentService
      * @param PageService $pageService
      * @param $pageId
-     * @return ResponseRest
+     * @return Response
      */
     #[Route('/upload/{pageId}', name: '_upload', methods: ['POST'])]
     public function uploadDocumentAction(
         Request             $request,
         Session             $session,
+        TokenProvider       $tokenProvider,
         PageDocumentService $pageDocumentService,
         PageService         $pageService,
         $pageId
-    ): ResponseRest {
+    ): Response {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
         try {
             $extensionBlackListed = [];
 
@@ -119,8 +130,10 @@ class PageDocumentController extends BaseAdminController
      * @param $pageId
      * @return RedirectResponse|Response
      */
-    #[Route('/delete/{pageDocumentId}/{pageId}', name: '_delete', methods: ['GET'])]
+    #[Route('/delete/{pageDocumentId}/{pageId}', name: '_delete', requirements: ['pageDocumentId' => '\d+', 'pageId' => '\d+'], methods: ['POST'])]
     public function deleteDocumentAction(
+        Request                 $request,
+        TokenProvider           $tokenProvider,
         Session                 $session,
         PageDocumentService     $pageDocumentService,
         LibraryItemImageService $libraryItemImageService,
@@ -128,6 +141,14 @@ class PageDocumentController extends BaseAdminController
         $pageDocumentId,
         $pageId
     ): RedirectResponse|Response {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::DELETE)) {
+            return $refusal;
+        }
+
+        if (!PageDocumentQuery::create()->filterById($pageDocumentId)->filterByPageId($pageId)->exists()) {
+            return $this->pageNotFound();
+        }
+
         try {
             $locale = $session->getAdminEditionLang()->getLocale();
 
@@ -143,14 +164,26 @@ class PageDocumentController extends BaseAdminController
     /**
      *
      * @param Request $request
+     * @param TokenProvider $tokenProvider
      * @param PageDocumentService $pageDocumentService
-     * @return void
+     * @param int $pageId
+     * @return Response
      */
-    #[Route('/update-position/{pageId}', name: '_update_position', methods: ['POST'])]
+    #[Route('/update-position/{pageId}', name: '_update_position', requirements: ['pageId' => '\d+'], methods: ['POST'])]
     public function updatePositionDocumentAction(
         Request             $request,
-        PageDocumentService $pageDocumentService
-    ) {
+        TokenProvider       $tokenProvider,
+        PageDocumentService $pageDocumentService,
+        int                 $pageId
+    ): Response {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
+        if (!PageDocumentQuery::create()->filterById((int) $request->request->get('document_id'))->filterByPageId($pageId)->exists()) {
+            return new ResponseRest(['status' => false, 'message' => 'Page document not found'], 'json', 404);
+        }
+
         try {
             $pageDocumentService->updatePositionPageDocument(
                 $request->request->get('document_id'),
@@ -159,7 +192,7 @@ class PageDocumentController extends BaseAdminController
 
             return new ResponseRest(['status' => true, 'message' => '']);
         } catch (Exception $e) {
-            return new ResponseRest($e->getMessage(), 'text', 404);
+            return new ResponseRest(['status' => false, 'message' => $e->getMessage()], 'json', 404);
         }
     }
 }

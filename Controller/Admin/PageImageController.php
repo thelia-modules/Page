@@ -3,16 +3,20 @@
 namespace Page\Controller\Admin;
 
 use Exception;
+use Page\Service\LibraryImageDetacher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Thelia\Core\HttpFoundation\Session\Session;
+use Thelia\Core\Security\AccessManager;
 use Thelia\Log\Tlog;
 use Thelia\Model\LangQuery;
 use Thelia\Tools\Rest\ResponseRest;
+use Thelia\Tools\TokenProvider;
 use Thelia\Tools\URL;
+use TheliaLibrary\Model\LibraryItemImageQuery;
 use TheliaLibrary\Service\LibraryImageService;
 use TheliaLibrary\Service\LibraryItemImageService;
 
@@ -27,6 +31,8 @@ use TheliaLibrary\Service\LibraryItemImageService;
 #[Route('/admin/page/image', name: 'page_image')]
 class PageImageController extends BaseAdminController
 {
+    use ChecksAdminWriteAccess;
+
     #[Route('/list/{pageId}', name: '_list', methods: ['POST'])]
     public function getImageListAction(LibraryImageService $libraryImageService, $pageId): Response|string
     {
@@ -60,18 +66,24 @@ class PageImageController extends BaseAdminController
      *
      * @param Request $request
      * @param Session $session
+     * @param TokenProvider $tokenProvider
      * @param LibraryItemImageService $libraryItemImageService,
      * @param $pageId
-     * @return ResponseRest
+     * @return Response
      */
     #[Route('/upload/{pageId}', name: '_upload', methods: ['POST'])]
     public function uploadImageAction(
         Request                 $request,
         Session                 $session,
+        TokenProvider           $tokenProvider,
         LibraryItemImageService $libraryItemImageService,
                                 $pageId
-    ): ResponseRest
+    ): Response
     {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
         try {
             $locale = $session->getAdminLang()->getLocale();
             $fileBeingUploaded = $request->files->get('file');
@@ -100,7 +112,7 @@ class PageImageController extends BaseAdminController
             }
 
         } catch (Exception $e) {
-            return new ResponseRest($e->getMessage(), 'text', 404);
+            return new ResponseRest(['status' => false, 'message' => $e->getMessage()], 'json', 400);
         }
 
         return new ResponseRest(['status' => true, 'message' => '']);
@@ -108,23 +120,40 @@ class PageImageController extends BaseAdminController
 
     /**
      *
-     * @param LibraryItemImageService $libraryItemImageService
-     * @param LibraryImageService $libraryImageService
-     * @param $pageImageId
-     * @param $pageId
+     * @param Request $request
+     * @param TokenProvider $tokenProvider
+     * @param LibraryImageDetacher $libraryImageDetacher
+     * @param int $pageImageId
+     * @param int $pageId
      * @return RedirectResponse|Response
      */
-    #[Route('/delete/{pageImageId}/{pageId}', name: '_delete', methods: ['GET'])]
+    #[Route('/delete/{pageImageId}/{pageId}', name: '_delete', requirements: ['pageImageId' => '\d+', 'pageId' => '\d+'], methods: ['POST'])]
     public function deleteImageAction(
-        LibraryItemImageService $libraryItemImageService,
-        LibraryImageService     $libraryImageService,
-                                $pageImageId,
-                                $pageId
+        Request              $request,
+        TokenProvider        $tokenProvider,
+        LibraryImageDetacher $libraryImageDetacher,
+        int                  $pageImageId,
+        int                  $pageId
     ): RedirectResponse|Response
     {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::DELETE)) {
+            return $refusal;
+        }
+
+        // The id is the one of the page association, never of the library image:
+        // the library is shared with the rest of the shop.
+        $itemImage = LibraryItemImageQuery::create()
+            ->filterById($pageImageId)
+            ->filterByItemType('page')
+            ->filterByItemId($pageId)
+            ->findOne();
+
+        if (null === $itemImage) {
+            return $this->pageNotFound();
+        }
+
         try {
-            $libraryItemImageService->deleteImageAssociation($pageImageId);
-            $libraryImageService->deleteImage($pageImageId);
+            $libraryImageDetacher->detach($itemImage);
         } catch (Exception $e) {
             Tlog::getInstance()->error($e->getMessage());
             //TODO: handle error message

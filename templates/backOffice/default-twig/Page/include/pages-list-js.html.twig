@@ -1,10 +1,15 @@
 {# Visible / homepage toggles for the pages list — POST to CSRF-protected routes #}
 <script type="module">
-    const visibleUrl = "{{ path('page_toggle_page_visibility_action') }}?_token={{ assignToken() }}";
-    const homeUrl = "{{ path('page_toggle_page_home_action') }}?_token={{ assignToken() }}";
+    const visibleUrl = "{{ path('page_toggle_page_visibility_action') }}";
+    const homeUrl = "{{ path('page_toggle_page_home_action') }}";
+    const token = "{{ assignToken()|e('js') }}";
 
-    const postAction = (url) => {
-        fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    const postAction = (url, fields) => {
+        const body = new FormData();
+        body.append('_token', token);
+        Object.entries(fields).forEach(([name, value]) => body.append(name, value));
+
+        fetch(url, { method: 'POST', body, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then((r) => { if (!r.ok) { window.location.reload(); } })
             .catch(() => { window.location.reload(); });
     };
@@ -25,14 +30,14 @@
             const id = el.dataset.pageId;
             const visible = el.dataset.state === 'on' ? 0 : 1;
             swapIcon(el, visible === 1, 'bi-check-circle-fill text-success', 'bi-circle text-secondary');
-            postAction(`${visibleUrl}&page_id=${id}&visible=${visible}`);
+            postAction(visibleUrl, { page_id: id, visible });
         });
     });
 
     document.querySelectorAll('.page-toggle-home').forEach((el) => {
         el.addEventListener('click', () => {
             // Only one page can be the homepage, so let the server state win on reload.
-            postAction(`${homeUrl}&page_id=${el.dataset.pageId}`);
+            postAction(homeUrl, { page_id: el.dataset.pageId });
             window.setTimeout(() => window.location.reload(), 300);
         });
     });
