@@ -274,7 +274,7 @@ class PageController extends BaseAdminController
                 $pageId,
                 $formData['title'],
                 $formData['code'],
-                explode(',', $formData['tag']),
+                explode(',', (string) $formData['tag']),
                 $formData['type'] ?: null,
                 $formData['description'],
                 $formData['chapo'],
