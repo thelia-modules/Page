@@ -17,6 +17,7 @@ use Page\Form\PageForm;
 use Page\Model\PageQuery;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
+use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Template\ParserContext;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Model\LangQuery;
@@ -33,6 +34,8 @@ use Thelia\Tools\URL;
 #[Route('/admin/page', name: 'page')]
 class PageController extends BaseAdminController
 {
+    use ChecksAdminWriteAccess;
+
     #[Route('', name: '_list', methods: ['GET'])]
     public function listPageAction(Session $session): Response
     {
@@ -335,19 +338,21 @@ class PageController extends BaseAdminController
         Request       $request,
         PageService   $pageService,
         TokenProvider $tokenProvider
-    ): RedirectResponse
+    ): Response
     {
-        $tokenProvider->checkToken((string) $request->query->get('_token'));
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::UPDATE)) {
+            return $refusal;
+        }
 
         try {
-            $mode = $request->query->get('mode');
-            $pageId = $request->query->get('page_id');
+            $mode = $request->request->get('mode');
+            $pageId = $request->request->get('page_id');
 
             if (!$mode || !$pageId) {
                 throw new Exception('Page or positon not set');
             }
 
-            $position = $request->query->get('position');
+            $position = $request->request->get('position');
 
             $pageService->changePosition($mode, $pageId, $position);
 
@@ -369,13 +374,15 @@ class PageController extends BaseAdminController
     public function togglePageVisibility(
         Request       $request,
         TokenProvider $tokenProvider
-    ): RedirectResponse
+    ): Response
     {
-        $tokenProvider->checkToken((string) $request->query->get('_token'));
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::UPDATE)) {
+            return $refusal;
+        }
 
         try {
-            $pageId = $request->query->get('page_id');
-            $visible = $request->query->get('visible');
+            $pageId = $request->request->get('page_id');
+            $visible = $request->request->get('visible');
 
             if (!$pageId) {
                 throw new Exception("Page not found");
@@ -409,12 +416,14 @@ class PageController extends BaseAdminController
     public function toggleHome(
         Request       $request,
         TokenProvider $tokenProvider
-    ): RedirectResponse
+    ): Response
     {
-        $tokenProvider->checkToken((string) $request->query->get('_token'));
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::UPDATE)) {
+            return $refusal;
+        }
 
         try {
-            $pageId = $request->query->get('page_id');
+            $pageId = $request->request->get('page_id');
 
             if (!$pageId) {
                 throw new Exception("Page not found");
@@ -458,7 +467,9 @@ class PageController extends BaseAdminController
     #[Route('/delete/{pageId}', name: '_delete_page_action', methods: ['POST'])]
     public function deletePageAction(Request $request, TokenProvider $tokenProvider, $pageId): RedirectResponse|Response
     {
-        $tokenProvider->checkToken((string) $request->query->get('_token'));
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::DELETE)) {
+            return $refusal;
+        }
 
         try {
             $page = PageQuery::create()
