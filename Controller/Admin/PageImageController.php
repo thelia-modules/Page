@@ -9,9 +9,11 @@ use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Thelia\Core\HttpFoundation\Session\Session;
+use Thelia\Core\Security\AccessManager;
 use Thelia\Log\Tlog;
 use Thelia\Model\LangQuery;
 use Thelia\Tools\Rest\ResponseRest;
+use Thelia\Tools\TokenProvider;
 use Thelia\Tools\URL;
 use TheliaLibrary\Service\LibraryImageService;
 use TheliaLibrary\Service\LibraryItemImageService;
@@ -27,6 +29,8 @@ use TheliaLibrary\Service\LibraryItemImageService;
 #[Route('/admin/page/image', name: 'page_image')]
 class PageImageController extends BaseAdminController
 {
+    use ChecksAdminWriteAccess;
+
     #[Route('/list/{pageId}', name: '_list', methods: ['POST'])]
     public function getImageListAction(LibraryImageService $libraryImageService, $pageId): Response|string
     {
@@ -114,14 +118,20 @@ class PageImageController extends BaseAdminController
      * @param $pageId
      * @return RedirectResponse|Response
      */
-    #[Route('/delete/{pageImageId}/{pageId}', name: '_delete', methods: ['GET'])]
+    #[Route('/delete/{pageImageId}/{pageId}', name: '_delete', methods: ['POST'])]
     public function deleteImageAction(
+        Request                 $request,
+        TokenProvider           $tokenProvider,
         LibraryItemImageService $libraryItemImageService,
         LibraryImageService     $libraryImageService,
                                 $pageImageId,
                                 $pageId
     ): RedirectResponse|Response
     {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::DELETE)) {
+            return $refusal;
+        }
+
         try {
             $libraryItemImageService->deleteImageAssociation($pageImageId);
             $libraryImageService->deleteImage($pageImageId);

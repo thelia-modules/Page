@@ -13,7 +13,9 @@ use Thelia\Core\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Core\File\Exception\ProcessFileException;
+use Thelia\Core\Security\AccessManager;
 use Thelia\Tools\Rest\ResponseRest;
+use Thelia\Tools\TokenProvider;
 use Thelia\Tools\URL;
 use TheliaLibrary\Service\LibraryImageService;
 use TheliaLibrary\Service\LibraryItemImageService;
@@ -29,6 +31,8 @@ use TheliaLibrary\Service\LibraryItemImageService;
 #[Route('/admin/page/document', name: 'page_document')]
 class PageDocumentController extends BaseAdminController
 {
+    use ChecksAdminWriteAccess;
+
     #[Route('/list/{pageId}', name: '_list', methods: ['POST'])]
     public function getDocumentListAction(
         Session $session,
@@ -119,8 +123,10 @@ class PageDocumentController extends BaseAdminController
      * @param $pageId
      * @return RedirectResponse|Response
      */
-    #[Route('/delete/{pageDocumentId}/{pageId}', name: '_delete', methods: ['GET'])]
+    #[Route('/delete/{pageDocumentId}/{pageId}', name: '_delete', methods: ['POST'])]
     public function deleteDocumentAction(
+        Request                 $request,
+        TokenProvider           $tokenProvider,
         Session                 $session,
         PageDocumentService     $pageDocumentService,
         LibraryItemImageService $libraryItemImageService,
@@ -128,6 +134,10 @@ class PageDocumentController extends BaseAdminController
         $pageDocumentId,
         $pageId
     ): RedirectResponse|Response {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::DELETE)) {
+            return $refusal;
+        }
+
         try {
             $locale = $session->getAdminEditionLang()->getLocale();
 

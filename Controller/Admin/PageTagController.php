@@ -11,12 +11,16 @@ use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Template\ParserContext;
 use Thelia\Form\Exception\FormValidationException;
+use Thelia\Tools\TokenProvider;
 
 #[Route('/admin/page-tag', name:'page_tag')]
 class PageTagController extends BaseAdminController
 {
+    use ChecksAdminWriteAccess;
+
     #[Route('', name:'_list', methods: 'GET')]
     public function listPageTagAction(): Response|RedirectResponse
     {
@@ -108,9 +112,13 @@ class PageTagController extends BaseAdminController
         return $this->generateErrorRedirect($form);
     }
 
-    #[Route('/delete/{tagId}', name:'_delete_page')]
-    public function deletePageTagAction($tagId): Response|RedirectResponse
+    #[Route('/delete/{tagId}', name:'_delete_page', methods: 'POST')]
+    public function deletePageTagAction(Request $request, TokenProvider $tokenProvider, $tagId): Response|RedirectResponse
     {
+        if (null !== $refusal = $this->refuseUnlessAllowed($request, $tokenProvider, AccessManager::DELETE)) {
+            return $refusal;
+        }
+
         try {
             $tag = PageTagQuery::create()->findOneById($tagId);
 

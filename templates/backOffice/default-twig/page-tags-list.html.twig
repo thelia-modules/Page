@@ -45,9 +45,12 @@
                                     <a href="{{ path('page_tag_edit_page', { tagId: tag.id }) }}" class="btn btn-sm btn-outline-secondary" title="{{ 'Edit this tag'|trans({}, 'page.bo.default') }}">
                                         <i class="bi bi-pencil" aria-hidden="true"></i>
                                     </a>
-                                    <a href="{{ path('page_tag_delete_page', { tagId: tag.id }) }}" class="btn btn-sm btn-outline-danger" title="{{ 'Delete this tag'|trans({}, 'page.bo.default') }}" data-testid="page-tag-delete-{{ tag.id }}">
-                                        <i class="bi bi-trash" aria-hidden="true"></i>
-                                    </a>
+                                    <form method="post" class="d-inline" action="{{ path('page_tag_delete_page', { tagId: tag.id }) }}">
+                                        <input type="hidden" name="_token" value="{{ assignToken() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ 'Delete this tag'|trans({}, 'page.bo.default') }}" aria-label="{{ 'Delete this tag'|trans({}, 'page.bo.default') }}" data-testid="page-tag-delete-{{ tag.id }}">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         {% else %}
