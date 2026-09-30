@@ -53,6 +53,10 @@ class PageTypeController extends BaseAdminController
     #[Route('/create', name: '_create', methods: ['POST'])]
     public function createPageTypeAction(ParserContext $parserContext, PageTypeProvider $pageTypeProvider)
     {
+        if (null !== $refusal = $this->refuseUnlessGranted(AccessManager::CREATE)) {
+            return $refusal;
+        }
+
         $form = $this->createForm(PageTypeForm::class);
 
         try {
@@ -84,6 +88,10 @@ class PageTypeController extends BaseAdminController
     #[Route('/update/{pagesTypeId}', name: '_update', methods: ['POST'])]
     public function updatePagesTypeAction(ParserContext $parserContext, PageTypeProvider $pageTypeProvider, int $pagesTypeId)
     {
+        if (null !== $refusal = $this->refuseUnlessGranted(AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
         $form = $this->createForm(PageTypeForm::class);
 
         try {

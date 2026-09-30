@@ -130,6 +130,10 @@ class PageController extends BaseAdminController
     #[Route('/create', name: '_create_page_action', methods: ['POST'])]
     public function createPageAction(Session $session, PageProvider $pageProvider, ParserContext $parserContext): RedirectResponse|Response|null
     {
+        if (null !== $refusal = $this->refuseUnlessGranted(AccessManager::CREATE)) {
+            return $refusal;
+        }
+
         $form = $this->createForm(PageForm::class);
         $locale = $session->getAdminEditionLang()->getLocale();
 
@@ -248,8 +252,12 @@ class PageController extends BaseAdminController
     /**
      */
     #[Route('/update/{pageId}', name: '_update_page_action', methods: ['POST'])]
-    public function updatePageAction(Request $request, Session $session, PageProvider $pageProvider, ParserContext $parserContext, int $pageId): ?RedirectResponse
+    public function updatePageAction(Request $request, Session $session, PageProvider $pageProvider, ParserContext $parserContext, int $pageId): ?Response
     {
+        if (null !== $refusal = $this->refuseUnlessGranted(AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
         $form = $this->createForm(EditPageForm::class);
 
         $locale = $session->getAdminEditionLang()->getLocale();
@@ -292,8 +300,12 @@ class PageController extends BaseAdminController
     /**
      */
     #[Route('/update/{pageId}/seo', name: '_update_seo_page_action', methods: ['POST'])]
-    public function updateSeoPageAction(Request $request, Session $session, PageProvider $pageProvider, ParserContext $parserContext, int $pageId): ?RedirectResponse
+    public function updateSeoPageAction(Request $request, Session $session, PageProvider $pageProvider, ParserContext $parserContext, int $pageId): ?Response
     {
+        if (null !== $refusal = $this->refuseUnlessGranted(AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
         $form = $this->createForm(EditPageSeoForm::class);
 
         $locale = $session->getAdminEditionLang()->getLocale();

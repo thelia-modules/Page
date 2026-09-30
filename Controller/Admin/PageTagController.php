@@ -45,6 +45,10 @@ class PageTagController extends BaseAdminController
     #[Route('/create', name:'_create_tag_action', methods: 'POST')]
     public function createPageTagAction(ParserContext $parserContext): Response|RedirectResponse
     {
+        if (null !== $refusal = $this->refuseUnlessGranted(AccessManager::CREATE)) {
+            return $refusal;
+        }
+
         $form = $this->createForm(PageTagForm::class);
 
         try {
@@ -87,6 +91,10 @@ class PageTagController extends BaseAdminController
     #[Route('/update/{tagId}', name:'_update_page', methods: 'POST')]
     public function updatePageTagViewAction(ParserContext $parserContext, $tagId): Response|RedirectResponse
     {
+        if (null !== $refusal = $this->refuseUnlessGranted(AccessManager::UPDATE)) {
+            return $refusal;
+        }
+
         $form = $this->createForm(PageTagForm::class);
 
         try {
