@@ -128,6 +128,24 @@ final class MediaUploadAndPositionTest extends WebIntegrationTestCase
     }
 
     #[Test]
+    public function aRefusedImageUploadAnswersAJsonError(): void
+    {
+        $this->logIn($this->fixtures->admin());
+        $token = $this->sessionToken();
+        $page = $this->page('Upload target');
+        $path = tempnam(sys_get_temp_dir(), 'page-upload');
+        self::assertIsString($path);
+        file_put_contents($path, 'not an image');
+        $this->createdFiles[] = $path;
+
+        $this->client->request('POST', '/admin/page/image/upload/'.$page->getId(), ['_token' => $token], ['file' => new UploadedFile($path, 'notes.txt', 'text/plain', null, true)]);
+
+        self::assertSame(400, $this->client->getResponse()->getStatusCode());
+        self::assertFalse(json_decode((string) $this->client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['status']);
+        self::assertSame(0, $this->mediaCount('image', $page));
+    }
+
+    #[Test]
     public function reorderingDocumentsWithoutTheTokenChangesNothing(): void
     {
         $this->logIn($this->fixtures->admin());

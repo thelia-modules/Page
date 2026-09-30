@@ -112,7 +112,7 @@ class PageImageController extends BaseAdminController
             }
 
         } catch (Exception $e) {
-            return new ResponseRest($e->getMessage(), 'text', 404);
+            return new ResponseRest(['status' => false, 'message' => $e->getMessage()], 'json', 400);
         }
 
         return new ResponseRest(['status' => true, 'message' => '']);

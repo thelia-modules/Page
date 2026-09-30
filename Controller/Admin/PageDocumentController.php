@@ -192,7 +192,7 @@ class PageDocumentController extends BaseAdminController
 
             return new ResponseRest(['status' => true, 'message' => '']);
         } catch (Exception $e) {
-            return new ResponseRest($e->getMessage(), 'text', 404);
+            return new ResponseRest(['status' => false, 'message' => $e->getMessage()], 'json', 404);
         }
     }
 }
