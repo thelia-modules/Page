@@ -108,7 +108,7 @@ class PageService
      * @param int|null $position
      * @return void
      */
-    public function changePosition(string $mode, int $pageId, int $position = null): void
+    public function changePosition(string $mode, int $pageId, ?int $position = null): void
     {
         if (null !== $page = PageQuery::create()->findPk($pageId)) {
             switch ($mode) {

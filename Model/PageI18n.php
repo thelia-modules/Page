@@ -19,7 +19,7 @@ class PageI18n extends BasePageI18n
     /**
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function postInsert(ConnectionInterface $con = null): void
+    public function postInsert(?ConnectionInterface $con = null): void
     {
         parent::postInsert($con);
 

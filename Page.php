@@ -34,7 +34,7 @@ class Page extends BaseModule
         ];
     }
 
-    public function postActivation(ConnectionInterface $con = null): void
+    public function postActivation(?ConnectionInterface $con = null): void
     {
         if (!$this->getConfigValue('extension_black_listed', null)) {
             $this->setConfigValue('extension_black_listed',
@@ -102,7 +102,7 @@ class Page extends BaseModule
      * @param $newVersion
      * @param ConnectionInterface|null $con
      */
-    public function update($currentVersion, $newVersion, ConnectionInterface $con = null): void
+    public function update($currentVersion, $newVersion, ?ConnectionInterface $con = null): void
     {
         $finder = Finder::create()
             ->name('*.sql')

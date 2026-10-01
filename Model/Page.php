@@ -58,59 +58,59 @@ class Page extends BasePage
         return $slug;
     }
 
-    public function postDelete(ConnectionInterface $con = null): void
+    public function postDelete(?ConnectionInterface $con = null): void
     {
         parent::postDelete($con);
 
         $this->markRewrittenUrlObsolete();
     }
 
-    public function getParent(ConnectionInterface $con = null)
+    public function getParent(?ConnectionInterface $con = null)
     {
         return $this->setSameLocale(parent::getParent($con));
     }
 
-    public function getPrevSibling(ConnectionInterface $con = null)
+    public function getPrevSibling(?ConnectionInterface $con = null)
     {
         return $this->setSameLocale(parent::getPrevSibling($con));
     }
 
-    public function getNextSibling(ConnectionInterface $con = null)
+    public function getNextSibling(?ConnectionInterface $con = null)
     {
         return $this->setSameLocale(parent::getNextSibling($con));
     }
 
-    public function getChildren(Criteria $criteria = null, ConnectionInterface $con = null)
+    public function getChildren(?Criteria $criteria = null, ?ConnectionInterface $con = null)
     {
         return $this->setSameLocaleCollectionOrArray(parent::getChildren($criteria, $con));
     }
 
-    public function getFirstChild(Criteria $criteria = null, ConnectionInterface $con = null)
+    public function getFirstChild(?Criteria $criteria = null, ?ConnectionInterface $con = null)
     {
         return $this->setSameLocale(parent::getFirstChild($con));
     }
 
-    public function getLastChild(Criteria $criteria = null, ConnectionInterface $con = null)
+    public function getLastChild(?Criteria $criteria = null, ?ConnectionInterface $con = null)
     {
         return $this->setSameLocale(parent::getLastChild($con));
     }
 
-    public function getSiblings($includeNode = false, Criteria $criteria = null, ConnectionInterface $con = null)
+    public function getSiblings($includeNode = false, ?Criteria $criteria = null, ?ConnectionInterface $con = null)
     {
         return $this->setSameLocaleCollectionOrArray(parent::getSiblings($criteria, $con));
     }
 
-    public function getDescendants(Criteria $criteria = null, ConnectionInterface $con = null)
+    public function getDescendants(?Criteria $criteria = null, ?ConnectionInterface $con = null)
     {
         return $this->setSameLocaleCollectionOrArray(parent::getDescendants($criteria, $con));
     }
 
-    public function getBranch(Criteria $criteria = null, ConnectionInterface $con = null)
+    public function getBranch(?Criteria $criteria = null, ?ConnectionInterface $con = null)
     {
         return $this->setSameLocaleCollectionOrArray(parent::getBranch($criteria, $con));
     }
 
-    public function getAncestors(Criteria $criteria = null, ConnectionInterface $con = null)
+    public function getAncestors(?Criteria $criteria = null, ?ConnectionInterface $con = null)
     {
         return $this->setSameLocaleCollectionOrArray(parent::getAncestors($criteria, $con));
     }

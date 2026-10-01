@@ -27,12 +27,12 @@ class PageProvider
      */
     public function createPage(
         string $title,
-        string $code = null,
-        int    $typeId = null,
-        int    $blockGroupId = null,
-        string $description = null,
+        ?string $code = null,
+        ?int    $typeId = null,
+        ?int    $blockGroupId = null,
+        ?string $description = null,
         string $locale = 'en_US',
-        int $parentId = null
+        ?int $parentId = null
     ): void {
 
         if (!$blockGroupId) {
@@ -98,12 +98,12 @@ class PageProvider
     public function updatePage(
         int    $pageId,
         string $title,
-        string $code = null,
-        array $tags = null,
+        ?string $code = null,
+        ?array $tags = null,
         ?int    $typeId = null,
-        string $description = null,
-        string $chapo = null,
-        string $postscriptum = null,
+        ?string $description = null,
+        ?string $chapo = null,
+        ?string $postscriptum = null,
         string $locale = 'en_US'
     ): void {
         $page = PageQuery::create()->findPk($pageId);
@@ -142,9 +142,9 @@ class PageProvider
         int    $pageId,
         string $title,
         string $url,
-        string $meta_title = null,
-        string $meta_description = null,
-        string $meta_keyword = null,
+        ?string $meta_title = null,
+        ?string $meta_description = null,
+        ?string $meta_keyword = null,
         string $locale = 'en_US'
     ): void {
         $page = PageQuery::create()->findPk($pageId);
@@ -176,9 +176,9 @@ class PageProvider
      */
     public function updateSeo(
         int    $pageId,
-        string $metaTitle = null,
-        string $metaDescription = null,
-        string $metaKeyWord = null,
+        ?string $metaTitle = null,
+        ?string $metaDescription = null,
+        ?string $metaKeyWord = null,
         string $locale = 'en_US'
     ): void {
         $page = PageQuery::create()->findPk($pageId);
