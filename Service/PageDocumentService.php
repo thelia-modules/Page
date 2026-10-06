@@ -24,7 +24,8 @@ class PageDocumentService
      * `extension_black_listed` configuration only adds to this list.
      */
     public const ALWAYS_REFUSED_EXTENSIONS = [
-        'php', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'phps', 'pht', 'phtml', 'phar',
+        'php', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'phps', 'pht', 'phtm', 'phtml', 'phpt', 'phar',
+        'shtml', 'shtm', 'stm',
         'asp', 'aspx', 'cgi', 'pl', 'py', 'sh', 'bash', 'jsp', 'jspx',
         'htaccess', 'htpasswd',
     ];
@@ -47,39 +48,24 @@ class PageDocumentService
             throw new ProcessFileException($sizeError, 403);
         }
 
-        $refused = array_unique(
-            array_merge(
-                self::ALWAYS_REFUSED_EXTENSIONS,
-                array_filter(array_map(static fn ($extension) => strtolower(trim((string) $extension)), $extensionBlackListed))
-            )
-        );
-
-        // A name carries all of its dotted parts to the file system, and a
-        // server can be configured on any of them: "report.php.pdf" has to be
-        // read the same way as "report.php".
-        $parts = array_map('strtolower', array_slice(explode('.', $uploadedFile->getClientOriginalName()), 1));
-
-        $found = array_intersect($parts, $refused);
-
-        if ([] !== $found) {
-            $message = Translator::getInstance()
-                ->trans(
-                    'Files with the following extension are not allowed: %extension, please do an archive of the file if you want to upload it',
-                    [
-                        '%extension' => reset($found),
-                    ]
-                );
-            throw new ProcessFileException($message, 403);
-        }
+        $this->refuseExtensionsOf($uploadedFile->getClientOriginalName(), $extensionBlackListed);
     }
 
     /**
      * @param UploadedFile $uploadedFile
      * @param int $pageId
+     * @param array $extensionBlackListed
      * @return UploadedFile
      */
-    public function uploadedPageDocument(UploadedFile $uploadedFile, int $pageId): UploadedFile
+    public function uploadedPageDocument(UploadedFile $uploadedFile, int $pageId, array $extensionBlackListed = []): UploadedFile
     {
+        $fileName = $this->storedFileName($uploadedFile, $pageId);
+
+        // The name written to the disk is not the name that was sent: "x.php ."
+        // is stored as "x.php.<page id>". It is the stored name a web server
+        // reads, so it is checked again.
+        $this->refuseExtensionsOf($fileName, $extensionBlackListed);
+
         $fileSystem = new Filesystem();
 
         $directory = Page::getDocumentsUploadDir();
@@ -88,6 +74,15 @@ class PageDocumentService
             $fileSystem->mkdir($directory);
         }
 
+        if (!file_exists($directory . DS . $fileName)) {
+            $fileSystem->rename($uploadedFile->getPathname(), $directory . DS . $fileName);
+        }
+
+        return new UploadedFile($directory . DS . $fileName, $fileName);
+    }
+
+    private function storedFileName(UploadedFile $uploadedFile, int $pageId): string
+    {
         $fileName = $uploadedFile->getClientOriginalName();
 
         if (!empty($extension = $uploadedFile->getClientOriginalExtension())) {
@@ -95,14 +90,36 @@ class PageDocumentService
             $fileName = str_replace($extension, '', $fileName);
         }
 
-        $fileName = strtolower(preg_replace('/[^a-zA-Z0-9-_\.]/', '', $fileName));
-        $fileName .= $pageId . $extension;
+        return strtolower(preg_replace('/[^a-zA-Z0-9-_\.]/', '', $fileName . $pageId . $extension));
+    }
 
-        if (!file_exists($directory . DS . $fileName)) {
-            $fileSystem->rename($uploadedFile->getPathname(), $directory . DS . $fileName);
+    /**
+     * A web server can be configured on any dotted part of a name:
+     * "report.php.pdf" or "report.php.5" are refused like "report.php".
+     */
+    private function refuseExtensionsOf(string $fileName, array $extensionBlackListed): void
+    {
+        $refused = array_unique(
+            array_merge(
+                self::ALWAYS_REFUSED_EXTENSIONS,
+                array_filter(array_map(static fn ($extension) => strtolower(trim((string) $extension)), $extensionBlackListed))
+            )
+        );
+
+        $parts = array_map(static fn (string $part): string => strtolower(trim($part)), array_slice(explode('.', $fileName), 1));
+
+        $found = array_values(array_intersect($parts, $refused));
+
+        if ([] !== $found) {
+            $message = Translator::getInstance()
+                ->trans(
+                    'Files with the following extension are not allowed: %extension, please do an archive of the file if you want to upload it',
+                    [
+                        '%extension' => $found[0],
+                    ]
+                );
+            throw new ProcessFileException($message, 403);
         }
-
-        return new UploadedFile($directory . DS . $fileName, $fileName);
     }
 
     /**

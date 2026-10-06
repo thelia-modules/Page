@@ -108,7 +108,7 @@ class PageDocumentController extends BaseAdminController
             }
 
             $pageDocumentService->checkFile($fileBeingUploaded, $extensionBlackListed);
-            $fileUploaded = $pageDocumentService->uploadedPageDocument($fileBeingUploaded, $pageId);
+            $fileUploaded = $pageDocumentService->uploadedPageDocument($fileBeingUploaded, $pageId, $extensionBlackListed);
 
             $pageService->savePageDocument($fileUploaded, $pageId, $locale);
         } catch (ProcessFileException $e) {
