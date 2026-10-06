@@ -31,12 +31,14 @@ use Thelia\Test\WebIntegrationTestCase;
 use Thelia\Tests\Support\BackOffice\AdminSessionInjector;
 
 /**
- * A page document is published as is under the shop domain: what a web
- * server would run is never stored, whatever name it is sent under.
+ * A page document is published as is under the shop domain: what a browser
+ * would open as a page, and what a web server would run, is never stored.
  */
 final class DocumentTypesTest extends WebIntegrationTestCase
 {
     private const CONTENT = 'stored as sent';
+
+    private const DRAWING = '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><script>alert(2)</script><rect width="10" height="10"/></svg>';
 
     private AdminSessionInjector $injector;
 
@@ -82,12 +84,38 @@ final class DocumentTypesTest extends WebIntegrationTestCase
     /**
      * @return iterable<string, array{string}>
      */
+    public static function browserActiveNameProvider(): iterable
+    {
+        foreach (['page.html', 'page.htm', 'page.xhtml', 'page.xht', 'script.js', 'module.mjs', 'feed.xml', 'style.xsl', 'style.xslt', 'drawing.svgz', 'PAGE.HTML'] as $name) {
+            yield $name => [$name];
+        }
+    }
+
+    #[Test]
+    #[DataProvider('browserActiveNameProvider')]
+    public function aDocumentABrowserWouldOpenAsAPageIsRefused(string $name): void
+    {
+        $page = $this->page('Documents');
+
+        $this->uploadDocument($page, $name, '<html><body><script>alert(1)</script></body></html>');
+
+        self::assertSame(415, $this->client->getResponse()->getStatusCode());
+        self::assertSame(0, PageDocumentQuery::create()->filterByPageId($page->getId())->count());
+        self::assertSame([], $this->storedFilesOf($page));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
     public static function nameStoredUnderARefusedExtensionProvider(): iterable
     {
         yield 'trailing dot after php' => ['report.php .'];
         yield 'trailing space after php' => ['report.php '];
         yield 'space inside php' => ['report.ph p'];
         yield 'hash inside php' => ['report.p#hp'];
+        yield 'space inside html' => ['page.ht ml'];
+        yield 'trailing dot after html' => ['page.html .'];
+        yield 'trailing dot after svg' => ['drawing.svg .'];
         yield 'shtml' => ['include.shtml'];
     }
 
@@ -114,6 +142,35 @@ final class DocumentTypesTest extends WebIntegrationTestCase
         $this->uploadDocument($page, 'archive.zip .', 'PK');
 
         self::assertSame(415, $this->client->getResponse()->getStatusCode());
+        self::assertSame([], $this->storedFilesOf($page));
+    }
+
+    #[Test]
+    public function anSvgDrawingIsStoredWithoutItsActiveContent(): void
+    {
+        $page = $this->page('Documents');
+
+        $this->uploadDocument($page, 'drawing.svg', self::DRAWING);
+
+        self::assertSame(200, $this->client->getResponse()->getStatusCode());
+        $stored = $this->storedFilesOf($page);
+        self::assertSame(['drawing'.$page->getId().'.svg'], array_map('basename', $stored));
+
+        $content = (string) file_get_contents($stored[0]);
+        self::assertStringContainsString('<rect', $content);
+        self::assertStringNotContainsString('<script', $content);
+        self::assertStringNotContainsString('onload', $content);
+    }
+
+    #[Test]
+    public function anSvgThatIsNotAWellFormedDrawingIsRefused(): void
+    {
+        $page = $this->page('Documents');
+
+        $this->uploadDocument($page, 'drawing.svg', '<html><script>alert(1)</script>');
+
+        self::assertSame(415, $this->client->getResponse()->getStatusCode());
+        self::assertSame(0, PageDocumentQuery::create()->filterByPageId($page->getId())->count());
         self::assertSame([], $this->storedFilesOf($page));
     }
 
