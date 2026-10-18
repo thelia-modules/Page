@@ -150,10 +150,10 @@ class PageDocumentLoop extends BaseI18nLoop implements PropelSearchLoopInterface
             foreach ($orders as $order) {
                 switch ($order) {
                     case 'alpha':
-                        $search->addAscendingOrderByColumn('title');
+                        $search->addAscendingOrderByColumn('i18n_TITLE');
                         break;
-                    case 'alpha_reverse':
-                        $search->addDescendingOrderByColumn('title');
+                    case 'alpha-reverse':
+                        $search->addDescendingOrderByColumn('i18n_TITLE');
                         break;
                     case 'id':
                         $search->orderById();
