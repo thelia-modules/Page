@@ -12,7 +12,7 @@
                 container.dataset.loaded = '1';
             })
             .catch(() => {
-                container.innerHTML = '<div class="alert alert-danger mb-0">{{ 'Unable to load the list, please refresh.'|trans({}, 'page.bo.default')|e('js') }}</div>';
+                container.innerHTML = '<div class="alert alert-danger mb-0">{{ 'Unable to load the list, please refresh.'|trans({}, 'page.bo.default-twig')|e('js') }}</div>';
             });
     };
 
