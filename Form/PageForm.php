@@ -25,7 +25,7 @@ class PageForm extends BaseForm
                 'title',
                 TextType::class,
                 [
-                    'label' => $this->translator->trans('Page title', [], 'page.bo.default'),
+                    'label' => $this->translator->trans('Page title', [], 'page.bo.default-twig'),
                     'constraints' => [
                         new NotBlank(),
                     ]
@@ -36,7 +36,7 @@ class PageForm extends BaseForm
                 TextType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Page code', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Page code', [], 'page.bo.default-twig')
                 ]
             )
             ->add(
@@ -48,7 +48,7 @@ class PageForm extends BaseForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Description', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Description', [], 'page.bo.default-twig')
                 ]
             )
             ->add(
@@ -57,8 +57,8 @@ class PageForm extends BaseForm
                 [
                     "choices" => $this->getPageTypes(),
                     'required' => false,
-                    'label' => $this->translator->trans('Page type', [], 'page.bo.default'),
-                    'placeholder' => $this->translator->trans('Choose a page type', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Page type', [], 'page.bo.default-twig'),
+                    'placeholder' => $this->translator->trans('Choose a page type', [], 'page.bo.default-twig')
                 ]
             )
             ->add(
@@ -67,8 +67,8 @@ class PageForm extends BaseForm
                 [
                     "choices" => $this->getTheliaBlocs(),
                     'required' => false,
-                    'label' => $this->translator->trans('Thelia block', [], 'page.bo.default'),
-                    'placeholder' => $this->translator->trans('Choose a block', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Thelia block', [], 'page.bo.default-twig'),
+                    'placeholder' => $this->translator->trans('Choose a block', [], 'page.bo.default-twig')
                 ]
             );
 

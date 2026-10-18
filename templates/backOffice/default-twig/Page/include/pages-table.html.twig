@@ -9,7 +9,7 @@
                 data-page-id="{{ page.id }}"
                 data-state="{{ page.visible ? 'on' : 'off' }}"
                 aria-pressed="{{ page.visible ? 'true' : 'false' }}"
-                aria-label="{{ 'Visible'|trans({}, 'page.bo.default') }}"
+                aria-label="{{ 'Visible'|trans({}, 'page.bo.default-twig') }}"
                 data-testid="page-visible-{{ page.id }}">
             <i class="bi {{ page.visible ? 'bi-check-circle-fill text-success' : 'bi-circle text-secondary' }}" aria-hidden="true"></i>
         </button>
@@ -20,7 +20,7 @@
                 data-page-id="{{ page.id }}"
                 data-state="{{ page.is_home ? 'on' : 'off' }}"
                 aria-pressed="{{ page.is_home ? 'true' : 'false' }}"
-                aria-label="{{ 'Homepage'|trans({}, 'page.bo.default') }}"
+                aria-label="{{ 'Homepage'|trans({}, 'page.bo.default-twig') }}"
                 data-testid="page-home-{{ page.id }}">
             <i class="bi {{ page.is_home ? 'bi-star-fill text-warning' : 'bi-star text-secondary' }}" aria-hidden="true"></i>
         </button>
@@ -29,21 +29,21 @@
         <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'Row actions'|trans }}">
             <a href="{{ edit_url }}"
                class="btn btn-sm btn-outline-primary bo-action bo-action--edit"
-               title="{{ 'Edit this page'|trans({}, 'page.bo.default') }}"
-               aria-label="{{ 'Edit this page'|trans({}, 'page.bo.default') }}"
+               title="{{ 'Edit this page'|trans({}, 'page.bo.default-twig') }}"
+               aria-label="{{ 'Edit this page'|trans({}, 'page.bo.default-twig') }}"
                data-testid="datatable-action-edit">
                 <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                <span class="visually-hidden">{{ 'Edit this page'|trans({}, 'page.bo.default') }}</span>
+                <span class="visually-hidden">{{ 'Edit this page'|trans({}, 'page.bo.default-twig') }}</span>
             </a>
             <form method="post" class="d-inline" action="{{ path('page_delete_page_action', { pageId: page.id }) }}">
                 <input type="hidden" name="_token" value="{{ assignToken() }}">
                 <button type="submit"
                         class="btn btn-sm btn-outline-danger bo-action bo-action--delete"
-                        title="{{ 'Delete this page'|trans({}, 'page.bo.default') }}"
-                        aria-label="{{ 'Delete this page'|trans({}, 'page.bo.default') }}"
+                        title="{{ 'Delete this page'|trans({}, 'page.bo.default-twig') }}"
+                        aria-label="{{ 'Delete this page'|trans({}, 'page.bo.default-twig') }}"
                         data-testid="page-delete-{{ page.id }}">
                     <i class="bi bi-trash" aria-hidden="true"></i>
-                    <span class="visually-hidden">{{ 'Delete this page'|trans({}, 'page.bo.default') }}</span>
+                    <span class="visually-hidden">{{ 'Delete this page'|trans({}, 'page.bo.default-twig') }}</span>
                 </button>
             </form>
         </div>
@@ -64,16 +64,16 @@
 {{ component('BoDataTable', {
     id: 'pages',
     columns: [
-        column_html('id',                'Id'|trans({}, 'page.bo.default')),
-        column_html('title',             'Title'|trans({}, 'page.bo.default')),
-        column_text('code',              'Code'|trans({}, 'page.bo.default')),
-        column_html('block_group_title', 'Thelia block'|trans({}, 'page.bo.default')),
-        column_html('url',               'Url'|trans({}, 'page.bo.default')),
-        column_text('tag',               'Tag'|trans({}, 'page.bo.default')),
-        column_html('visible',           'Visible'|trans({}, 'page.bo.default'),  'center'),
-        column_html('is_home',           'Homepage'|trans({}, 'page.bo.default'), 'center'),
-        column_html('_action',           'Actions'|trans({}, 'page.bo.default'),  'end'),
+        column_html('id',                'Id'|trans({}, 'page.bo.default-twig')),
+        column_html('title',             'Title'|trans({}, 'page.bo.default-twig')),
+        column_text('code',              'Code'|trans({}, 'page.bo.default-twig')),
+        column_html('block_group_title', 'Thelia block'|trans({}, 'page.bo.default-twig')),
+        column_html('url',               'Url'|trans({}, 'page.bo.default-twig')),
+        column_text('tag',               'Tag'|trans({}, 'page.bo.default-twig')),
+        column_html('visible',           'Visible'|trans({}, 'page.bo.default-twig'),  'center'),
+        column_html('is_home',           'Homepage'|trans({}, 'page.bo.default-twig'), 'center'),
+        column_html('_action',           'Actions'|trans({}, 'page.bo.default-twig'),  'end'),
     ],
     rows: table_rows,
-    emptyMessage: 'No page yet.'|trans({}, 'page.bo.default'),
+    emptyMessage: 'No page yet.'|trans({}, 'page.bo.default-twig'),
 }) }}

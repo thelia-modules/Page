@@ -19,7 +19,7 @@ class EditPageSeoForm extends BaseForm
                 'title',
                 TextType::class,
                 [
-                    'label' => $this->translator->trans('Page title', [], 'page.bo.default'),
+                    'label' => $this->translator->trans('Page title', [], 'page.bo.default-twig'),
                     'constraints' => [
                         new NotBlank(),
                     ]
@@ -29,7 +29,7 @@ class EditPageSeoForm extends BaseForm
                 'url',
                 TextType::class,
                 [
-                    'label' => $this->translator->trans('Rewriting URL', [], 'page.bo.default'),
+                    'label' => $this->translator->trans('Rewriting URL', [], 'page.bo.default-twig'),
                     'constraints' => [
                         new NotBlank(),
                     ]
@@ -40,7 +40,7 @@ class EditPageSeoForm extends BaseForm
                 TextType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Meta title', [], 'page.bo.default'),
+                    'label' => $this->translator->trans('Meta title', [], 'page.bo.default-twig'),
                 ]
             )
             ->add(
@@ -48,7 +48,7 @@ class EditPageSeoForm extends BaseForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Meta description', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Meta description', [], 'page.bo.default-twig')
                 ]
             )
             ->add(
@@ -56,7 +56,7 @@ class EditPageSeoForm extends BaseForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Meta keywords', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Meta keywords', [], 'page.bo.default-twig')
                 ]
             );
 

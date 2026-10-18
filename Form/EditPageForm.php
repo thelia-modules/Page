@@ -23,7 +23,7 @@ class EditPageForm extends PageForm
                 'title',
                 TextType::class,
                 [
-                    'label' => $this->translator->trans('Page title', [], 'page.bo.default'),
+                    'label' => $this->translator->trans('Page title', [], 'page.bo.default-twig'),
                     'constraints' => [
                         new NotBlank(),
                     ]
@@ -34,7 +34,7 @@ class EditPageForm extends PageForm
                 TextType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Page code', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Page code', [], 'page.bo.default-twig')
                 ]
             )
             ->add(
@@ -42,7 +42,7 @@ class EditPageForm extends PageForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Description', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Description', [], 'page.bo.default-twig')
                 ]
             )
             ->add(
@@ -50,7 +50,7 @@ class EditPageForm extends PageForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Summary', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Summary', [], 'page.bo.default-twig')
                 ]
             )
             ->add(
@@ -58,7 +58,7 @@ class EditPageForm extends PageForm
                 TextareaType::class,
                 [
                     'required' => false,
-                    'label' => $this->translator->trans('Conclusion', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Conclusion', [], 'page.bo.default-twig')
                 ]
             )
             ->add(
@@ -67,18 +67,18 @@ class EditPageForm extends PageForm
                 [
                     "choices" => $this->getPageTypes(),
                     'required' => false,
-                    'label' => $this->translator->trans('Page type', [], 'page.bo.default'),
-                    'placeholder' => $this->translator->trans('Choose a page type', [], 'page.bo.default')
+                    'label' => $this->translator->trans('Page type', [], 'page.bo.default-twig'),
+                    'placeholder' => $this->translator->trans('Choose a page type', [], 'page.bo.default-twig')
                 ]
             )->add(
                 'tag',
                 TextType::class,
                 [
 
-                    'label' => $this->translator->trans('Page tag', [], 'page.bo.default'),
+                    'label' => $this->translator->trans('Page tag', [], 'page.bo.default-twig'),
                     'required' => false,
                     'attr' => [
-                        'placeholder' => $this->translator->trans('This page tag', [], 'page.bo.default')
+                        'placeholder' => $this->translator->trans('This page tag', [], 'page.bo.default-twig')
                     ]
                 ]
             )
