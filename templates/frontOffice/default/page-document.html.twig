@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block body_class %}page{% endblock %}
+
+{% block body %}
+    {% set page_id = getPageData()?.id ?? app.request.get('page_id') %}
+    <div class="Page-document">
+        {% for document in loop('page_document_loop', 'page_document_loop', {page_id: page_id, order: 'alpha', visible: true}) %}
+            <div>
+                <a href="{{ document.PAGE_DOCUMENT_PATH }}" title="{{ document.PAGE_DOCUMENT_TITLE }}" class="pull-left" target="_blank">{{ document.PAGE_DOCUMENT_TITLE }}</a>
+            </div>
+        {% else %}
+            <div class="Page-wrapper">
+                <div class="mt-8 Page-content">
+                    {{ 'no page document visible'|trans({}, 'page') }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
