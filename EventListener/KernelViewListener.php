@@ -48,7 +48,6 @@ class KernelViewListener implements EventSubscriberInterface
     }
 
     /**
-     * @throws \SmartyException
      * @throws PropelException
      */
     public function onKernelView(ViewEvent $event): void
