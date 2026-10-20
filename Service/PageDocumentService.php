@@ -107,7 +107,7 @@ class PageDocumentService
 
         if (!empty($extension = $uploadedFile->getClientOriginalExtension())) {
             $extension = '.' . strtolower($extension);
-            $fileName = str_replace($extension, '', $fileName);
+            $fileName = pathinfo($fileName, PATHINFO_FILENAME);
         }
 
         return strtolower(preg_replace('/[^a-zA-Z0-9-_\.]/', '', $fileName . $pageId . $extension));
