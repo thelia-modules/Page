@@ -91,12 +91,11 @@ class PageDocumentService
             $fileSystem->mkdir($directory);
         }
 
-        if (!file_exists($directory . DS . $fileName)) {
-            if (self::SVG_EXTENSION === strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
-                $this->storeSvgDocument($uploadedFile, $directory . DS . $fileName);
-            } else {
-                $fileSystem->rename($uploadedFile->getPathname(), $directory . DS . $fileName);
-            }
+        // A document uploaded again under a stored name replaces the previous file.
+        if (self::SVG_EXTENSION === strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
+            $this->storeSvgDocument($uploadedFile, $directory . DS . $fileName);
+        } else {
+            $fileSystem->rename($uploadedFile->getPathname(), $directory . DS . $fileName, true);
         }
 
         return new UploadedFile($directory . DS . $fileName, $fileName);
@@ -108,7 +107,7 @@ class PageDocumentService
 
         if (!empty($extension = $uploadedFile->getClientOriginalExtension())) {
             $extension = '.' . strtolower($extension);
-            $fileName = str_replace($extension, '', $fileName);
+            $fileName = pathinfo($fileName, PATHINFO_FILENAME);
         }
 
         return strtolower(preg_replace('/[^a-zA-Z0-9-_\.]/', '', $fileName . $pageId . $extension));
