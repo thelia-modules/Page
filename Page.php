@@ -4,6 +4,7 @@ namespace Page;
 
 use Page\Model\PageQuery;
 use Propel\Runtime\Connection\ConnectionInterface;
+use Propel\Runtime\Propel;
 use SplFileInfo;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Finder\Finder;
@@ -52,12 +53,14 @@ class Page extends BaseModule
             );
         }
 
-        if (!$this->getConfigValue('is_initialized', false)) {
-            $database = new Database($con);
+        // The install script starts with DROP TABLE, so it only runs when the tables are missing.
+        // The database is asked rather than an "is_initialized" flag in the module configuration:
+        // a shop whose tables were created another way, or whose configuration was lost, would
+        // otherwise have every page wiped by a mere reactivation.
+        $con ??= Propel::getWriteConnection('TheliaMain');
 
-            $database->insertSql(null, [__DIR__ . '/Config/TheliaMain.sql']);
-
-            $this->setConfigValue('is_initialized', true);
+        if (!$this->hasTable($con, 'page')) {
+            (new Database($con))->insertSql(null, [__DIR__.'/Config/TheliaMain.sql']);
         }
     }
 
@@ -140,5 +143,13 @@ class Page extends BaseModule
 
             $database->insertSql(null, [__DIR__ . DS . 'Config' . DS . 'update'. DS .'nested_sets_2.sql']);
         }
+    }
+
+    private function hasTable(ConnectionInterface $con, string $table): bool
+    {
+        $statement = $con->prepare('SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table');
+        $statement->execute(['table' => $table]);
+
+        return (int) $statement->fetchColumn() > 0;
     }
 }
